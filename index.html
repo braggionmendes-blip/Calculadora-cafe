@@ -27,13 +27,13 @@
 :root[data-theme="dark"]{
   --bg:#141312; --surface:#1E1C1A; --fg:#F1ECE7; --muted:#A39A93; --line:#34302D;
   --accent:#E09A6B; --accent-fg:#1A1210; --chip:#2A2724; --soft:#2A221D; color-scheme:dark}
-body{background:var(--bg);color:var(--fg);font-family:var(--display);font-size:16px;line-height:1.45}
-.wrap{max-width:620px;margin:0 auto;padding-block:28px 44px;
+body{-webkit-text-size-adjust:100%;text-size-adjust:100%;background:var(--bg);color:var(--fg);font-family:var(--display);font-size:16px;line-height:1.45}
+.wrap{max-width:620px;margin:0 auto;grid-template-columns:minmax(0,1fr);padding-block:28px 44px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   display:grid;gap:20px}
 h1{font-size:1.7rem;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
 .sub{margin:6px 0 0;color:var(--muted);font-size:.95rem}
-.panel{display:grid;gap:18px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.panel{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
 .lbl{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;font-weight:600}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{flex:1 1 auto;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 .92rem var(--display);cursor:pointer}
@@ -83,7 +83,7 @@ h2{font-size:1.05rem;margin:4px 0 0}
     </div>
     <div>
       <span class="lbl" id="lMoe">Moedor</span>
-      <div id="moedores" role="group" aria-labelledby="lMoe" style="display:grid;gap:8px">
+      <div id="moedores" role="group" aria-labelledby="lMoe" style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px">
         <div class="seg"><span class="grp">Manuais</span>
           <button type="button" data-v="k7">KINGrinder K7</button>
           <button type="button" data-v="r3">Blade R3</button>
