@@ -1,0 +1,17 @@
+{
+  "name": "Calculadora de Extração",
+  "short_name": "Extração",
+  "description": "Café, água, moagem e passo a passo para 15 métodos em moedores manuais e elétricos.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EEF0EE",
+  "theme_color": "#7A3E1D",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
