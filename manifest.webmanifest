@@ -1,7 +1,7 @@
 {
   "name": "Calculadora de Extração",
   "short_name": "Extração",
-  "description": "Café, água, moagem e passo a passo para 15 métodos em moedores manuais e elétricos.",
+  "description": "Café, água, moagem e passo a passo para 16 métodos em moedores manuais e elétricos.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",
