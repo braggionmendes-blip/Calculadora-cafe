@@ -79,6 +79,13 @@ h2{font-size:1.05rem;margin:4px 0 0}
 .saverow{display:flex;gap:8px}
 .saverow input{flex:1;min-width:0;font:500 1rem var(--display);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .empty{color:var(--muted);font-size:.9rem;margin:0}
+details.bk{border-top:1px solid var(--line);padding-top:14px}
+details.bk summary{cursor:pointer;font-weight:600;color:var(--fg)}
+details.bk .bkb{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 8px}
+details.bk textarea{width:100%;min-height:96px;font:400 .78rem var(--mono);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}
+details.bk p{color:var(--muted);font-size:.85rem;margin:8px 0 0;max-width:65ch}
+.filebtn{position:relative;overflow:hidden}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .toast{color:var(--accent);font-size:.88rem;font-weight:600;min-height:1.2em;margin:0}
 @media (max-width:460px){.read{grid-template-columns:1fr 1fr}.read .grind{grid-column:1/-1}.steps li{grid-template-columns:64px 1fr}}
 </style>
@@ -169,6 +176,18 @@ h2{font-size:1.05rem;margin:4px 0 0}
       <p class="toast" id="toast" aria-live="polite"></p>
     </div>
     <div class="saved" id="saved"></div>
+    <details class="bk" id="bkBox">
+      <summary>Backup das receitas</summary>
+      <div class="bkb">
+        <button class="btn pri" id="bkCopiar" type="button">Copiar backup</button>
+        <button class="btn" id="bkShare" type="button" hidden>Compartilhar backup</button>
+        <button class="btn" id="bkImport" type="button">Importar do texto</button>
+        <span class="btn filebtn">Importar arquivo<input id="bkFile" type="file" accept=".json,.txt,application/json,text/plain" aria-label="Importar arquivo de backup"></span>
+      </div>
+      <label class="lbl" for="bkTxt" style="margin-top:4px">Texto do backup</label>
+      <textarea id="bkTxt" spellcheck="false" placeholder="Toque em Copiar backup, ou cole aqui um backup e toque em Importar do texto"></textarea>
+      <p>Para guardar: toque em Copiar backup e cole no app Notas, num e-mail ou no WhatsApp. Para recuperar em outro aparelho: cole o texto aqui e toque em Importar do texto. A importação soma as receitas às que já existem, sem apagar nada.</p>
+    </details>
   </section>
 </div>
 
@@ -327,6 +346,23 @@ $("salvar").onclick=()=>{const m=cur(),k=calc(m),nome=$("nome").value.trim()||`$
   const gv=st.gr[gKey(m)]??m.g[st.moe][2];
   REC.unshift({nome,met:m.id,moe:st.moe,base:baseOf(m),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
   saveRec();$("nome").value="";toast("Receita salva");render()};
+const bkData=()=>JSON.stringify({app:"calculadora-extracao",versao:1,data:new Date().toISOString().slice(0,10),receitas:REC,moagens:st.gr});
+$("bkCopiar").onclick=()=>{const t=bkData();$("bkTxt").value=t;
+  const sel=()=>{$("bkTxt").focus();$("bkTxt").select();toast("Selecionei o texto: toque em Copiar")};
+  try{navigator.clipboard.writeText(t).then(()=>toast(`Backup copiado (${REC.length} receitas)`),sel)}catch(e){sel()}};
+if(navigator.share&&navigator.canShare){$("bkShare").hidden=false;
+  $("bkShare").onclick=async()=>{const t=bkData();try{const fl=new File([t],"receitas-cafe.json",{type:"application/json"});
+    if(navigator.canShare({files:[fl]}))await navigator.share({files:[fl],title:"Receitas de café"});else await navigator.share({title:"Receitas de café",text:t})}
+    catch(e){if(e&&e.name!=="AbortError"){$("bkTxt").value=t;toast("Não foi possível compartilhar; use Copiar backup")}}}}
+const importar=txt=>{let d;try{d=JSON.parse(txt.trim())}catch(e){toast("Texto inválido: cole o backup completo, começando com {");return}
+  const lista=Array.isArray(d)?d:(d&&d.receitas);if(!Array.isArray(lista)){toast("Não encontrei receitas nesse backup");return}
+  const chave=x=>[x.nome,x.met,x.moe,x.gr,x.c,x.r].join("|");const tem=new Set(REC.map(chave));let n=0;
+  for(const x of lista){if(!x||!M.find(y=>y.id===x.met)||!(x.moe in GN)||!(Number(x.r)>0))continue;if(tem.has(chave(x)))continue;
+    REC.push({nome:String(x.nome||"Receita").slice(0,60),met:x.met,moe:x.moe,base:x.base==="cafe"?"cafe":"agua",c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
+  if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
+  saveRec();render();toast(n?`${n} receita${n>1?"s":""} importada${n>1?"s":""}`:"Nenhuma receita nova: todas já estavam salvas")};
+$("bkImport").onclick=()=>importar($("bkTxt").value);
+$("bkFile").addEventListener("change",e=>{const fl=e.target.files&&e.target.files[0];if(!fl)return;const rd=new FileReader();rd.onload=()=>{$("bkTxt").value=rd.result;importar(String(rd.result))};rd.readAsText(fl);e.target.value=""});
 $("saved").addEventListener("click",e=>{const o=e.target.closest("[data-open]"),d=e.target.closest("[data-del]");
   if(o){const x=REC[+o.dataset.open],m=M.find(y=>y.id===x.met);if(!m)return;st.met=x.met;st.moe=x.moe;st.r[x.met]=x.r;
     st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast("Receita aberta: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
