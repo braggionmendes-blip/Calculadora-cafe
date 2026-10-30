@@ -95,6 +95,13 @@ details.bk p{color:var(--muted);font-size:.85rem;margin:8px 0 0;max-width:65ch}
 .sc>span{font-size:.92rem}
 .sc .seg button{flex:1 1 0;min-width:0;padding:8px 0;font-family:var(--mono)}
 .scl{display:flex;justify-content:space-between;color:var(--muted);font-size:.75rem;margin:6px 0 0 82px}
+.nt{display:grid;grid-template-columns:64px minmax(0,1fr) 44px 30px;gap:10px;align-items:center}
+.nt>span{font-size:.92rem}
+.nt output{font:600 1.1rem var(--mono);text-align:right}
+.nt input[type=range]{margin:0}
+.nt input.unset{opacity:.35}
+.nt .x{background:none;border:0;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:4px}
+select.txt{appearance:auto}
 .cres{margin:0;color:var(--muted);font-size:.92rem}
 @media (max-width:380px){.cf2{grid-template-columns:minmax(0,1fr)}}
 .toast{color:var(--accent);font-size:.88rem;font-weight:600;min-height:1.2em;margin:0}
@@ -110,33 +117,45 @@ details.bk p{color:var(--muted);font-size:.85rem;margin:8px 0 0;max-width:65ch}
   </header>
 
   <section class="panel" aria-label="Café">
-    <div class="ratio-head" style="flex-wrap:wrap">
-      <span class="lbl" style="margin:0">Café</span>
-      <label class="unk" for="cDesc"><input type="checkbox" id="cDesc"> Dados do café desconhecidos</label>
+    <div>
+      <label class="lbl" for="cSel">Café</label>
+      <select class="txt" id="cSel"></select>
+      <p class="cres" id="cResumo" style="margin-top:8px"></p>
+      <div class="bkb" style="display:flex;gap:8px;margin-top:8px" id="cActs">
+        <button class="btn" id="cEdit" type="button">Editar dados</button>
+        <button class="btn" id="cDel" type="button">Excluir café</button>
+      </div>
     </div>
     <div class="cf" id="cFields">
       <div class="cf2">
-        <div><label class="lbl" for="cNome">Nome</label><input class="txt" id="cNome" type="text" maxlength="60" placeholder="Ex.: Black Tucano Fruity"></div>
+        <div><label class="lbl" for="cNome">Nome</label><input class="txt" id="cNome" type="text" maxlength="60" placeholder="Ex.: Aurora"></div>
         <div><label class="lbl" for="cOrig">Origem</label><input class="txt" id="cOrig" type="text" maxlength="60" placeholder="Ex.: Sul de Minas"></div>
       </div>
       <div>
-        <label class="lbl" for="cTipo">Tipo (variedade)</label>
-        <input class="txt" id="cTipo" type="text" maxlength="60" list="tipos" placeholder="Ex.: Bourbon Amarelo, Catuaí, Geisha">
-        <datalist id="tipos"><option value="Bourbon Amarelo"></option><option value="Bourbon Vermelho"></option><option value="Catuaí Amarelo"></option><option value="Catuaí Vermelho"></option><option value="Mundo Novo"></option><option value="Arara"></option><option value="Catucaí"></option><option value="Acaiá"></option><option value="Topázio"></option><option value="Obatã"></option><option value="Icatu"></option><option value="Paraíso"></option><option value="Catiguá"></option><option value="Arabica Geisha"></option><option value="Typica"></option><option value="Caturra"></option><option value="Pacamara"></option><option value="Maragogipe"></option><option value="SL28"></option><option value="Laurina"></option><option value="Conilon / Robusta"></option><option value="Blend"></option></datalist>
+        <label class="lbl" for="cTipoSel">Tipo (variedade)</label>
+        <select class="txt" id="cTipoSel"><option value="">Tipo desconhecido</option><optgroup label="Arábica: cultivares brasileiras"><option>Acaiá</option><option>Arara</option><option>Bourbon Amarelo</option><option>Bourbon Vermelho</option><option>Bourbon Laranja</option><option>Bourbon Rosa</option><option>Catiguá</option><option>Catuaí Amarelo</option><option>Catuaí Vermelho</option><option>Catucaí</option><option>Icatu</option><option>Mundo Novo</option><option>Obatã</option><option>Paraíso</option><option>Siriema</option><option>Topázio</option><option>Tupi</option></optgroup><optgroup label="Arábica: clássicas e internacionais"><option>Bourbon</option><option>Bourbon Pointu (Laurina)</option><option>Castillo</option><option>Catimor</option><option>Caturra</option><option>Geisha (Gesha)</option><option>Heirloom etíope</option><option>Jamaica Blue Mountain</option><option>Java</option><option>Kona</option><option>Maracaturra</option><option>Maragogipe</option><option>Marsellesa</option><option>Pacamara</option><option>Pacas</option><option>Parainema</option><option>Ruiru 11</option><option>Sarchimor</option><option>Sidra</option><option>SL28</option><option>SL34</option><option>Batian</option><option>Typica</option><option>Villa Sarchi</option><option>Wush Wush</option></optgroup><optgroup label="Canéfora"><option>Conilon</option><option>Robusta</option><option>Robusta Amazônico</option></optgroup><optgroup label="Misturas"><option>Blend (várias variedades)</option><option>Arábica (variedade não informada)</option></optgroup><option value="__outro">Outro (digitar)</option></select>
+        <input class="txt" id="cTipo" type="text" maxlength="60" placeholder="Digite o tipo" style="margin-top:8px" hidden>
+      </div>
+      <div class="cf2">
+        <div><label class="lbl" for="cData">Data da torra</label><input class="txt" id="cData" type="date"></div>
+        <div style="align-self:end"><p class="cres" id="cDias">Deixe em branco se não souber</p></div>
       </div>
       <div>
         <span class="lbl" id="lTorra">Torra</span>
         <div class="seg" id="cTorra" role="group" aria-labelledby="lTorra">
-          <button type="button" data-v="Clara">Clara</button><button type="button" data-v="Média-clara">Média-clara</button><button type="button" data-v="Média">Média</button><button type="button" data-v="Média-escura">Média-escura</button><button type="button" data-v="Escura">Escura</button>
+          <button type="button" data-v="Clara">Clara</button><button type="button" data-v="Média-clara">Média-clara</button><button type="button" data-v="Média">Média</button><button type="button" data-v="Média-escura">Média-escura</button><button type="button" data-v="Escura">Escura</button><button type="button" data-v="">Não sei</button>
         </div>
       </div>
       <div>
-        <span class="lbl">Características <span style="text-transform:none;letter-spacing:0;font-weight:400">· toque de novo para limpar</span></span>
-        <div style="display:grid;gap:10px" id="cScales"></div>
-        <div class="scl"><span>1 baixo</span><span>5 alto</span></div>
+        <span class="lbl">Características · nota de 0 a 10</span>
+        <div style="display:grid;gap:12px" id="cScales"></div>
       </div>
+      <div class="saverow">
+        <button class="btn pri" id="cSave" type="button" style="flex:1">Cadastrar café</button>
+        <button class="btn" id="cCancel" type="button">Fechar</button>
+      </div>
+      <p class="toast" id="cMsg" aria-live="polite"></p>
     </div>
-    <p class="cres" id="cResumo" hidden>Café sem dados. Receita salva como “café desconhecido”.</p>
   </section>
 
   <section class="panel" aria-label="Escolhas">
@@ -228,7 +247,7 @@ details.bk p{color:var(--muted);font-size:.85rem;margin:8px 0 0;max-width:65ch}
       </div>
       <label class="lbl" for="bkTxt" style="margin-top:4px">Texto do backup</label>
       <textarea id="bkTxt" spellcheck="false" placeholder="Toque em Copiar backup, ou cole aqui um backup e toque em Importar do texto"></textarea>
-      <p>Para guardar: toque em Copiar backup e cole no app Notas, num e-mail ou no WhatsApp. Para recuperar em outro aparelho: cole o texto aqui e toque em Importar do texto. A importação soma as receitas às que já existem, sem apagar nada.</p>
+      <p>Para guardar: toque em Copiar backup e cole no app Notas, num e-mail ou no WhatsApp. Para recuperar em outro aparelho: cole o texto aqui e toque em Importar do texto. O backup inclui as receitas e os cafés cadastrados. A importação soma ao que já existe, sem apagar nada.</p>
     </details>
   </section>
 </div>
@@ -314,14 +333,30 @@ const st={met:"v60",moe:"k7",q:{},r:{},c:{},x:{},base:{},gr:{}};
 try{Object.assign(st,JSON.parse(localStorage.getItem("calcExtracao")||"{}"))}catch(e){}
 for(const k of ["q","r","c","x","base","gr"]) st[k]=st[k]||{};
 const CAR=[["corpo","Corpo"],["docura","Doçura"],["acidez","Acidez"],["aroma","Aroma"]];
-const CAFE0={desc:false,nome:"",tipo:"",origem:"",torra:"",corpo:0,docura:0,acidez:0,aroma:0};
-st.cafe=Object.assign({},CAFE0,st.cafe||{});
+const CAFE0={nome:"",tipo:"",origem:"",data:"",torra:"",corpo:null,docura:null,acidez:null,aroma:null,escala:10};
+const TORRAS=["Clara","Média-clara","Média","Média-escura","Escura"];
+const san=(x)=>{if(!x||typeof x!=="object"||x.desc)return null;const o={id:typeof x.id==="string"?x.id.slice(0,40):undefined,
+  nome:String(x.nome||"").slice(0,60),tipo:String(x.tipo||"").slice(0,60),origem:String(x.origem||"").slice(0,60),
+  data:/^\d{4}-\d{2}-\d{2}$/.test(x.data||"")?x.data:"",torra:TORRAS.includes(x.torra)?x.torra:"",escala:10};
+  const old=x.escala!==10;for(const[id]of CAR){let v=x[id];v=(v===null||v===undefined||v==="")?null:Number(v);
+    if(old)v=(v>=1&&v<=5)?v*2:null;o[id]=(Number.isFinite(v)&&v>=0&&v<=10)?Math.round(v):null}return o};
+let CAF=null;try{CAF=JSON.parse(localStorage.getItem("calcCafes")||"null")}catch(e){}
+if(!Array.isArray(CAF)){CAF=[{...CAFE0,id:"c-tucano",nome:"Black Tucano Fruity"}];
+  const o=san(st.cafe);if(o&&o.nome.trim()&&!CAF.some(c=>c.nome===o.nome))CAF.push({...o,id:"c-"+Date.now().toString(36)})}
+CAF=CAF.map(san).filter(Boolean);
+const saveCaf=()=>{try{localStorage.setItem("calcCafes",JSON.stringify(CAF))}catch(e){}};saveCaf();
+if(!st.csel){const o=st.cafe&&!st.cafe.desc&&CAF.find(c=>c.nome===st.cafe.nome);st.csel=o?o.id:(st.cafe&&st.cafe.desc?"desc":(CAF[0]?CAF[0].id:"desc"))}
+if(st.csel!=="desc"&&st.csel!=="novo"&&!CAF.find(c=>c.id===st.csel))st.csel="desc";
+st.cafe=st.csel==="desc"?{...CAFE0}:st.csel==="novo"?(san(st.cafe)||{...CAFE0}):{...CAF.find(c=>c.id===st.csel)};
+let cEdit=st.csel==="novo";
+const dias=d=>{if(!d)return null;const t=new Date();t.setHours(0,0,0,0);const r=new Date(d+"T00:00:00");return Math.round((t-r)/864e5)};
+const dataBR=d=>d?d.split("-").reverse().join("/"):"";
 const esc=t=>String(t??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
-const cafeTxt=k=>{if(!k||k.desc)return "Café desconhecido";const a=[k.nome,k.tipo,k.origem,k.torra&&("torra "+k.torra.toLowerCase())].filter(Boolean);
-  const c=CAR.filter(([id])=>k[id]).map(([id,n])=>n+" "+k[id]).join(", ");return (a.join(" · ")||"Café sem nome")+(c?" · "+c:"")};
+const cafeTxt=k0=>{const k=san(k0);if(!k)return "Café desconhecido";const a=[k.nome,k.tipo,k.origem,k.torra&&("torra "+k.torra.toLowerCase()),k.data&&("torrado em "+dataBR(k.data))].filter(Boolean);
+  const c=CAR.filter(([id])=>k[id]!=null).map(([id,n])=>n+" "+k[id]).join(", ");return (a.join(" · ")||"Café sem nome")+(c?" · "+c:"")};
 let REC=null;
 try{REC=JSON.parse(localStorage.getItem("calcReceitas")||"null")}catch(e){}
-if(!Array.isArray(REC)) REC=[{nome:"B75 Black Tucano (vídeo)",cafe:{desc:false,nome:"Black Tucano Fruity",tipo:"",origem:"",torra:"",corpo:0,docura:0,acidez:0,aroma:0},met:"b75",moe:"k7",base:"cafe",c:20,q:300,r:15,gr:70}];
+if(!Array.isArray(REC)) REC=[{nome:"B75 Black Tucano (vídeo)",cafeId:"c-tucano",cafe:{...CAFE0,nome:"Black Tucano Fruity"},met:"b75",moe:"k7",base:"cafe",c:20,q:300,r:15,gr:70}];
 const saveRec=()=>{try{localStorage.setItem("calcReceitas",JSON.stringify(REC))}catch(e){}};
 const $=id=>document.getElementById(id);
 $("metodos").innerHTML=M.map(m=>`<button type="button" data-v="${m.id}">${m.n}</button>`).join("");
@@ -349,7 +384,28 @@ const GN={k7:"K7",r3:"Blade R3",pro:"R3 Pro",oster:"Oster",mongdio:"Mongdio",ico
 function renderSaved(){
   $("saved").innerHTML=REC.length?REC.map((x,i)=>`<div class="rec"><div><b>${esc(x.nome)}</b>${x.cafe?`<span>${esc(cafeTxt(x.cafe))}</span><br>`:""}<span>${MN[x.met]||x.met} · ${GN[x.moe]||x.moe} ${pfmt(x.gr)} · ${f(x.c,1)} g / ${f(x.a??x.c*x.r)} g${x.x?" · xícara "+f(x.x)+" ml":""} · 1:${f(x.r,x.r%1?1:0)}</span></div><div class="acts"><button class="btn pri" type="button" data-open="${i}">Abrir</button><button class="btn" type="button" data-del="${i}">${delArm===i?"Confirmar":"Excluir"}</button></div></div>`).join(""):`<p class="empty">Nenhuma receita salva ainda. Ajuste tudo acima, dê um nome e toque em Salvar.</p>`;
 }
-let delArm=-1;
+let delArm=-1,cDelArm=false;
+const TIPOSET=new Set([...document.querySelectorAll("#cTipoSel option")].map(o=>o.value));
+function renderCafe(){
+  const k=st.cafe,sel=st.csel;
+  $("cSel").innerHTML=`<option value="desc">Café desconhecido</option>`+(CAF.length?`<optgroup label="Meus cafés">${CAF.map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
+  $("cSel").value=sel;
+  const reg=sel!=="desc"&&sel!=="novo", d=dias(k.data);
+  $("cResumo").textContent=sel==="desc"?"Sem dados do café. A receita fica registrada como café desconhecido.":sel==="novo"?"Preencha os dados e toque em Cadastrar café. Só o nome é obrigatório.":cafeTxt(k)+(d!=null&&d>=0?` · ${d} dia${d===1?"":"s"} desde a torra`:"");
+  $("cActs").hidden=!reg; $("cEdit").textContent=cEdit?"Esconder dados":"Editar dados"; $("cDel").textContent=cDelArm?"Confirmar exclusão":"Excluir café";
+  $("cFields").hidden=!(sel==="novo"||(reg&&cEdit));
+  $("cSave").textContent=sel==="novo"?"Cadastrar café":"Salvar alterações";
+  if(document.activeElement!==$("cNome")) $("cNome").value=k.nome;
+  if(document.activeElement!==$("cOrig")) $("cOrig").value=k.origem;
+  const outro=!!k.tipo&&!TIPOSET.has(k.tipo)||k.tipo==="__outro";
+  $("cTipoSel").value=outro?"__outro":(k.tipo||""); $("cTipo").hidden=!outro;
+  if(document.activeElement!==$("cTipo")) $("cTipo").value=outro&&k.tipo!=="__outro"?k.tipo:"";
+  if(document.activeElement!==$("cData")) $("cData").value=k.data||"";
+  $("cDias").textContent=d==null?"Deixe em branco se não souber":d<0?"Data no futuro: confira":`${d} dia${d===1?"":"s"} desde a torra`;
+  document.querySelectorAll("#cTorra button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===(k.torra||"")));
+  if(!$("cScales").dataset.built){$("cScales").innerHTML=CAR.map(([id,n])=>`<div class="nt"><span id="l_${id}">${n}</span><input type="range" min="0" max="10" step="1" id="r_${id}" aria-labelledby="l_${id}"><output id="o_${id}"></output><button class="x" type="button" data-clr="${id}" aria-label="Limpar ${n}">×</button></div>`).join("");$("cScales").dataset.built=1}
+  for(const[id]of CAR){const v=k[id];const r=$("r_"+id);if(document.activeElement!==r)r.value=v==null?5:v;r.classList.toggle("unset",v==null);$("o_"+id).textContent=v==null?"—":v}
+}
 function render(){
   const m=cur(), {q,r,c,a,b}=calc(m);
   document.querySelectorAll("#metodos button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===m.id));
@@ -378,20 +434,16 @@ function render(){
   $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+pfmt(gr[2])+" · ":"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${pfmt(gr[0])} a ${pfmt(gr[1])} · ${m.cls}`);
   const steps=m.steps(c,a);
   const fim=m.tempo||("Total "+steps[steps.length-1][0]);
-  const TT={"Clara":"Torra clara: água no limite mais quente e moagem um pouco mais fina","Escura":"Torra escura: água 88 a 90 °C e moagem um pouco mais grossa","Média-escura":"Torra média-escura: prefira água abaixo de 92 °C"}[!st.cafe.desc&&st.cafe.torra];
-  $("facts").innerHTML=(TT?`<span class="fact">${TT}</span>`:"")+(m.dose?"":`<span class="fact">Na xícara <b>≈ ${f(Math.round(b/5)*5)} ml</b> (o pó retém ${f(retOf(m),1)} g de água por g)</span>`)+`<span class="fact">Água <b>${m.temp}</b></span><span class="fact">Tempo <b>${fim}</b></span>`+
+  const TT={"Clara":"Torra clara: água no limite mais quente e moagem um pouco mais fina","Escura":"Torra escura: água 88 a 90 °C e moagem um pouco mais grossa","Média-escura":"Torra média-escura: prefira água abaixo de 92 °C"}[st.csel!=="desc"&&st.cafe.torra];
+  const dd=st.csel!=="desc"?dias(st.cafe.data):null;
+  const DT=dd==null||dd<0?"":dd<=3?`Torrado há ${dd} dia${dd===1?"":"s"}: muito fresco, faça pré-infusão mais longa (40 a 45 s)`:dd<=30?`Torrado há ${dd} dias: ponto ideal`:dd<=60?`Torrado há ${dd} dias: ainda bom; se faltar sabor, moa um pouco mais fino`:`Torrado há ${dd} dias: aromas já mais fracos`;
+  $("facts").innerHTML=(DT?`<span class="fact">${DT}</span>`:"")+(TT?`<span class="fact">${TT}</span>`:"")+(m.dose?"":`<span class="fact">Na xícara <b>≈ ${f(Math.round(b/5)*5)} ml</b> (o pó retém ${f(retOf(m),1)} g de água por g)</span>`)+`<span class="fact">Água <b>${m.temp}</b></span><span class="fact">Tempo <b>${fim}</b></span>`+
     (st.moe==="oster"?`<span class="fact">Oster: posição 1 = bolinha mais fina (lado Espresso), 18 = mais grossa (Prensa)</span><span class="fact">Pese o café; o seletor de xícaras é só um timer</span>`:"")+
     (st.moe==="mongdio"?`<span class="fact">Mongdio: abra o cadeado, gire o anel até o número e trave de novo</span><span class="fact">Referência testada: Melitta no 20</span>`:"")+
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
   $("steps").innerHTML=steps.map(s=>`<li><span class="t">${s[0]}</span><span class="x">${s[1]}</span></li>`).join("");
   $("tip").textContent=m.tip;
-  const k=st.cafe;
-  $("cDesc").checked=k.desc; $("cFields").hidden=k.desc; $("cResumo").hidden=!k.desc;
-  if(document.activeElement!==$("cNome")) $("cNome").value=k.nome;
-  if(document.activeElement!==$("cOrig")) $("cOrig").value=k.origem;
-  if(document.activeElement!==$("cTipo")) $("cTipo").value=k.tipo||"";
-  document.querySelectorAll("#cTorra button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===k.torra));
-  $("cScales").innerHTML=CAR.map(([id,n])=>`<div class="sc"><span id="l_${id}">${n}</span><div class="seg" role="group" aria-labelledby="l_${id}">${[1,2,3,4,5].map(v=>`<button type="button" data-c="${id}" data-v="${v}" aria-pressed="${k[id]===v}">${v}</button>`).join("")}</div></div>`).join("");
+  renderCafe();
   renderSaved();
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}
 }
@@ -406,37 +458,56 @@ $("moag").addEventListener("blur",render);
 const gbump=d=>{const m=cur(),gr=m.g[st.moe];st.gr[gKey(m)]=Math.max(0,(st.gr[gKey(m)]??gr[2])+d);render()};
 $("gMenos").onclick=()=>gbump(-1); $("gMais").onclick=()=>gbump(1);
 $("gReset").onclick=()=>{delete st.gr[gKey(cur())];render()};
-$("cDesc").addEventListener("change",e=>{st.cafe.desc=e.target.checked;render()});
-$("cNome").addEventListener("input",e=>{st.cafe.nome=e.target.value;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(_){}});
-$("cTipo").addEventListener("input",e=>{st.cafe.tipo=e.target.value;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(_){}});
-$("cOrig").addEventListener("input",e=>{st.cafe.origem=e.target.value;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(_){}});
-$("cTorra").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.cafe.torra=st.cafe.torra===b.dataset.v?"":b.dataset.v;render()});
-$("cScales").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const id=b.dataset.c,v=+b.dataset.v;st.cafe[id]=st.cafe[id]===v?0:v;render()});
-$("salvar").onclick=()=>{const m=cur(),k=calc(m),nome=$("nome").value.trim()||`${m.n} · ${(!st.cafe.desc&&st.cafe.nome.trim())||GN[st.moe]}`;
+const persist=()=>{try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(_){}};
+const cmsg=t=>{$("cMsg").textContent=t;setTimeout(()=>$("cMsg").textContent="",2500)};
+$("cSel").addEventListener("change",e=>{const v=e.target.value;st.csel=v;cDelArm=false;cEdit=v==="novo";
+  st.cafe=v==="desc"||v==="novo"?{...CAFE0}:{...CAF.find(c=>c.id===v)};render()});
+$("cEdit").onclick=()=>{cEdit=!cEdit;if(!cEdit){const o=CAF.find(c=>c.id===st.csel);if(o)st.cafe={...o}}render()};
+$("cCancel").onclick=()=>{if(st.csel==="novo"){st.csel="desc";st.cafe={...CAFE0}}else{const o=CAF.find(c=>c.id===st.csel);if(o)st.cafe={...o}}cEdit=false;render()};
+$("cDel").onclick=()=>{if(!cDelArm){cDelArm=true;renderCafe();return}CAF=CAF.filter(c=>c.id!==st.csel);saveCaf();st.csel="desc";st.cafe={...CAFE0};cDelArm=false;cEdit=false;render();toast("Café excluído")};
+$("cNome").addEventListener("input",e=>{st.cafe.nome=e.target.value;persist()});
+$("cOrig").addEventListener("input",e=>{st.cafe.origem=e.target.value;persist()});
+$("cTipoSel").addEventListener("change",e=>{st.cafe.tipo=e.target.value==="__outro"?"__outro":e.target.value;render();if(e.target.value==="__outro")$("cTipo").focus()});
+$("cTipo").addEventListener("input",e=>{st.cafe.tipo=e.target.value||"__outro";persist()});
+$("cData").addEventListener("change",e=>{st.cafe.data=e.target.value;render()});
+$("cTorra").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.cafe.torra=b.dataset.v;render()});
+$("cScales").addEventListener("input",e=>{const id=e.target.id&&e.target.id.slice(2);if(!CAR.some(c=>c[0]===id))return;st.cafe[id]=Number(e.target.value);renderCafe();persist()});
+$("cScales").addEventListener("click",e=>{const b=e.target.closest("[data-clr]");if(!b)return;st.cafe[b.dataset.clr]=null;renderCafe();persist()});
+$("cSave").onclick=()=>{const o=san({...st.cafe,tipo:st.cafe.tipo==="__outro"?"":st.cafe.tipo});o.nome=o.nome.trim();o.origem=o.origem.trim();o.tipo=o.tipo.trim();
+  if(!o.nome){cmsg("Dê um nome ao café");$("cNome").focus();return}
+  if(st.csel==="novo"){o.id="c-"+Date.now().toString(36);CAF.push(o);st.csel=o.id;cmsg("Café cadastrado")}
+  else{o.id=st.csel;CAF=CAF.map(c=>c.id===o.id?o:c);cmsg("Alterações salvas")}
+  CAF.sort((x,y)=>x.nome.localeCompare(y.nome,"pt-BR"));saveCaf();st.cafe={...o};cEdit=false;render()};
+$("salvar").onclick=()=>{const m=cur(),k=calc(m),nome=$("nome").value.trim()||`${m.n} · ${(st.csel!=="desc"&&st.cafe.nome.trim())||GN[st.moe]}`;
   const gv=st.gr[gKey(m)]??m.g[st.moe][2];
-  REC.unshift({nome,cafe:st.cafe.desc?{desc:true}:{...st.cafe,nome:st.cafe.nome.trim(),tipo:(st.cafe.tipo||"").trim(),origem:st.cafe.origem.trim()},met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
+  const snap=st.csel==="desc"?{desc:true}:san({...st.cafe,tipo:st.cafe.tipo==="__outro"?"":st.cafe.tipo});
+  REC.unshift({nome,cafeId:(st.csel!=="desc"&&st.csel!=="novo")?st.csel:undefined,cafe:snap,met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
   saveRec();$("nome").value="";toast("Receita salva");render()};
-const bkData=()=>JSON.stringify({app:"calculadora-extracao",versao:1,data:new Date().toISOString().slice(0,10),receitas:REC,moagens:st.gr});
+const bkData=()=>JSON.stringify({app:"calculadora-extracao",versao:1,data:new Date().toISOString().slice(0,10),receitas:REC,cafes:CAF,moagens:st.gr});
 $("bkCopiar").onclick=()=>{const t=bkData();$("bkTxt").value=t;
   const sel=()=>{$("bkTxt").focus();$("bkTxt").select();toast("Selecionei o texto: toque em Copiar")};
-  try{navigator.clipboard.writeText(t).then(()=>toast(`Backup copiado (${REC.length} receitas)`),sel)}catch(e){sel()}};
+  try{navigator.clipboard.writeText(t).then(()=>toast(`Backup copiado (${REC.length} receitas, ${CAF.length} cafés)`),sel)}catch(e){sel()}};
 if(navigator.share&&navigator.canShare){$("bkShare").hidden=false;
   $("bkShare").onclick=async()=>{const t=bkData();try{const fl=new File([t],"receitas-cafe.json",{type:"application/json"});
     if(navigator.canShare({files:[fl]}))await navigator.share({files:[fl],title:"Receitas de café"});else await navigator.share({title:"Receitas de café",text:t})}
     catch(e){if(e&&e.name!=="AbortError"){$("bkTxt").value=t;toast("Não foi possível compartilhar; use Copiar backup")}}}}
 const importar=txt=>{let d;try{d=JSON.parse(txt.trim())}catch(e){toast("Texto inválido: cole o backup completo, começando com {");return}
-  const lista=Array.isArray(d)?d:(d&&d.receitas);if(!Array.isArray(lista)){toast("Não encontrei receitas nesse backup");return}
+  const lista=Array.isArray(d)?d:(d&&d.receitas);const cl=d&&Array.isArray(d.cafes)?d.cafes:[];
+  if(!Array.isArray(lista)&&!cl.length){toast("Não encontrei receitas nesse backup");return}
+  let nc=0;for(const c0 of cl){const c=san(c0);if(!c||!c.nome)continue;if(CAF.some(y=>y.id===c.id||(y.nome===c.nome&&y.tipo===c.tipo)))continue;c.id=c.id||"c-"+Date.now().toString(36)+nc;CAF.push(c);nc++}
+  if(nc)saveCaf();
   const chave=x=>[x.nome,x.met,x.moe,x.gr,x.c,x.r].join("|");const tem=new Set(REC.map(chave));let n=0;
-  for(const x of lista){if(!x||!M.find(y=>y.id===x.met)||!(x.moe in GN)||!(Number(x.r)>0))continue;if(tem.has(chave(x)))continue;
-    const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?{desc:true}:{desc:false,nome:String(x.cafe.nome||"").slice(0,60),tipo:String(x.cafe.tipo||"").slice(0,60),origem:String(x.cafe.origem||"").slice(0,60),torra:["Clara","Média-clara","Média","Média-escura","Escura"].includes(x.cafe.torra)?x.cafe.torra:"",...Object.fromEntries(CAR.map(([id])=>[id,[1,2,3,4,5].includes(+x.cafe[id])?+x.cafe[id]:0]))}):undefined;
-    REC.push({nome:String(x.nome||"Receita").slice(0,60),cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
+  for(const x of (lista||[])){if(!x||!M.find(y=>y.id===x.met)||!(x.moe in GN)||!(Number(x.r)>0))continue;if(tem.has(chave(x)))continue;
+    const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?{desc:true}:san(x.cafe)):undefined;
+    REC.push({nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
-  saveRec();render();toast(n?`${n} receita${n>1?"s":""} importada${n>1?"s":""}`:"Nenhuma receita nova: todas já estavam salvas")};
+  saveRec();render();toast(n||nc?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`:"Nada novo: tudo já estava salvo")};
 $("bkImport").onclick=()=>importar($("bkTxt").value);
 $("bkFile").addEventListener("change",e=>{const fl=e.target.files&&e.target.files[0];if(!fl)return;const rd=new FileReader();rd.onload=()=>{$("bkTxt").value=rd.result;importar(String(rd.result))};rd.readAsText(fl);e.target.value=""});
 $("saved").addEventListener("click",e=>{const o=e.target.closest("[data-open]"),d=e.target.closest("[data-del]");
   if(o){const x=REC[+o.dataset.open],m=M.find(y=>y.id===x.met);if(!m)return;st.met=x.met;st.moe=x.moe;st.r[x.met]=x.r;
-    if(x.cafe)st.cafe=Object.assign({},CAFE0,x.cafe);st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;if(x.base==="xicara")st.x[x.met]=x.x;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast("Receita aberta: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
+    {const reg=x.cafeId&&CAF.find(c=>c.id===x.cafeId);
+      if(reg){st.csel=reg.id;st.cafe={...reg};cEdit=false}else if(!x.cafe||x.cafe.desc){st.csel="desc";st.cafe={...CAFE0}}else{st.csel="novo";st.cafe=san(x.cafe);cEdit=true}}st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;if(x.base==="xicara")st.x[x.met]=x.x;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast("Receita aberta: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
   if(d){const i=+d.dataset.del;if(delArm===i){REC.splice(i,1);saveRec();delArm=-1;toast("Receita excluída")}else delArm=i;renderSaved()}});
 $("qtd").addEventListener("blur",render);
 const bump=d=>{const m=cur();if(!m.dose&&baseOf(m)!=="agua"){const bs=baseOf(m),k=calc(m);if(bs==="cafe")st.c[m.id]=Math.max(0.5,Math.round((k.c+d*0.5)*10)/10);else st.x[m.id]=Math.max(10,Math.round(k.b/10)*10+d*10);render();return}st.q[m.id]=Math.max(m.qs,Math.round((Number(qOf(m))+d*m.qs*(m.dose?1:5))*100)/100);render()};
