@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 21 · 30/10/2026 · contagem de 5 s e opção de bipe</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 22 · 30/10/2026 · temporizador sincronizado com o bipe</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -554,7 +554,7 @@ function render(){
     (st.moe==="oster"?`<span class="fact">Oster: posição 1 = bolinha mais fina (lado Espresso), 18 = mais grossa (Prensa)</span><span class="fact">Pese o café; o seletor de xícaras é só um timer</span>`:"")+
     (st.moe==="mongdio"?`<span class="fact">Mongdio: abra o cadeado, gire o anel até o número e trave de novo</span><span class="fact">Referência testada: Melitta no 20</span>`:"")+
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
-  CUR=steps;
+  if(T.run&&T.steps)steps=T.steps; else CUR=steps;
   $("steps").innerHTML=steps.map((s,i)=>`<li data-i="${i}"><span class="t">${s[0]}</span><span class="x">${s[1]}</span></li>`).join("");
   if(T.run)tick(true);
   $("tip").textContent=m.tip;
@@ -579,8 +579,9 @@ $("cSel").addEventListener("change",e=>{const v=e.target.value;st.csel=v;cDelArm
   st.cafe=v==="desc"||v==="novo"?{...CAFE0}:{...CAF.find(c=>c.id===v)};render()});
 // ---------- Temporizador ----------
 let CUR=[];const T={run:false,pausa:false,t0:0,acum:0,feitos:new Set(),avisos:new Set(),ac:null,wl:null};
+const pontos=()=>T.run&&T.pts?T.pts:pontosAgora();
 const seg=t=>{const mm=String(t).match(/(\d+):(\d\d)/);return mm?+mm[1]*60+ +mm[2]:null};
-const pontos=()=>CUR.map((s,i)=>({i,t:seg(s[0]),txt:s[1],lbl:s[0]})).filter(x=>x.t!=null);
+const pontosAgora=()=>CUR.map((s,i)=>({i,t:seg(s[0]),txt:s[1],lbl:s[0]})).filter(x=>x.t!=null);
 function som(freq,dur,vol=.25){try{const a=T.ac;if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=freq;
   g.gain.setValueAtTime(0,a.currentTime);g.gain.linearRampToValueAtTime(vol,a.currentTime+.01);g.gain.linearRampToValueAtTime(0,a.currentTime+dur);
   o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+dur+.02)}catch(e){}}
@@ -595,7 +596,8 @@ function faixa(pts){const SR=8000,ult=Math.max(0,...pts.map(p=>p.t)),dur=Math.mi
   v.setUint32(24,SR,true);v.setUint32(28,SR,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
   return URL.createObjectURL(new Blob([d],{type:"audio/wav"}))}
 function vibra(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
-const decorrido=()=>T.acum+(T.run&&!T.pausa?(Date.now()-T.t0)/1000:0);
+// Relógio único: enquanto a faixa de bipes toca, o tempo vem dela (o que se vê e o que se ouve nunca se separam)
+const decorrido=()=>{if(T.au&&!T.auFim)return T.au.currentTime;return T.acum+(T.run&&!T.pausa?(Date.now()-T.t0)/1000:0)};
 function tick(sohTela){const e=decorrido(),pts=pontos();
   $("tClk").textContent=tm(Math.floor(e));
   let atual=null,prox=null;for(const p of pts){if(p.t<=e)atual=p;else{prox=p;break}}
@@ -614,18 +616,19 @@ async function iniciar(){
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
   try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src)}}catch(e){}
   T.au=null;
-  try{const pts=pontos();if(pts.some(p=>p.t>0)){const au=$("tAudio");au.src=faixa(pts);au.currentTime=0;au.muted=st.bipe===false;const pr=au.play();T.au=au;
-    if(pr&&pr.catch)pr.catch(()=>{T.au=null});
+  Object.assign(T,{run:true,pausa:false,t0:Date.now(),acum:0,auFim:false,feitos:new Set(),avisos:new Set(),pts:pontosAgora(),steps:CUR.slice()});
+  try{const pts=T.pts;if(pts.some(p=>p.t>0)){const au=$("tAudio");au.src=faixa(pts);au.currentTime=0;au.muted=st.bipe===false;const pr=au.play();T.au=au;
+    if(pr&&pr.catch)pr.catch(()=>{T.acum=0;T.t0=Date.now();T.au=null});
+    au.onended=()=>{if(T.au!==au)return;T.acum=au.duration;T.t0=Date.now();T.auFim=true};
     if("mediaSession" in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:"Temporizador do café",artist:cur().n});
       navigator.mediaSession.setActionHandler("pause",()=>$("tPause").click());navigator.mediaSession.setActionHandler("play",()=>$("tPause").click())}}}catch(e){T.au=null}
   try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();await T.ac.resume()}catch(e){}
   if(!T.au&&st.bipe!==false)som(523,.08,.15);
   try{T.wl=await navigator.wakeLock.request("screen")}catch(e){}
-  Object.assign(T,{run:true,pausa:false,t0:Date.now(),acum:0,feitos:new Set(),avisos:new Set()});
   $("tmr").hidden=false;document.body.classList.add("timing");$("tPause").textContent="Pausar";$("tStart").textContent="Reiniciar temporizador";
   clearInterval(tInt);tInt=setInterval(()=>tick(false),200);tick(false);
   document.querySelector("#steps").scrollIntoView({behavior:"smooth",block:"start"})}
-function encerrar(){try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src);$("tAudio").removeAttribute("src")}}catch(e){}T.au=null;T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").textContent="Iniciar temporizador";
+function encerrar(){T.pts=null;T.steps=null;setTimeout(render,0);try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src);$("tAudio").removeAttribute("src")}}catch(e){}T.au=null;T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").textContent="Iniciar temporizador";
   try{T.wl&&T.wl.release()}catch(e){}T.wl=null;document.querySelectorAll("#steps li").forEach(li=>li.classList.remove("on","ok"))}
 const setBipe=v=>{st.bipe=v;$("tBipe").checked=v;$("tSom").textContent=v?"Com bipe":"Sem bipe";if(T.au)T.au.muted=!v;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}};
 setBipe(st.bipe!==false);
@@ -633,11 +636,11 @@ $("tBipe").addEventListener("change",e=>setBipe(e.target.checked));
 $("tSom").onclick=()=>setBipe(st.bipe===false);
 $("tStart").onclick=iniciar;
 $("tStop").onclick=encerrar;
-$("tPause").onclick=()=>{if(!T.run)return;if(T.pausa){T.pausa=false;T.t0=Date.now();$("tPause").textContent="Pausar";
-    if(T.au){try{if(T.acum<T.au.duration){T.au.currentTime=T.acum;T.au.play()}}catch(e){}}}
-  else{T.acum=decorrido();T.pausa=true;$("tPause").textContent="Continuar";if(T.au)try{T.au.pause()}catch(e){}}tick(true)};
+$("tPause").onclick=()=>{if(!T.run)return;const tocando=T.au&&!T.auFim;
+  if(T.pausa){T.pausa=false;T.t0=Date.now();$("tPause").textContent="Pausar";if(tocando)try{T.au.play()}catch(e){}}
+  else{if(tocando){try{T.au.pause()}catch(e){}}else T.acum=decorrido();T.pausa=true;$("tPause").textContent="Continuar"}tick(true)};
 document.addEventListener("visibilitychange",async()=>{if(document.visibilityState==="visible"&&T.run){
-    try{if(T.au&&!T.pausa){const e=decorrido();if(e<T.au.duration&&Math.abs(T.au.currentTime-e)>1.5)T.au.currentTime=e;if(T.au.paused&&e<T.au.duration)T.au.play()}}catch(_){}try{T.wl=await navigator.wakeLock.request("screen")}catch(e){}try{T.ac&&T.ac.resume()}catch(e){}}});
+    try{if(T.au&&!T.auFim&&!T.pausa&&T.au.paused)T.au.play()}catch(_){}try{T.wl=await navigator.wakeLock.request("screen")}catch(e){}try{T.ac&&T.ac.resume()}catch(e){}}});
 $("pOn").addEventListener("change",e=>{st.pen.on=e.target.checked;render()});
 $("pSel").addEventListener("change",e=>{st.pen.sel=e.target.value;render()});
 $("pUm").addEventListener("input",e=>{st.pen.um=Number(e.target.value)||null;render()});
