@@ -123,6 +123,7 @@ details.bk p{color:var(--muted);font-size:.85rem;margin:8px 0 0;max-width:65ch}
       <div class="mini" id="base" role="group" aria-label="Calcular a partir de">
         <button type="button" data-v="agua">Definir pela água</button>
         <button type="button" data-v="cafe">Definir pelo café</button>
+        <button type="button" data-v="xicara">Definir pela xícara</button>
       </div>
       <label class="lbl" for="qtd" id="lQtd" style="margin-bottom:6px">Água total</label>
       <div class="qty">
@@ -268,9 +269,9 @@ const M=[
   tip:"Proporções de 1:4 a 1:6 rendem concentrado: dilua 1:1 em água ou leite. De 1:8 a 1:12 já sai pronto para beber."}
 ];
 const MOE={k7:"cliques",r3:"cliques",pro:"cliques"};
-const st={met:"v60",moe:"k7",q:{},r:{},c:{},base:{},gr:{}};
+const st={met:"v60",moe:"k7",q:{},r:{},c:{},x:{},base:{},gr:{}};
 try{Object.assign(st,JSON.parse(localStorage.getItem("calcExtracao")||"{}"))}catch(e){}
-for(const k of ["q","r","c","base","gr"]) st[k]=st[k]||{};
+for(const k of ["q","r","c","x","base","gr"]) st[k]=st[k]||{};
 let REC=null;
 try{REC=JSON.parse(localStorage.getItem("calcReceitas")||"null")}catch(e){}
 if(!Array.isArray(REC)) REC=[{nome:"B75 Black Tucano (vídeo)",met:"b75",moe:"k7",base:"cafe",c:20,q:300,r:15,gr:70}];
@@ -284,27 +285,35 @@ const pfmt=v=>Number.isInteger(v)?f(v):f(v,1);
 
 const baseOf=m=>m.dose?"agua":(st.base[m.id]||"agua");
 const gKey=m=>m.id+"|"+st.moe;
+// Água que fica retida no pó (g de água por g de café); não chega à xícara
+const RET={turco:0.5,moka:1.5,cold:2.5};
+const retOf=m=>RET[m.id]??2;
 const calc=m=>{const r=Number(rOf(m));const q=Math.max(0,Number(qOf(m))||0);
-  if(m.dose) return {r,q,c:q,a:q*r};
-  if(baseOf(m)==="cafe"){const c=Math.max(0,Number(st.c[m.id]??Math.round(q/r*10)/10)||0);return {r,q,c,a:c*r}}
-  return {r,q,c:q/r,a:q}};
+  if(m.dose) return {r,q,c:q,a:q*r,b:q*r};
+  const ret=retOf(m),bs=baseOf(m);let c;
+  if(bs==="cafe") c=Math.max(0,Number(st.c[m.id]??Math.round(q/r*10)/10)||0);
+  else if(bs==="xicara"){const b=Math.max(0,Number(st.x[m.id]??Math.round(q-ret*q/r))||0);c=b/Math.max(0.5,r-ret)}
+  else c=q/r;
+  const a=bs==="agua"?q:c*r;
+  return {r,q,c,a,b:Math.max(0,a-ret*c)}};
 let toastT;const toast=t=>{$("toast").textContent=t;clearTimeout(toastT);toastT=setTimeout(()=>$("toast").textContent="",2500)};
 const MN=Object.fromEntries(M.map(m=>[m.id,m.n]));
 const GN={k7:"K7",r3:"Blade R3",pro:"R3 Pro",oster:"Oster",mongdio:"Mongdio",icoffee:"iCoffee"};
 function renderSaved(){
-  $("saved").innerHTML=REC.length?REC.map((x,i)=>`<div class="rec"><div><b>${x.nome.replace(/[<&]/g,"")}</b><span>${MN[x.met]||x.met} · ${GN[x.moe]||x.moe} ${pfmt(x.gr)} · ${f(x.c,1)} g / ${f(x.a??x.c*x.r)} g · 1:${f(x.r,x.r%1?1:0)}</span></div><div class="acts"><button class="btn pri" type="button" data-open="${i}">Abrir</button><button class="btn" type="button" data-del="${i}">${delArm===i?"Confirmar":"Excluir"}</button></div></div>`).join(""):`<p class="empty">Nenhuma receita salva ainda. Ajuste tudo acima, dê um nome e toque em Salvar.</p>`;
+  $("saved").innerHTML=REC.length?REC.map((x,i)=>`<div class="rec"><div><b>${x.nome.replace(/[<&]/g,"")}</b><span>${MN[x.met]||x.met} · ${GN[x.moe]||x.moe} ${pfmt(x.gr)} · ${f(x.c,1)} g / ${f(x.a??x.c*x.r)} g${x.x?" · xícara "+f(x.x)+" ml":""} · 1:${f(x.r,x.r%1?1:0)}</span></div><div class="acts"><button class="btn pri" type="button" data-open="${i}">Abrir</button><button class="btn" type="button" data-del="${i}">${delArm===i?"Confirmar":"Excluir"}</button></div></div>`).join(""):`<p class="empty">Nenhuma receita salva ainda. Ajuste tudo acima, dê um nome e toque em Salvar.</p>`;
 }
 let delArm=-1;
 function render(){
-  const m=cur(), {q,r,c,a}=calc(m);
+  const m=cur(), {q,r,c,a,b}=calc(m);
   document.querySelectorAll("#metodos button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===m.id));
   document.querySelectorAll("#moedores button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.moe));
   const bs=baseOf(m);
   $("base").hidden=!!m.dose;
   document.querySelectorAll("#base button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===bs));
-  $("lQtd").textContent=m.dose?"Dose de café":(bs==="cafe"?"Café":"Água total");
-  if(document.activeElement!==$("qtd")) $("qtd").value=(!m.dose&&bs==="cafe")?Math.round(c*10)/10:q;
-  $("qtd").step=(m.dose||bs==="cafe")?0.5:m.qs;
+  $("lQtd").textContent=m.dose?"Dose de café":({cafe:"Café",xicara:"Café pronto na xícara (ml)"}[bs]||"Água total");
+  $("qtd").nextElementSibling.textContent=(!m.dose&&bs==="xicara")?"ml":"g";
+  if(document.activeElement!==$("qtd")) $("qtd").value=m.dose?q:bs==="cafe"?Math.round(c*10)/10:bs==="xicara"?Math.round(b):q;
+  $("qtd").step=(m.dose||bs==="cafe")?0.5:bs==="xicara"?5:m.qs;
   const R=$("ratio"); R.min=m.r[0]; R.max=m.r[1]; R.step=m.r[3]; R.value=r;
   $("ratioVal").innerHTML=`1:${rfmt(m,r)}<small>${r==m.r[2]?"mais comum":"mais comum 1:"+rfmt(m,m.r[2])}</small>`;
   $("rMin").textContent="1:"+rfmt(m,m.r[0]); $("rMax").textContent="1:"+rfmt(m,m.r[1]);
@@ -322,7 +331,7 @@ function render(){
   $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+pfmt(gr[2])+" · ":"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${pfmt(gr[0])} a ${pfmt(gr[1])} · ${m.cls}`);
   const steps=m.steps(c,a);
   const fim=m.tempo||("Total "+steps[steps.length-1][0]);
-  $("facts").innerHTML=`<span class="fact">Água <b>${m.temp}</b></span><span class="fact">Tempo <b>${fim}</b></span>`+
+  $("facts").innerHTML=(m.dose?"":`<span class="fact">Na xícara <b>≈ ${f(Math.round(b/5)*5)} ml</b> (o pó retém ${f(retOf(m),1)} g de água por g)</span>`)+`<span class="fact">Água <b>${m.temp}</b></span><span class="fact">Tempo <b>${fim}</b></span>`+
     (st.moe==="oster"?`<span class="fact">Oster: posição 1 = bolinha mais fina (lado Espresso), 18 = mais grossa (Prensa)</span><span class="fact">Pese o café; o seletor de xícaras é só um timer</span>`:"")+
     (st.moe==="mongdio"?`<span class="fact">Mongdio: abra o cadeado, gire o anel até o número e trave de novo</span><span class="fact">Referência testada: Melitta no 20</span>`:"")+
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
@@ -333,9 +342,9 @@ function render(){
 }
 $("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(b){st.met=b.dataset.v;render()}});
 $("moedores").addEventListener("click",e=>{const b=e.target.closest("button");if(b){st.moe=b.dataset.v;render()}});
-$("qtd").addEventListener("input",e=>{const m=cur(),v=Number(e.target.value)||0;if(!m.dose&&baseOf(m)==="cafe")st.c[m.id]=v;else st.q[m.id]=v;render()});
+$("qtd").addEventListener("input",e=>{const m=cur(),v=Number(e.target.value)||0,bs=baseOf(m);if(!m.dose&&bs==="cafe")st.c[m.id]=v;else if(!m.dose&&bs==="xicara")st.x[m.id]=v;else st.q[m.id]=v;render()});
 $("base").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const m=cur(),k=calc(m);
-  if(b.dataset.v==="cafe"){st.c[m.id]=Math.round(k.c*10)/10}else{st.q[m.id]=Math.round(k.a)}
+  if(b.dataset.v==="cafe"){st.c[m.id]=Math.round(k.c*10)/10}else if(b.dataset.v==="xicara"){st.x[m.id]=Math.round(k.b/5)*5}else{st.q[m.id]=Math.round(k.a)}
   st.base[m.id]=b.dataset.v;render()});
 $("moag").addEventListener("input",e=>{const v=e.target.value;if(v==="")return;st.gr[gKey(cur())]=Number(v);render()});
 $("moag").addEventListener("blur",render);
@@ -344,7 +353,7 @@ $("gMenos").onclick=()=>gbump(-1); $("gMais").onclick=()=>gbump(1);
 $("gReset").onclick=()=>{delete st.gr[gKey(cur())];render()};
 $("salvar").onclick=()=>{const m=cur(),k=calc(m),nome=$("nome").value.trim()||`${m.n} · ${GN[st.moe]}`;
   const gv=st.gr[gKey(m)]??m.g[st.moe][2];
-  REC.unshift({nome,met:m.id,moe:st.moe,base:baseOf(m),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
+  REC.unshift({nome,met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
   saveRec();$("nome").value="";toast("Receita salva");render()};
 const bkData=()=>JSON.stringify({app:"calculadora-extracao",versao:1,data:new Date().toISOString().slice(0,10),receitas:REC,moagens:st.gr});
 $("bkCopiar").onclick=()=>{const t=bkData();$("bkTxt").value=t;
@@ -358,17 +367,17 @@ const importar=txt=>{let d;try{d=JSON.parse(txt.trim())}catch(e){toast("Texto in
   const lista=Array.isArray(d)?d:(d&&d.receitas);if(!Array.isArray(lista)){toast("Não encontrei receitas nesse backup");return}
   const chave=x=>[x.nome,x.met,x.moe,x.gr,x.c,x.r].join("|");const tem=new Set(REC.map(chave));let n=0;
   for(const x of lista){if(!x||!M.find(y=>y.id===x.met)||!(x.moe in GN)||!(Number(x.r)>0))continue;if(tem.has(chave(x)))continue;
-    REC.push({nome:String(x.nome||"Receita").slice(0,60),met:x.met,moe:x.moe,base:x.base==="cafe"?"cafe":"agua",c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
+    REC.push({nome:String(x.nome||"Receita").slice(0,60),met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
   saveRec();render();toast(n?`${n} receita${n>1?"s":""} importada${n>1?"s":""}`:"Nenhuma receita nova: todas já estavam salvas")};
 $("bkImport").onclick=()=>importar($("bkTxt").value);
 $("bkFile").addEventListener("change",e=>{const fl=e.target.files&&e.target.files[0];if(!fl)return;const rd=new FileReader();rd.onload=()=>{$("bkTxt").value=rd.result;importar(String(rd.result))};rd.readAsText(fl);e.target.value=""});
 $("saved").addEventListener("click",e=>{const o=e.target.closest("[data-open]"),d=e.target.closest("[data-del]");
   if(o){const x=REC[+o.dataset.open],m=M.find(y=>y.id===x.met);if(!m)return;st.met=x.met;st.moe=x.moe;st.r[x.met]=x.r;
-    st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast("Receita aberta: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
+    st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;if(x.base==="xicara")st.x[x.met]=x.x;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast("Receita aberta: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
   if(d){const i=+d.dataset.del;if(delArm===i){REC.splice(i,1);saveRec();delArm=-1;toast("Receita excluída")}else delArm=i;renderSaved()}});
 $("qtd").addEventListener("blur",render);
-const bump=d=>{const m=cur();st.q[m.id]=Math.max(m.qs,Math.round((Number(qOf(m))+d*m.qs*(m.dose?1:5))*100)/100);render()};
+const bump=d=>{const m=cur();if(!m.dose&&baseOf(m)!=="agua"){const bs=baseOf(m),k=calc(m);if(bs==="cafe")st.c[m.id]=Math.max(0.5,Math.round((k.c+d*0.5)*10)/10);else st.x[m.id]=Math.max(10,Math.round(k.b/10)*10+d*10);render();return}st.q[m.id]=Math.max(m.qs,Math.round((Number(qOf(m))+d*m.qs*(m.dose?1:5))*100)/100);render()};
 $("menos").onclick=()=>bump(-1); $("mais").onclick=()=>bump(1);
 $("ratio").addEventListener("input",e=>{st.r[cur().id]=Number(e.target.value);render()});
 $("padrao").onclick=()=>{delete st.r[cur().id];render()};
