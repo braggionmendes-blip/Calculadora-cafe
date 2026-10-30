@@ -125,7 +125,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 16 · 30/10/2026 · moagem ajustada pela quantidade</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 17 · 30/10/2026 · peneiramento e coador de pano</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -225,6 +225,23 @@ select.txt{appearance:auto}
       </div>
       <div class="hint"><span id="gSug"></span><button class="reset" id="gReset" type="button">Usar a sugerida</button></div>
     </div>
+    <div>
+      <label class="unk" for="pOn"><input type="checkbox" id="pOn"> Peneirar o café para tirar os finos</label>
+      <div id="pBox" class="cf" style="margin-top:12px">
+        <div>
+          <label class="lbl" for="pSel">Peneira</label>
+          <select class="txt" id="pSel">
+            <option value="inox">Minha peneira inox (copo)</option>
+            <optgroup label="Peneiras do kit Blade R3 / R3 Pro"><option value="300">300 µm</option><option value="400">400 µm</option><option value="500">500 µm</option><option value="600">600 µm</option><option value="850">850 µm</option></optgroup>
+          </select>
+        </div>
+        <div id="pInoxBox">
+          <label class="lbl" for="pUm">Abertura da peneira inox <span style="text-transform:none">(µm)</span></label>
+          <input class="txt" id="pUm" type="number" inputmode="numeric" min="100" max="1000" step="10" placeholder="Não sei (considerar 300)">
+        </div>
+        <p class="cres" id="pInfo"></p>
+      </div>
+    </div>
   </section>
 
 
@@ -317,10 +334,14 @@ const M=[
   g:{k7:[65,80,72],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[17,23,20],icoffee:[13,18,16]},
   steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Dobre as costuras do filtro, escalde e descarte a água"],["0:00",`Pré-infusão: ${g(c*2)} de água e espere`],[tm(30*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(90*k),`Complete até ${g(a)}`],[tm(210*k)+"–"+tm(270*k),"Fim do escoamento"]]},
   tip:"O suporte Melitta escoa por furos pequenos, mais devagar que o V60. Se passar muito do tempo previsto, moa mais grosso. No Mongdio, o número 20 é a sua referência testada."},
- {id:"coador",n:"Coador de pano / elétrica",cls:"Média",q:500,qs:50,r:[12,18,15,1],temp:"92 a 96 °C",tempo:"",
+ {id:"pano",n:"Coador de pano",cls:"Média",q:500,qs:50,r:[12,18,15,1],temp:"92 a 96 °C",tempo:"",
+  g:{k7:[65,80,72],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[18,24,21],icoffee:[14,19,17]},
+  steps:(c,a)=>{const k=Math.sqrt(a/500);return[["Preparo","Escalde o pano com água quente, torça bem e encaixe no suporte"],["0:00",`Pré-infusão: molhe o pó com ${g(c*2)} de água e espere`],["0:30",`Despeje em espiral, do centro para fora, até a balança marcar ${g(a*.55)}`],[tm(90*k),`Complete até ${g(a)} sem deixar o nível passar da borda do pó`],[tm(210*k)+"–"+tm(270*k),"Fim do escoamento"]]},
+  tip:"O pano retém mais óleos que o papel e dá mais corpo. Guarde-o úmido na geladeira, num pote fechado, e enxágue só com água, sem sabão."},
+ {id:"coador",n:"Cafeteira elétrica",cls:"Média",q:500,qs:50,r:[14,18,16,1],temp:"Da própria cafeteira",tempo:"Ciclo da cafeteira",
   g:{k7:[65,80,70],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[18,24,21],icoffee:[14,19,17]},
-  steps:(c,a)=>{const k=Math.sqrt(a/500);return[["0:00",`Molhe o pó com ${g(c*2)} de água e espere`],["0:30",`Despeje o restante (${g(a-c*2)}) em espiral, devagar`],[tm(180*k),"Termine de despejar"],[tm(210*k)+"–"+tm(270*k),"Fim do escoamento"]]},
-  tip:"Na cafeteira elétrica use só a proporção e a moagem; os tempos valem para o coador de pano."},
+  steps:(c,a)=>[["Preparo",`Ponha ${g(a)} de água no reservatório`],["Preparo",`Coloque ${f(c,1)} g de café no filtro e nivele`],["0:00","Ligue a cafeteira"],["Fim","Desligue a placa logo que terminar, para o café não cozinhar"]],
+  tip:"Na cafeteira elétrica, a proporção e a moagem são o que você controla. Se o café sair fraco, aumente o café antes de afinar a moagem."},
  {id:"sifao",n:"Sifão",cls:"Média",q:300,qs:10,r:[13,17,15,1],temp:"Água subindo ao balão",tempo:"1:00 a 1:30 de contato",
   g:{k7:[65,80,72],r3:[110,145,125],pro:[60,100,85],oster:[8,12,10],mongdio:[16,23,19],icoffee:[13,18,15]},
   steps:(c,a)=>[["Preparo",`Aqueça ${g(a)} de água no balão inferior até subir`],["0:00",`Adicione ${f(c,1)} g de café e mexa suavemente`],["1:00–1:30","Tire do fogo e dê uma última mexida"],["~2:00","Fim, quando o café descer para o balão inferior"]],
@@ -382,7 +403,7 @@ const pfmt=v=>Number.isInteger(v)?f(v):f(v,1);
 const baseOf=m=>m.dose?"agua":(st.base[m.id]||"agua");
 const gKey=m=>m.id+"|"+st.moe;
 // Água que fica retida no pó (g de água por g de café); não chega à xícara
-const RET={turco:0.5,moka:1.5,cold:2.5};
+const RET={turco:0.5,moka:1.5,cold:2.5,pano:2.2};
 const retOf=m=>RET[m.id]??2;
 const calc=m=>{const r=Number(rOf(m));const q=Math.max(0,Number(qOf(m))||0);
   if(m.dose) return {r,q,c:q,a:q*r,b:q*r};
@@ -399,7 +420,7 @@ let fbOpen=-1,fbDraft=null;
 function renderSaved(){
   if(!REC.length){$("saved").innerHTML=`<p class="empty">Nenhuma receita salva ainda. Ajuste tudo acima, dê um nome e toque em Salvar.</p>`;return}
   $("saved").innerHTML=REC.map((x,i)=>{const fb=x.fb||{};const temCafe=x.cafeId||(x.cafe&&!x.cafe.desc);
-    const linha=`${MN[x.met]||x.met} · ${GN[x.moe]||x.moe} ${pfmt(x.gr)} · ${f(x.c,1)} g / ${f(x.a??x.c*x.r)} g${x.x?" · xícara "+f(x.x)+" ml":""} · 1:${f(x.r,x.r%1?1:0)}`;
+    const linha=`${MN[x.met]||x.met} · ${GN[x.moe]||x.moe} ${pfmt(x.gr)} · ${f(x.c,1)} g / ${f(x.a??x.c*x.r)} g${x.x?" · xícara "+f(x.x)+" ml":""} · 1:${f(x.r,x.r%1?1:0)}${x.pen&&x.pen.on?" · peneirado ("+(x.pen.sel==="inox"?"peneira inox":x.pen.sel+" µm")+")":""}`;
     const ed=fbOpen===i?`<div class="fbe"><div class="nt" style="grid-template-columns:64px minmax(0,1fr) 44px 30px"><span id="fbl">Nota</span><input type="range" min="0" max="10" step="1" id="fbNota" aria-labelledby="fbl" value="${fbDraft.nota??5}" class="${fbDraft.nota==null?"unset":""}"><output id="fbOut">${fbDraft.nota??"—"}</output><button class="x" type="button" id="fbClr" aria-label="Limpar nota">×</button></div>
       <label class="lbl" for="fbTxt" style="margin:0">Comentário</label><textarea id="fbTxt" maxlength="400" placeholder="Ex.: doce e equilibrado; na próxima, 2 cliques mais grosso">${esc(fbDraft.txt||"")}</textarea>
       <div class="saverow"><button class="btn pri" type="button" id="fbSave" data-i="${i}" style="flex:1">Salvar feedback</button><button class="btn" type="button" id="fbCancel">Cancelar</button></div></div>`:"";
@@ -409,7 +430,20 @@ function renderSaved(){
       <div class="acts"><button class="btn pri" type="button" data-open="${i}">Abrir receita</button>${temCafe?`<button class="btn" type="button" data-open="${i}" data-comcafe="1">Abrir com o café</button>`:""}<button class="btn" type="button" data-fb="${i}">${fb.nota!=null||fb.txt?"Editar feedback":"Feedback"}</button><button class="btn" type="button" data-del="${i}">${delArm===i?"Confirmar":"Excluir"}</button></div>${ed}</div>`}).join("");
 }
 let delArm=-1,cDelArm=false;
-const PERC=["v60","b75","fluire","origami","melitta","coador","chemex"];
+st.pen=Object.assign({on:false,sel:"inox",um:null},st.pen||{});
+// Peneira recomendada por classe do método (µm)
+const PREC={moka:300,aeropress:300,switch:300,v60:300,b75:300,fluire:300,origami:300,melitta:300,pano:300,coador:300,sifao:300,clever:400,chemex:400,prensa:500,cold:600};
+const penUm=()=>st.pen.sel==="inox"?(Number(st.pen.um)||300):Number(st.pen.sel);
+function peneira(m,c){const r={on:false};if(!st.pen.on)return r;r.on=true;const rec=PREC[m.id];
+  if(!rec){r.bloq=true;r.msg=m.id==="espresso"?"No espresso não se peneira: os finos ajudam a formar a crema e a resistência na extração.":"Neste método o pó vai inteiro para a bebida; não peneire.";return r}
+  const um=penUm(),perda=Math.min(.25,Math.max(.05,.10+(um-rec)/1000));
+  r.rec=rec;r.um=um;r.perda=perda;r.moer=c/(1-perda);r.fino=r.moer-c;
+  r.seg=Math.round((15+Math.max(0,Math.ceil((r.moer-20)/10))*5)/5)*5;
+  const blade=st.moe==="r3"||st.moe==="pro";
+  r.dica=um<rec-50?`Peneira mais fina que a indicada (${rec} µm): tira menos finos`:um>rec+50?`Peneira mais aberta que a indicada (${rec} µm): tira também parte do pó bom`:`Peneira adequada para este método`;
+  if(st.pen.sel==="inox"&&!Number(st.pen.um))r.dica+=" (abertura da sua peneira considerada 300 µm)";
+  return r}
+const PERC=["v60","b75","fluire","origami","melitta","pano","coador","chemex"];
 // Coados: mais café = camada mais alta = escoa mais devagar; compensa com moagem mais grossa (e vice-versa)
 function ajDose(m){const gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
   if(!PERC.includes(m.id))return {off:0,nota:""};
@@ -417,7 +451,10 @@ function ajDose(m){const gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.ro
   const l=Math.log2(c/cref);if(Math.abs(l)<.15)return {off:0,nota:""};
   let off=Math.round(stp*2*l);off=Math.max(-2*stp,Math.min(2*stp,off));if(!off)return {off:0,nota:""};
   return {off,nota:`${off>0?"Mais":"Menos"} café (${f(c,1)} g) que a base (${f(cref,1)} g): moagem ${off>0?"+":""}${pfmt(off)} para manter o tempo de escoamento`}}
-function ajuste(m){const o={off:0,temp:null,fresh:false,notas:[],dose:ajDose(m)};o.off+=o.dose.off;
+function ajuste(m){const o={off:0,temp:null,fresh:false,notas:[],dose:ajDose(m),src:[]};o.off+=o.dose.off;if(o.dose.off)o.src.push("pela quantidade");
+  {const pn=peneira(m,calc(m).c),gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
+   o.penOff=0;if(pn.on&&!pn.bloq&&PERC.concat(["switch","clever","sifao"]).includes(m.id)){o.penOff=-Math.max(1,Math.floor(stp/2));o.off+=o.penOff;o.src.push("pela peneira")}}
+  const off0=o.off;
   if(st.auto===false||st.csel==="desc")return o;const k=st.cafe,gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
   const quente=/\d.*°C/.test(m.temp)&&!["turco","moka","sifao","cold"].includes(m.id);
   if(k.torra==="Clara"){o.off-=stp;if(quente)o.temp="94 a 96 °C";o.notas.push("torra clara: mais fina"+(quente?" e água mais quente":""))}
@@ -425,6 +462,7 @@ function ajuste(m){const o={off:0,temp:null,fresh:false,notas:[],dose:ajDose(m)}
   const d=dias(k.data);
   if(d!=null&&d>=0&&d<=3&&PERC.includes(m.id)){o.fresh=true;o.notas.push("café fresco: pré-infusão mais longa (+15 s)")}
   if(d!=null&&d>45){const v=Math.max(1,Math.floor(stp/2));o.off-=v;o.notas.push(`torrado há ${d} dias: um pouco mais fina`)}
+  if(o.off!==off0)o.src.push("pelo café");
   return o}
 const TIPOSET=new Set([...document.querySelectorAll("#cTipoSel option")].map(o=>o.value));
 function renderCafe(){
@@ -469,14 +507,19 @@ function render(){
   $("lMoag").textContent=unit; $("lMoagIn").textContent=unit;
   $("gUnit").textContent=st.moe==="oster"?"pos":st.moe==="mongdio"?"nº":"cl";
   if(document.activeElement!==$("moag")) $("moag").value=gv;
-  $("gSug").textContent=`Sugerida ${pfmt(sv)}${aj.off?` (base ${pfmt(gr[2])}, ajustada ${[aj.dose.off&&"pela quantidade",aj.off!==aj.dose.off&&"pelo café"].filter(Boolean).join(" e ")})`:""} · faixa ${pfmt(gr[0])} a ${pfmt(gr[1])}`;
+  $("gSug").textContent=`Sugerida ${pfmt(sv)}${aj.off?` (base ${pfmt(gr[2])}, ajustada ${aj.src.join(", ")})`:""} · faixa ${pfmt(gr[0])} a ${pfmt(gr[1])}`;
   $("gReset").hidden=!custom;
   $("oMoag").textContent=pfmt(gv);
-  $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+pfmt(sv)+" · ":aj.off?`Ajustada ${[aj.dose.off&&"pela quantidade",aj.off!==aj.dose.off&&"pelo café"].filter(Boolean).join(" e ")} · base ${pfmt(gr[2])} · `:"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${pfmt(gr[0])} a ${pfmt(gr[1])} · ${m.cls}`);
+  $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+pfmt(sv)+" · ":aj.off?`Ajustada ${aj.src.join(", ")} · base ${pfmt(gr[2])} · `:"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${pfmt(gr[0])} a ${pfmt(gr[1])} · ${m.cls}`);
   let steps=m.steps(c,a);
   if(aj.fresh){steps=steps.map((s0,i)=>{const t=s0[0].replace(/(\d+):(\d\d)/g,(_,mm,ss)=>{const v=+mm*60+ +ss;return v>0?tm(v+15):"0:00"});
     const first=i===steps.findIndex(x=>/^0:00/.test(x[0]));return [t,first?s0[1]+" · café fresco: espere 40 a 45 s antes do próximo despejo":s0[1]]})}
-  const fim=m.tempo||("Total "+steps[steps.length-1][0]);
+  const pn=peneira(m,c);
+  if(pn.on&&!pn.bloq)steps=[["Peneirar",`Moa ${f(pn.moer,1)} g, ponha na peneira (${pn.um} µm), tampe e agite de um lado para o outro por ${pn.seg} s. Descarte o pó que passou (≈ ${f(pn.fino,1)} g) e use os ${f(c,1)} g que ficaram`],...steps];
+  $("pOn").checked=st.pen.on;$("pBox").hidden=!st.pen.on;$("pSel").value=st.pen.sel;$("pInoxBox").hidden=st.pen.sel!=="inox";
+  if(document.activeElement!==$("pUm"))$("pUm").value=st.pen.um||"";
+  $("pInfo").textContent=!pn.on?"":pn.bloq?pn.msg:`Moa ${f(pn.moer,1)} g para sobrarem ${f(c,1)} g (perda estimada de ${Math.round(pn.perda*100)}%). Agite por ${pn.seg} s. ${pn.dica}.${aj.penOff?` Sem os finos o café escoa mais rápido: moagem ${pfmt(aj.penOff)}.`:""}`;
+  const fim=m.tempo||("Total "+steps.filter(x=>x[0]!=="Peneirar").slice(-1)[0][0]);
   {const tv=aj.temp||m.temp,mt=tv.match(/(\d+)(?:\s*a\s*(\d+))?\s*°C/);
    $("oTemp").className="big"+(mt?"":" txtv");
    $("oTemp").innerHTML=mt?`${mt[1]}${mt[2]?"–"+mt[2]:""}<small>°C</small>`:esc(tv);
@@ -509,6 +552,9 @@ const persist=()=>{try{localStorage.setItem("calcExtracao",JSON.stringify(st))}c
 const cmsg=t=>{$("cMsg").textContent=t;setTimeout(()=>$("cMsg").textContent="",2500)};
 $("cSel").addEventListener("change",e=>{const v=e.target.value;st.csel=v;cDelArm=false;cEdit=v==="novo";
   st.cafe=v==="desc"||v==="novo"?{...CAFE0}:{...CAF.find(c=>c.id===v)};render()});
+$("pOn").addEventListener("change",e=>{st.pen.on=e.target.checked;render()});
+$("pSel").addEventListener("change",e=>{st.pen.sel=e.target.value;render()});
+$("pUm").addEventListener("input",e=>{st.pen.um=Number(e.target.value)||null;render()});
 $("cAuto").addEventListener("change",e=>{st.auto=e.target.checked;render()});
 $("cEdit").onclick=()=>{cEdit=!cEdit;if(!cEdit){const o=CAF.find(c=>c.id===st.csel);if(o)st.cafe={...o}}render()};
 $("cCancel").onclick=()=>{if(st.csel==="novo"){st.csel="desc";st.cafe={...CAFE0}}else{const o=CAF.find(c=>c.id===st.csel);if(o)st.cafe={...o}}cEdit=false;render()};
@@ -529,7 +575,7 @@ $("cSave").onclick=()=>{const o=san({...st.cafe,tipo:st.cafe.tipo==="__outro"?""
 $("salvar").onclick=()=>{const m=cur(),k=calc(m),nome=$("nome").value.trim()||`${m.n} · ${(st.csel!=="desc"&&st.cafe.nome.trim())||GN[st.moe]}`;
   const gv=st.gr[gKey(m)]??Math.max(0,m.g[st.moe][2]+ajuste(m).off);
   const snap=st.csel==="desc"?{desc:true}:san({...st.cafe,tipo:st.cafe.tipo==="__outro"?"":st.cafe.tipo});
-  REC.unshift({nome,cafeId:(st.csel!=="desc"&&st.csel!=="novo")?st.csel:undefined,cafe:snap,met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
+  REC.unshift({pen:{...st.pen},nome,cafeId:(st.csel!=="desc"&&st.csel!=="novo")?st.csel:undefined,cafe:snap,met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
   saveRec();$("nome").value="";toast("Receita salva");render()};
 const bkData=()=>JSON.stringify({app:"calculadora-extracao",versao:1,data:new Date().toISOString().slice(0,10),receitas:REC,cafes:CAF,moagens:st.gr});
 $("bkCopiar").onclick=()=>{const t=bkData();$("bkTxt").value=t;
@@ -548,7 +594,7 @@ const importar=txt=>{let d;try{d=JSON.parse(txt.trim())}catch(e){toast("Texto in
   for(const x of (lista||[])){if(!x||!M.find(y=>y.id===x.met)||!(x.moe in GN)||!(Number(x.r)>0))continue;if(tem.has(chave(x)))continue;
     const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?{desc:true}:san(x.cafe)):undefined;
     const fbi=x.fb&&typeof x.fb==="object"?{nota:(Number.isFinite(+x.fb.nota)&&x.fb.nota!==null&&+x.fb.nota>=0&&+x.fb.nota<=10)?Math.round(+x.fb.nota):null,txt:String(x.fb.txt||"").slice(0,400),data:String(x.fb.data||"").slice(0,10)}:undefined;
-    REC.push({fb:fbi,nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
+    REC.push({pen:x.pen&&typeof x.pen==="object"?{on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null}:undefined,fb:fbi,nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
   saveRec();render();toast(n||nc?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`:"Nada novo: tudo já estava salvo")};
 $("bkImport").onclick=()=>importar($("bkTxt").value);
@@ -561,7 +607,7 @@ $("saved").addEventListener("click",e=>{const o=e.target.closest("[data-open]"),
   if(e.target.id==="fbSave"){const i=+e.target.dataset.i;const t=(fbDraft.txt||"").trim();REC[i].fb=(fbDraft.nota==null&&!t)?undefined:{nota:fbDraft.nota,txt:t,data:new Date().toISOString().slice(0,10)};saveRec();fbOpen=-1;renderSaved();toast("Feedback salvo");return}
   if(o){const x=REC[+o.dataset.open],m=M.find(y=>y.id===x.met);if(!m)return;st.met=x.met;st.moe=x.moe;st.r[x.met]=x.r;
     if(o.dataset.comcafe){const reg=x.cafeId&&CAF.find(c=>c.id===x.cafeId);
-      if(reg){st.csel=reg.id;st.cafe={...reg};cEdit=false}else if(!x.cafe||x.cafe.desc){st.csel="desc";st.cafe={...CAFE0}}else{st.csel="novo";st.cafe=san(x.cafe);cEdit=true}}st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;if(x.base==="xicara")st.x[x.met]=x.x;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast(o.dataset.comcafe?"Receita e café abertos: "+x.nome:"Receita aberta com o café selecionado: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
+      if(reg){st.csel=reg.id;st.cafe={...reg};cEdit=false}else if(!x.cafe||x.cafe.desc){st.csel="desc";st.cafe={...CAFE0}}else{st.csel="novo";st.cafe=san(x.cafe);cEdit=true}}if(x.pen&&typeof x.pen==="object")st.pen={on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null};st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;if(x.base==="xicara")st.x[x.met]=x.x;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast(o.dataset.comcafe?"Receita e café abertos: "+x.nome:"Receita aberta com o café selecionado: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
   if(d){const i=+d.dataset.del;if(delArm===i){REC.splice(i,1);saveRec();delArm=-1;fbOpen=-1;toast("Receita excluída")}else delArm=i;renderSaved()}});
 $("qtd").addEventListener("blur",render);
 const bump=d=>{const m=cur();if(!m.dose&&baseOf(m)!=="agua"){const bs=baseOf(m),k=calc(m);if(bs==="cafe")st.c[m.id]=Math.max(0.5,Math.round((k.c+d*0.5)*10)/10);else st.x[m.id]=Math.max(10,Math.round(k.b/10)*10+d*10);render();return}st.q[m.id]=Math.max(m.qs,Math.round((Number(qOf(m))+d*m.qs*(m.dose?1:5))*100)/100);render()};
@@ -569,7 +615,7 @@ $("menos").onclick=()=>bump(-1); $("mais").onclick=()=>bump(1);
 $("ratio").addEventListener("input",e=>{st.r[cur().id]=Number(e.target.value);render()});
 $("padrao").onclick=()=>{delete st.r[cur().id];render()};
 render();
-if('serviceWorker' in navigator){let rec=false;const tinha=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(tinha&&!rec){rec=true;location.reload()}});addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{}))}
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
 
 </body>
