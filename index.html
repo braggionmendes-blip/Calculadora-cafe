@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 22 · 30/10/2026 · temporizador sincronizado com o bipe</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 23 · 30/10/2026 · bipe mais alto</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -582,15 +582,19 @@ let CUR=[];const T={run:false,pausa:false,t0:0,acum:0,feitos:new Set(),avisos:ne
 const pontos=()=>T.run&&T.pts?T.pts:pontosAgora();
 const seg=t=>{const mm=String(t).match(/(\d+):(\d\d)/);return mm?+mm[1]*60+ +mm[2]:null};
 const pontosAgora=()=>CUR.map((s,i)=>({i,t:seg(s[0]),txt:s[1],lbl:s[0]})).filter(x=>x.t!=null);
-function som(freq,dur,vol=.25){try{const a=T.ac;if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=freq;
+function som(freq,dur,vol=.25){try{const a=T.ac;if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type="square";o.frequency.value=freq;
   g.gain.setValueAtTime(0,a.currentTime);g.gain.linearRampToValueAtTime(vol,a.currentTime+.01);g.gain.linearRampToValueAtTime(0,a.currentTime+dur);
   o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+dur+.02)}catch(e){}}
 // Faixa de áudio com os bipes já nos horários: toca como mídia (segue em segundo plano e no modo silencioso)
-function faixa(pts){const SR=8000,ult=Math.max(0,...pts.map(p=>p.t)),dur=Math.min(ult+8,1800),n=Math.ceil(dur*SR);
+function faixa(pts){const SR=16000,ult=Math.max(0,...pts.map(p=>p.t)),dur=Math.min(ult+8,900),n=Math.ceil(dur*SR);
   const d=new Uint8Array(44+n);d.fill(128,44);
-  const bip=(t0,fq,len,vol)=>{const a=Math.floor(t0*SR),b=Math.min(n,a+Math.floor(len*SR));for(let i=a;i<b;i++){const k=(i-a)/SR,env=Math.min(1,k/.01,(len-k)/.02);d[44+i]=128+Math.round(Math.sin(2*Math.PI*fq*k)*vol*env)}};
+  const bip=(t0,fq,len,vol)=>{const a=Math.floor(t0*SR),b=Math.min(n,a+Math.floor(len*SR));for(let i=a;i<b;i++){const k=(i-a)/SR,env=Math.min(1,k/.004,(len-k)/.01);
+    // onda quase quadrada (seno saturado): soa bem mais alto no alto-falante do celular que um seno puro
+    const x=Math.tanh(4*Math.sin(2*Math.PI*fq*k))/Math.tanh(4);d[44+i]=Math.max(0,Math.min(255,128+Math.round(x*vol*env)))}};
   // contagem: 5, 4, 3, 2, 1 com volume crescente; no despejo, bipe longo no volume cheio
-  for(const p of pts){if(p.t<=0||p.t>dur)continue;[[5,12],[4,24],[3,40],[2,60],[1,85]].forEach(([k,vol])=>{if(p.t>=k)bip(p.t-k,880,.12,vol)});bip(p.t,1175,.6,124)}
+  // tons de 2 a 3,2 kHz: faixa em que o alto-falante do celular rende mais volume
+  for(const p of pts){if(p.t<=0||p.t>dur)continue;[[5,32],[4,52],[3,72],[2,95],[1,115]].forEach(([k,vol])=>{if(p.t>=k)bip(p.t-k,2000,.14,vol)});
+    [[0,2600],[.24,3200],[.48,2600],[.72,3200]].forEach(([o,fq])=>bip(p.t+o,fq,.2,127))}
   const v=new DataView(d.buffer),w=(o,t)=>{for(let i=0;i<t.length;i++)d[o+i]=t.charCodeAt(i)};
   w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
   v.setUint32(24,SR,true);v.setUint32(28,SR,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
@@ -607,8 +611,8 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
   if(sohTela)return;
   for(const p of pts){
     const sonoro=!T.au&&st.bipe!==false;
-    for(const[k,vol]of[[5,.03],[4,.06],[3,.1],[2,.16],[1,.24]]){const key=p.i+"-"+k;if(p.t>0&&!T.avisos.has(key)&&p.t-e<=k&&p.t-e>k-1){T.avisos.add(key);if(sonoro)som(880,.12,vol);if(k===1)vibra(60)}}
-    if(!T.feitos.has(p.i)&&e>=p.t){T.feitos.add(p.i);if(e-p.t<2){if(sonoro)som(1175,.6,.35);vibra([200,100,200]);
+    for(const[k,vol]of[[5,.08],[4,.13],[3,.18],[2,.24],[1,.3]]){const key=p.i+"-"+k;if(p.t>0&&!T.avisos.has(key)&&p.t-e<=k&&p.t-e>k-1){T.avisos.add(key);if(sonoro)som(2000,.14,vol);if(k===1)vibra(60)}}
+    if(!T.feitos.has(p.i)&&e>=p.t){T.feitos.add(p.i);if(e-p.t<2){if(sonoro){[0,240,480,720].forEach((ms,j)=>setTimeout(()=>som(j%2?3200:2600,.2,.35),ms))}vibra([200,100,200]);
       $("tmr").classList.add("alerta");setTimeout(()=>$("tmr").classList.remove("alerta"),1500)}}}
 }
 let tInt=null;
