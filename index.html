@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 19 · 30/10/2026 · bipe em segundo plano e no silencioso</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 20 · 30/10/2026 · contagem 3, 2, 1 com volume crescente</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -588,7 +588,8 @@ function som(freq,dur,vol=.25){try{const a=T.ac;if(!a)return;const o=a.createOsc
 function faixa(pts){const SR=8000,ult=Math.max(0,...pts.map(p=>p.t)),dur=Math.min(ult+8,1800),n=Math.ceil(dur*SR);
   const d=new Uint8Array(44+n);d.fill(128,44);
   const bip=(t0,fq,len,vol)=>{const a=Math.floor(t0*SR),b=Math.min(n,a+Math.floor(len*SR));for(let i=a;i<b;i++){const k=(i-a)/SR,env=Math.min(1,k/.01,(len-k)/.02);d[44+i]=128+Math.round(Math.sin(2*Math.PI*fq*k)*vol*env)}};
-  for(const p of pts){if(p.t<=0||p.t>dur)continue;if(p.t>=5)bip(p.t-5,660,.15,70);bip(p.t,880,.2,110);bip(p.t+.3,880,.2,110);bip(p.t+.6,1175,.4,120)}
+  // contagem: 3, 2, 1 com volume crescente; no despejo, bipe longo no volume cheio
+  for(const p of pts){if(p.t<=0||p.t>dur)continue;[[3,22],[2,48],[1,80]].forEach(([k,vol])=>{if(p.t>=k)bip(p.t-k,880,.12,vol)});bip(p.t,1175,.6,124)}
   const v=new DataView(d.buffer),w=(o,t)=>{for(let i=0;i<t.length;i++)d[o+i]=t.charCodeAt(i)};
   w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
   v.setUint32(24,SR,true);v.setUint32(28,SR,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
@@ -604,8 +605,8 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
   if(sohTela)return;
   for(const p of pts){
     const sonoro=!T.au;
-    if(p.t>0&&!T.avisos.has(p.i)&&p.t-e<=5&&p.t-e>0){T.avisos.add(p.i);if(sonoro)som(660,.12);vibra(80)}
-    if(!T.feitos.has(p.i)&&e>=p.t){T.feitos.add(p.i);if(e-p.t<2){if(sonoro){som(880,.18);setTimeout(()=>som(880,.18),250);setTimeout(()=>som(1175,.35),500)}vibra([200,100,200]);
+    for(const[k,vol]of[[3,.06],[2,.13],[1,.22]]){const key=p.i+"-"+k;if(p.t>0&&!T.avisos.has(key)&&p.t-e<=k&&p.t-e>k-1){T.avisos.add(key);if(sonoro)som(880,.12,vol);if(k===1)vibra(60)}}
+    if(!T.feitos.has(p.i)&&e>=p.t){T.feitos.add(p.i);if(e-p.t<2){if(sonoro)som(1175,.6,.35);vibra([200,100,200]);
       $("tmr").classList.add("alerta");setTimeout(()=>$("tmr").classList.remove("alerta"),1500)}}}
 }
 let tInt=null;
