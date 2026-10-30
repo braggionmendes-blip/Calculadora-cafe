@@ -409,7 +409,14 @@ function renderSaved(){
 }
 let delArm=-1,cDelArm=false;
 const PERC=["v60","b75","fluire","origami","melitta","coador","chemex"];
-function ajuste(m){const o={off:0,temp:null,fresh:false,notas:[]};
+// Coados: mais café = camada mais alta = escoa mais devagar; compensa com moagem mais grossa (e vice-versa)
+function ajDose(m){const gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
+  if(!PERC.includes(m.id))return {off:0,nota:""};
+  const cref=m.q/m.r[2],c=calc(m).c;if(!(c>0))return {off:0,nota:""};
+  const l=Math.log2(c/cref);if(Math.abs(l)<.15)return {off:0,nota:""};
+  let off=Math.round(stp*2*l);off=Math.max(-2*stp,Math.min(2*stp,off));if(!off)return {off:0,nota:""};
+  return {off,nota:`${off>0?"Mais":"Menos"} café (${f(c,1)} g) que a base (${f(cref,1)} g): moagem ${off>0?"+":""}${pfmt(off)} para manter o tempo de escoamento`}}
+function ajuste(m){const o={off:0,temp:null,fresh:false,notas:[],dose:ajDose(m)};o.off+=o.dose.off;
   if(st.auto===false||st.csel==="desc")return o;const k=st.cafe,gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
   const quente=/\d.*°C/.test(m.temp)&&!["turco","moka","sifao","cold"].includes(m.id);
   if(k.torra==="Clara"){o.off-=stp;if(quente)o.temp="94 a 96 °C";o.notas.push("torra clara: mais fina"+(quente?" e água mais quente":""))}
@@ -461,10 +468,10 @@ function render(){
   $("lMoag").textContent=unit; $("lMoagIn").textContent=unit;
   $("gUnit").textContent=st.moe==="oster"?"pos":st.moe==="mongdio"?"nº":"cl";
   if(document.activeElement!==$("moag")) $("moag").value=gv;
-  $("gSug").textContent=`Sugerida ${pfmt(sv)}${aj.off?` (base ${pfmt(gr[2])}, ajustada pelo café)`:""} · faixa ${pfmt(gr[0])} a ${pfmt(gr[1])}`;
+  $("gSug").textContent=`Sugerida ${pfmt(sv)}${aj.off?` (base ${pfmt(gr[2])}, ajustada ${[aj.dose.off&&"pela quantidade",aj.off!==aj.dose.off&&"pelo café"].filter(Boolean).join(" e ")})`:""} · faixa ${pfmt(gr[0])} a ${pfmt(gr[1])}`;
   $("gReset").hidden=!custom;
   $("oMoag").textContent=pfmt(gv);
-  $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+pfmt(sv)+" · ":aj.off?`Ajustada pelo café · base ${pfmt(gr[2])} · `:"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${pfmt(gr[0])} a ${pfmt(gr[1])} · ${m.cls}`);
+  $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+pfmt(sv)+" · ":aj.off?`Ajustada ${[aj.dose.off&&"pela quantidade",aj.off!==aj.dose.off&&"pelo café"].filter(Boolean).join(" e ")} · base ${pfmt(gr[2])} · `:"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${pfmt(gr[0])} a ${pfmt(gr[1])} · ${m.cls}`);
   let steps=m.steps(c,a);
   if(aj.fresh){steps=steps.map((s0,i)=>{const t=s0[0].replace(/(\d+):(\d\d)/g,(_,mm,ss)=>{const v=+mm*60+ +ss;return v>0?tm(v+15):"0:00"});
     const first=i===steps.findIndex(x=>/^0:00/.test(x[0]));return [t,first?s0[1]+" · café fresco: espere 40 a 45 s antes do próximo despejo":s0[1]]})}
@@ -476,7 +483,7 @@ function render(){
   const TT=aj.notas.length?"Ajustado pelo café: "+aj.notas.join("; "):"";
   const dd=st.csel!=="desc"?dias(st.cafe.data):null;
   const DT=dd==null||dd<0?"":dd<=3?`Torrado há ${dd} dia${dd===1?"":"s"}: muito fresco`:dd<=30?`Torrado há ${dd} dias: ponto ideal`:dd<=60?`Torrado há ${dd} dias: ainda bom; se faltar sabor, moa um pouco mais fino`:`Torrado há ${dd} dias: aromas já mais fracos`;
-  $("facts").innerHTML=(DT?`<span class="fact">${DT}</span>`:"")+(TT?`<span class="fact">${TT}</span>`:"")+(m.dose?"":`<span class="fact">Na xícara <b>≈ ${f(Math.round(b/5)*5)} ml</b> (o pó retém ${f(retOf(m),1)} g de água por g)</span>`)+`<span class="fact">Tempo <b>${fim}</b></span>`+
+  $("facts").innerHTML=(aj.dose.nota?`<span class="fact">${aj.dose.nota}</span>`:"")+(DT?`<span class="fact">${DT}</span>`:"")+(TT?`<span class="fact">${TT}</span>`:"")+(m.dose?"":`<span class="fact">Na xícara <b>≈ ${f(Math.round(b/5)*5)} ml</b> (o pó retém ${f(retOf(m),1)} g de água por g)</span>`)+`<span class="fact">Tempo <b>${fim}</b></span>`+
     (st.moe==="oster"?`<span class="fact">Oster: posição 1 = bolinha mais fina (lado Espresso), 18 = mais grossa (Prensa)</span><span class="fact">Pese o café; o seletor de xícaras é só um timer</span>`:"")+
     (st.moe==="mongdio"?`<span class="fact">Mongdio: abra o cadeado, gire o anel até o número e trave de novo</span><span class="fact">Referência testada: Melitta no 20</span>`:"")+
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
