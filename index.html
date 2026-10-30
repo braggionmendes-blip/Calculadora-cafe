@@ -69,6 +69,20 @@ input[type=range]{width:100%;accent-color:var(--accent);margin:4px 0 0}
 .steps .x{min-width:0}
 .tip{color:var(--muted);font-size:.86rem;max-width:65ch;margin:0}
 h2{font-size:1.05rem;margin:4px 0 0}
+.sh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.steps li.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.steps li.ok{opacity:.5}
+.tmr{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 24px rgba(0,0,0,.12);
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.tmr .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center}
+.tmr .clk{font:600 2.4rem var(--mono);font-variant-numeric:tabular-nums;grid-row:span 2;color:var(--accent)}
+.tmr .now{font-weight:600;font-size:.95rem;min-width:0}
+.tmr .nxt{color:var(--muted);font-size:.85rem;min-width:0}
+.tmr .nxt b{font-family:var(--mono);color:var(--heat-fg)}
+.tmr .bt{grid-column:1/-1;display:flex;gap:8px;margin-top:6px}
+.tmr .bt .btn{flex:1}
+.tmr.alerta{background:var(--heat)}
+body.timing{padding-bottom:170px}
 .mini{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .mini button{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 .85rem var(--display);cursor:pointer}
 .mini button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
@@ -125,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 17 · 30/10/2026 · peneiramento e coador de pano</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 18 · 30/10/2026 · temporizador com aviso a cada despejo</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -253,7 +267,7 @@ select.txt{appearance:auto}
       <div class="cell grind"><span class="lbl" id="lMoag">Moagem</span><div class="big" id="oMoag"></div><div class="note" id="oFaixa"></div></div>
     </div>
     <div class="facts" id="facts"></div>
-    <h2>Passo a passo</h2>
+    <div class="sh"><h2>Passo a passo</h2><button class="btn pri" id="tStart" type="button">Iniciar temporizador</button></div>
     <ol class="steps" id="steps"></ol>
     <p class="tip" id="tip"></p>
     <p class="tip">Ajuste fino: saiu ácido ou aguado, moa mais fino; saiu amargo ou adstringente, moa mais grosso. Mude uma coisa por vez. Moagem: K7, R3, R3 Pro e Oster partem das indicações dos manuais de cada fabricante, com interpolação nos métodos que o manual não cita. Os do Mongdio partem do seu teste (Melitta no 20) e da escala do anel; os do iCoffee são provisórios, proporcionais aos 30 ajustes.</p>
@@ -281,6 +295,14 @@ select.txt{appearance:auto}
       <p>Para guardar: toque em Copiar backup e cole no app Notas, num e-mail ou no WhatsApp. Para recuperar em outro aparelho: cole o texto aqui e toque em Importar do texto. O backup inclui as receitas e os cafés cadastrados. A importação soma ao que já existe, sem apagar nada.</p>
     </details>
   </section>
+</div>
+<div class="tmr" id="tmr" hidden role="timer" aria-live="polite">
+  <div class="in">
+    <div class="clk" id="tClk">0:00</div>
+    <div class="now" id="tNow"></div>
+    <div class="nxt" id="tNxt"></div>
+    <div class="bt"><button class="btn" id="tPause" type="button">Pausar</button><button class="btn" id="tStop" type="button">Encerrar</button></div>
+  </div>
 </div>
 
 <script>
@@ -531,7 +553,9 @@ function render(){
     (st.moe==="oster"?`<span class="fact">Oster: posição 1 = bolinha mais fina (lado Espresso), 18 = mais grossa (Prensa)</span><span class="fact">Pese o café; o seletor de xícaras é só um timer</span>`:"")+
     (st.moe==="mongdio"?`<span class="fact">Mongdio: abra o cadeado, gire o anel até o número e trave de novo</span><span class="fact">Referência testada: Melitta no 20</span>`:"")+
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
-  $("steps").innerHTML=steps.map(s=>`<li><span class="t">${s[0]}</span><span class="x">${s[1]}</span></li>`).join("");
+  CUR=steps;
+  $("steps").innerHTML=steps.map((s,i)=>`<li data-i="${i}"><span class="t">${s[0]}</span><span class="x">${s[1]}</span></li>`).join("");
+  if(T.run)tick(true);
   $("tip").textContent=m.tip;
   renderCafe();
   renderSaved();
@@ -552,6 +576,43 @@ const persist=()=>{try{localStorage.setItem("calcExtracao",JSON.stringify(st))}c
 const cmsg=t=>{$("cMsg").textContent=t;setTimeout(()=>$("cMsg").textContent="",2500)};
 $("cSel").addEventListener("change",e=>{const v=e.target.value;st.csel=v;cDelArm=false;cEdit=v==="novo";
   st.cafe=v==="desc"||v==="novo"?{...CAFE0}:{...CAF.find(c=>c.id===v)};render()});
+// ---------- Temporizador ----------
+let CUR=[];const T={run:false,pausa:false,t0:0,acum:0,feitos:new Set(),avisos:new Set(),ac:null,wl:null};
+const seg=t=>{const mm=String(t).match(/(\d+):(\d\d)/);return mm?+mm[1]*60+ +mm[2]:null};
+const pontos=()=>CUR.map((s,i)=>({i,t:seg(s[0]),txt:s[1],lbl:s[0]})).filter(x=>x.t!=null);
+function som(freq,dur,vol=.25){try{const a=T.ac;if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=freq;
+  g.gain.setValueAtTime(0,a.currentTime);g.gain.linearRampToValueAtTime(vol,a.currentTime+.01);g.gain.linearRampToValueAtTime(0,a.currentTime+dur);
+  o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+dur+.02)}catch(e){}}
+function vibra(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+const decorrido=()=>T.acum+(T.run&&!T.pausa?(Date.now()-T.t0)/1000:0);
+function tick(sohTela){const e=decorrido(),pts=pontos();
+  $("tClk").textContent=tm(Math.floor(e));
+  let atual=null,prox=null;for(const p of pts){if(p.t<=e)atual=p;else{prox=p;break}}
+  $("tNow").textContent=atual?atual.txt:"Prepare-se";
+  $("tNxt").innerHTML=prox?`Próximo em <b>${tm(Math.ceil(prox.t-e))}</b>: ${esc(prox.txt)}`:"Último passo. Toque em Encerrar quando terminar.";
+  document.querySelectorAll("#steps li").forEach(li=>{const i=+li.dataset.i;li.classList.toggle("on",!!atual&&i===atual.i);li.classList.toggle("ok",!!atual&&pts.some(p=>p.i===i&&p.t<atual.t))});
+  if(sohTela)return;
+  for(const p of pts){
+    if(p.t>0&&!T.avisos.has(p.i)&&p.t-e<=5&&p.t-e>0){T.avisos.add(p.i);som(660,.12);vibra(80)}
+    if(!T.feitos.has(p.i)&&e>=p.t){T.feitos.add(p.i);if(e-p.t<2){som(880,.18);setTimeout(()=>som(880,.18),250);setTimeout(()=>som(1175,.35),500);vibra([200,100,200]);
+      $("tmr").classList.add("alerta");setTimeout(()=>$("tmr").classList.remove("alerta"),1500)}}}
+}
+let tInt=null;
+async function iniciar(){
+  try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
+  try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();await T.ac.resume()}catch(e){}
+  som(523,.08,.15);
+  try{T.wl=await navigator.wakeLock.request("screen")}catch(e){}
+  Object.assign(T,{run:true,pausa:false,t0:Date.now(),acum:0,feitos:new Set(),avisos:new Set()});
+  $("tmr").hidden=false;document.body.classList.add("timing");$("tPause").textContent="Pausar";$("tStart").textContent="Reiniciar temporizador";
+  clearInterval(tInt);tInt=setInterval(()=>tick(false),200);tick(false);
+  document.querySelector("#steps").scrollIntoView({behavior:"smooth",block:"start"})}
+function encerrar(){T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").textContent="Iniciar temporizador";
+  try{T.wl&&T.wl.release()}catch(e){}T.wl=null;document.querySelectorAll("#steps li").forEach(li=>li.classList.remove("on","ok"))}
+$("tStart").onclick=iniciar;
+$("tStop").onclick=encerrar;
+$("tPause").onclick=()=>{if(!T.run)return;if(T.pausa){T.pausa=false;T.t0=Date.now();$("tPause").textContent="Pausar"}else{T.acum=decorrido();T.pausa=true;$("tPause").textContent="Continuar"}tick(true)};
+document.addEventListener("visibilitychange",async()=>{if(document.visibilityState==="visible"&&T.run){try{T.wl=await navigator.wakeLock.request("screen")}catch(e){}try{T.ac&&T.ac.resume()}catch(e){}}});
 $("pOn").addEventListener("change",e=>{st.pen.on=e.target.checked;render()});
 $("pSel").addEventListener("change",e=>{st.pen.sel=e.target.value;render()});
 $("pUm").addEventListener("input",e=>{st.pen.um=Number(e.target.value)||null;render()});
