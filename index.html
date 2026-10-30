@@ -18,15 +18,15 @@
 /* Layout: coluna única; escolhas no topo (método, moedor, quantidade, proporção), resultado lido como o visor de uma balança e a receita em linha do tempo */
 :root{
   --bg:#EEF0EE; --surface:#FFFFFF; --fg:#1F1A17; --muted:#6B6460; --line:#D6D8D5;
-  --accent:#7A3E1D; --accent-fg:#FFFFFF; --chip:#E4E6E3; --soft:#F5F0EB;
+  --accent:#7A3E1D; --accent-fg:#FFFFFF; --chip:#E4E6E3; --soft:#F5F0EB; --heat:#FBE4D3; --heat-fg:#8A3412;
   --display:"Familjen Grotesk",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#141312; --surface:#1E1C1A; --fg:#F1ECE7; --muted:#A39A93; --line:#34302D;
-  --accent:#E09A6B; --accent-fg:#1A1210; --chip:#2A2724; --soft:#2A221D; color-scheme:dark}}
+  --accent:#E09A6B; --accent-fg:#1A1210; --chip:#2A2724; --soft:#2A221D; --heat:#3B2014; --heat-fg:#F2A67A; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141312; --surface:#1E1C1A; --fg:#F1ECE7; --muted:#A39A93; --line:#34302D;
-  --accent:#E09A6B; --accent-fg:#1A1210; --chip:#2A2724; --soft:#2A221D; color-scheme:dark}
+  --accent:#E09A6B; --accent-fg:#1A1210; --chip:#2A2724; --soft:#2A221D; --heat:#3B2014; --heat-fg:#F2A67A; color-scheme:dark}
 body{-webkit-text-size-adjust:100%;text-size-adjust:100%;background:var(--bg);color:var(--fg);font-family:var(--display);font-size:16px;line-height:1.45}
 .wrap{max-width:620px;margin:0 auto;grid-template-columns:minmax(0,1fr);padding-block:28px 44px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
@@ -50,12 +50,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 input[type=range]{width:100%;accent-color:var(--accent);margin:4px 0 0}
 .ticks{display:flex;justify-content:space-between;font:400 .78rem var(--mono);color:var(--muted)}
 .reset{background:none;border:0;padding:0;color:var(--accent);font:600 .85rem var(--display);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-.read{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.read{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .cell{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
 .cell .big{font:600 1.7rem var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.15}
 .cell .big small{font-size:.85rem;color:var(--muted);margin-left:3px}
 .cell .note{color:var(--muted);font-size:.8rem;margin-top:2px}
 .grind{background:var(--soft);border-color:transparent}
+.temp{background:var(--heat);border-color:transparent}
+.temp .lbl{color:var(--heat-fg)}
+.temp .big{color:var(--heat-fg)}
+.temp .big.txtv{font:600 1.05rem var(--display);letter-spacing:0;line-height:1.3}
 .facts{display:flex;flex-wrap:wrap;gap:8px}
 .fact{background:var(--chip);border-radius:999px;padding:6px 12px;font-size:.88rem}
 .fact b{font-weight:600}
@@ -70,10 +74,16 @@ h2{font-size:1.05rem;margin:4px 0 0}
 .mini button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .hint{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:6px;color:var(--muted);font-size:.85rem}
 .saved{display:grid;gap:8px}
-.rec{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.rec b{display:block}
-.rec span{color:var(--muted);font-size:.85rem}
-.rec .acts{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+.rec{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.rec .rh{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.rec .rh b{min-width:0}
+.rec .nota{flex:none;font:600 .85rem var(--mono);background:var(--heat);color:var(--heat-fg);border-radius:999px;padding:2px 9px}
+.rec .rm{margin:0;color:var(--muted);font-size:.85rem;line-height:1.4}
+.rec .fbt{margin:0;font-size:.88rem;font-style:italic}
+.rec .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.rec .acts .btn{padding:7px 10px;font-size:.84rem}
+.fbe{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:10px;margin-top:4px}
+.fbe textarea{width:100%;min-height:70px;font:400 .95rem var(--display);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}
 .btn{padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:600 .88rem var(--display);cursor:pointer}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .saverow{display:flex;gap:8px}
@@ -105,7 +115,8 @@ select.txt{appearance:auto}
 .cres{margin:0;color:var(--muted);font-size:.92rem}
 @media (max-width:380px){.cf2{grid-template-columns:minmax(0,1fr)}}
 .toast{color:var(--accent);font-size:.88rem;font-weight:600;min-height:1.2em;margin:0}
-@media (max-width:460px){.read{grid-template-columns:1fr 1fr}.read .grind{grid-column:1/-1}.steps li{grid-template-columns:64px 1fr}}
+@media (max-width:620px){.read{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.steps li{grid-template-columns:64px 1fr}}
 </style>
 
 </head>
@@ -220,6 +231,7 @@ select.txt{appearance:auto}
     <div class="read">
       <div class="cell"><span class="lbl">Café</span><div class="big" id="oCafe"></div></div>
       <div class="cell"><span class="lbl" id="lAgua">Água</span><div class="big" id="oAgua"></div></div>
+      <div class="cell temp"><span class="lbl">Temperatura</span><div class="big" id="oTemp"></div><div class="note" id="oTempN" style="color:var(--heat-fg)"></div></div>
       <div class="cell grind"><span class="lbl" id="lMoag">Moagem</span><div class="big" id="oMoag"></div><div class="note" id="oFaixa"></div></div>
     </div>
     <div class="facts" id="facts"></div>
@@ -382,8 +394,18 @@ const calc=m=>{const r=Number(rOf(m));const q=Math.max(0,Number(qOf(m))||0);
 let toastT;const toast=t=>{$("toast").textContent=t;clearTimeout(toastT);toastT=setTimeout(()=>$("toast").textContent="",2500)};
 const MN=Object.fromEntries(M.map(m=>[m.id,m.n]));
 const GN={k7:"K7",r3:"Blade R3",pro:"R3 Pro",oster:"Oster",mongdio:"Mongdio",icoffee:"iCoffee"};
+let fbOpen=-1,fbDraft=null;
 function renderSaved(){
-  $("saved").innerHTML=REC.length?REC.map((x,i)=>`<div class="rec"><div><b>${esc(x.nome)}</b>${x.cafe?`<span>${esc(cafeTxt(x.cafe))}</span><br>`:""}<span>${MN[x.met]||x.met} · ${GN[x.moe]||x.moe} ${pfmt(x.gr)} · ${f(x.c,1)} g / ${f(x.a??x.c*x.r)} g${x.x?" · xícara "+f(x.x)+" ml":""} · 1:${f(x.r,x.r%1?1:0)}</span></div><div class="acts"><button class="btn pri" type="button" data-open="${i}">Abrir receita</button>${(x.cafeId||(x.cafe&&!x.cafe.desc))?`<button class="btn" type="button" data-open="${i}" data-comcafe="1">Abrir com o café</button>`:""}<button class="btn" type="button" data-del="${i}">${delArm===i?"Confirmar":"Excluir"}</button></div></div>`).join(""):`<p class="empty">Nenhuma receita salva ainda. Ajuste tudo acima, dê um nome e toque em Salvar.</p>`;
+  if(!REC.length){$("saved").innerHTML=`<p class="empty">Nenhuma receita salva ainda. Ajuste tudo acima, dê um nome e toque em Salvar.</p>`;return}
+  $("saved").innerHTML=REC.map((x,i)=>{const fb=x.fb||{};const temCafe=x.cafeId||(x.cafe&&!x.cafe.desc);
+    const linha=`${MN[x.met]||x.met} · ${GN[x.moe]||x.moe} ${pfmt(x.gr)} · ${f(x.c,1)} g / ${f(x.a??x.c*x.r)} g${x.x?" · xícara "+f(x.x)+" ml":""} · 1:${f(x.r,x.r%1?1:0)}`;
+    const ed=fbOpen===i?`<div class="fbe"><div class="nt" style="grid-template-columns:64px minmax(0,1fr) 44px 30px"><span id="fbl">Nota</span><input type="range" min="0" max="10" step="1" id="fbNota" aria-labelledby="fbl" value="${fbDraft.nota??5}" class="${fbDraft.nota==null?"unset":""}"><output id="fbOut">${fbDraft.nota??"—"}</output><button class="x" type="button" id="fbClr" aria-label="Limpar nota">×</button></div>
+      <label class="lbl" for="fbTxt" style="margin:0">Comentário</label><textarea id="fbTxt" maxlength="400" placeholder="Ex.: doce e equilibrado; na próxima, 2 cliques mais grosso">${esc(fbDraft.txt||"")}</textarea>
+      <div class="saverow"><button class="btn pri" type="button" id="fbSave" data-i="${i}" style="flex:1">Salvar feedback</button><button class="btn" type="button" id="fbCancel">Cancelar</button></div></div>`:"";
+    return `<div class="rec"><div class="rh"><b>${esc(x.nome)}</b>${fb.nota!=null?`<span class="nota">${fb.nota}/10</span>`:""}</div>
+      <p class="rm">${x.cafe?esc(cafeTxt(x.cafe))+"<br>":""}${linha}</p>
+      ${fb.txt?`<p class="fbt">“${esc(fb.txt)}”</p>`:""}
+      <div class="acts"><button class="btn pri" type="button" data-open="${i}">Abrir receita</button>${temCafe?`<button class="btn" type="button" data-open="${i}" data-comcafe="1">Abrir com o café</button>`:""}<button class="btn" type="button" data-fb="${i}">${fb.nota!=null||fb.txt?"Editar feedback":"Feedback"}</button><button class="btn" type="button" data-del="${i}">${delArm===i?"Confirmar":"Excluir"}</button></div>${ed}</div>`}).join("");
 }
 let delArm=-1,cDelArm=false;
 const PERC=["v60","b75","fluire","origami","melitta","coador","chemex"];
@@ -447,10 +469,14 @@ function render(){
   if(aj.fresh){steps=steps.map((s0,i)=>{const t=s0[0].replace(/(\d+):(\d\d)/g,(_,mm,ss)=>{const v=+mm*60+ +ss;return v>0?tm(v+15):"0:00"});
     const first=i===steps.findIndex(x=>/^0:00/.test(x[0]));return [t,first?s0[1]+" · café fresco: espere 40 a 45 s antes do próximo despejo":s0[1]]})}
   const fim=m.tempo||("Total "+steps[steps.length-1][0]);
+  {const tv=aj.temp||m.temp,mt=tv.match(/(\d+)(?:\s*a\s*(\d+))?\s*°C/);
+   $("oTemp").className="big"+(mt?"":" txtv");
+   $("oTemp").innerHTML=mt?`${mt[1]}${mt[2]?"–"+mt[2]:""}<small>°C</small>`:esc(tv);
+   $("oTempN").textContent=aj.temp?"Ajustada pela torra":""}
   const TT=aj.notas.length?"Ajustado pelo café: "+aj.notas.join("; "):"";
   const dd=st.csel!=="desc"?dias(st.cafe.data):null;
   const DT=dd==null||dd<0?"":dd<=3?`Torrado há ${dd} dia${dd===1?"":"s"}: muito fresco`:dd<=30?`Torrado há ${dd} dias: ponto ideal`:dd<=60?`Torrado há ${dd} dias: ainda bom; se faltar sabor, moa um pouco mais fino`:`Torrado há ${dd} dias: aromas já mais fracos`;
-  $("facts").innerHTML=(DT?`<span class="fact">${DT}</span>`:"")+(TT?`<span class="fact">${TT}</span>`:"")+(m.dose?"":`<span class="fact">Na xícara <b>≈ ${f(Math.round(b/5)*5)} ml</b> (o pó retém ${f(retOf(m),1)} g de água por g)</span>`)+`<span class="fact">Água <b>${aj.temp||m.temp}</b></span><span class="fact">Tempo <b>${fim}</b></span>`+
+  $("facts").innerHTML=(DT?`<span class="fact">${DT}</span>`:"")+(TT?`<span class="fact">${TT}</span>`:"")+(m.dose?"":`<span class="fact">Na xícara <b>≈ ${f(Math.round(b/5)*5)} ml</b> (o pó retém ${f(retOf(m),1)} g de água por g)</span>`)+`<span class="fact">Tempo <b>${fim}</b></span>`+
     (st.moe==="oster"?`<span class="fact">Oster: posição 1 = bolinha mais fina (lado Espresso), 18 = mais grossa (Prensa)</span><span class="fact">Pese o café; o seletor de xícaras é só um timer</span>`:"")+
     (st.moe==="mongdio"?`<span class="fact">Mongdio: abra o cadeado, gire o anel até o número e trave de novo</span><span class="fact">Referência testada: Melitta no 20</span>`:"")+
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
@@ -513,16 +539,22 @@ const importar=txt=>{let d;try{d=JSON.parse(txt.trim())}catch(e){toast("Texto in
   const chave=x=>[x.nome,x.met,x.moe,x.gr,x.c,x.r].join("|");const tem=new Set(REC.map(chave));let n=0;
   for(const x of (lista||[])){if(!x||!M.find(y=>y.id===x.met)||!(x.moe in GN)||!(Number(x.r)>0))continue;if(tem.has(chave(x)))continue;
     const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?{desc:true}:san(x.cafe)):undefined;
-    REC.push({nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
+    const fbi=x.fb&&typeof x.fb==="object"?{nota:(Number.isFinite(+x.fb.nota)&&x.fb.nota!==null&&+x.fb.nota>=0&&+x.fb.nota<=10)?Math.round(+x.fb.nota):null,txt:String(x.fb.txt||"").slice(0,400),data:String(x.fb.data||"").slice(0,10)}:undefined;
+    REC.push({fb:fbi,nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
   saveRec();render();toast(n||nc?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`:"Nada novo: tudo já estava salvo")};
 $("bkImport").onclick=()=>importar($("bkTxt").value);
 $("bkFile").addEventListener("change",e=>{const fl=e.target.files&&e.target.files[0];if(!fl)return;const rd=new FileReader();rd.onload=()=>{$("bkTxt").value=rd.result;importar(String(rd.result))};rd.readAsText(fl);e.target.value=""});
-$("saved").addEventListener("click",e=>{const o=e.target.closest("[data-open]"),d=e.target.closest("[data-del]");
+$("saved").addEventListener("input",e=>{if(e.target.id==="fbNota"){fbDraft.nota=+e.target.value;$("fbOut").textContent=fbDraft.nota;e.target.classList.remove("unset")}if(e.target.id==="fbTxt")fbDraft.txt=e.target.value});
+$("saved").addEventListener("click",e=>{const o=e.target.closest("[data-open]"),d=e.target.closest("[data-del]"),fbb=e.target.closest("[data-fb]");
+  if(fbb){const i=+fbb.dataset.fb;if(fbOpen===i){fbOpen=-1}else{fbOpen=i;const fb=REC[i].fb||{};fbDraft={nota:fb.nota??null,txt:fb.txt||""}}renderSaved();if(fbOpen===i)$("fbTxt").focus();return}
+  if(e.target.id==="fbClr"){fbDraft.nota=null;renderSaved();return}
+  if(e.target.id==="fbCancel"){fbOpen=-1;renderSaved();return}
+  if(e.target.id==="fbSave"){const i=+e.target.dataset.i;const t=(fbDraft.txt||"").trim();REC[i].fb=(fbDraft.nota==null&&!t)?undefined:{nota:fbDraft.nota,txt:t,data:new Date().toISOString().slice(0,10)};saveRec();fbOpen=-1;renderSaved();toast("Feedback salvo");return}
   if(o){const x=REC[+o.dataset.open],m=M.find(y=>y.id===x.met);if(!m)return;st.met=x.met;st.moe=x.moe;st.r[x.met]=x.r;
     if(o.dataset.comcafe){const reg=x.cafeId&&CAF.find(c=>c.id===x.cafeId);
       if(reg){st.csel=reg.id;st.cafe={...reg};cEdit=false}else if(!x.cafe||x.cafe.desc){st.csel="desc";st.cafe={...CAFE0}}else{st.csel="novo";st.cafe=san(x.cafe);cEdit=true}}st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;if(x.base==="xicara")st.x[x.met]=x.x;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast(o.dataset.comcafe?"Receita e café abertos: "+x.nome:"Receita aberta com o café selecionado: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
-  if(d){const i=+d.dataset.del;if(delArm===i){REC.splice(i,1);saveRec();delArm=-1;toast("Receita excluída")}else delArm=i;renderSaved()}});
+  if(d){const i=+d.dataset.del;if(delArm===i){REC.splice(i,1);saveRec();delArm=-1;fbOpen=-1;toast("Receita excluída")}else delArm=i;renderSaved()}});
 $("qtd").addEventListener("blur",render);
 const bump=d=>{const m=cur();if(!m.dose&&baseOf(m)!=="agua"){const bs=baseOf(m),k=calc(m);if(bs==="cafe")st.c[m.id]=Math.max(0.5,Math.round((k.c+d*0.5)*10)/10);else st.x[m.id]=Math.max(10,Math.round(k.b/10)*10+d*10);render();return}st.q[m.id]=Math.max(m.qs,Math.round((Number(qOf(m))+d*m.qs*(m.dose?1:5))*100)/100);render()};
 $("menos").onclick=()=>bump(-1); $("mais").onclick=()=>bump(1);

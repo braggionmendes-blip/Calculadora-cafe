@@ -1,5 +1,5 @@
 // Versão do cache: troque o número a cada atualização do app para o celular baixar a nova versão.
-const VERSAO = 'extracao-v13';
+const VERSAO = 'extracao-v14';
 const ARQUIVOS = ['./', 'index.html', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
 
