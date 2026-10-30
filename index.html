@@ -125,6 +125,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 16 · 30/10/2026 · moagem ajustada pela quantidade</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -568,7 +569,7 @@ $("menos").onclick=()=>bump(-1); $("mais").onclick=()=>bump(1);
 $("ratio").addEventListener("input",e=>{st.r[cur().id]=Number(e.target.value);render()});
 $("padrao").onclick=()=>{delete st.r[cur().id];render()};
 render();
-if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+if('serviceWorker' in navigator){let rec=false;const tinha=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(tinha&&!rec){rec=true;location.reload()}});addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{}))}
 </script>
 
 </body>
