@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 18 · 30/10/2026 · temporizador com aviso a cada despejo</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 19 · 30/10/2026 · bipe em segundo plano e no silencioso</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -296,6 +296,7 @@ select.txt{appearance:auto}
     </details>
   </section>
 </div>
+<audio id="tAudio" preload="auto" playsinline></audio>
 <div class="tmr" id="tmr" hidden role="timer" aria-live="polite">
   <div class="in">
     <div class="clk" id="tClk">0:00</div>
@@ -583,6 +584,15 @@ const pontos=()=>CUR.map((s,i)=>({i,t:seg(s[0]),txt:s[1],lbl:s[0]})).filter(x=>x
 function som(freq,dur,vol=.25){try{const a=T.ac;if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=freq;
   g.gain.setValueAtTime(0,a.currentTime);g.gain.linearRampToValueAtTime(vol,a.currentTime+.01);g.gain.linearRampToValueAtTime(0,a.currentTime+dur);
   o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+dur+.02)}catch(e){}}
+// Faixa de áudio com os bipes já nos horários: toca como mídia (segue em segundo plano e no modo silencioso)
+function faixa(pts){const SR=8000,ult=Math.max(0,...pts.map(p=>p.t)),dur=Math.min(ult+8,1800),n=Math.ceil(dur*SR);
+  const d=new Uint8Array(44+n);d.fill(128,44);
+  const bip=(t0,fq,len,vol)=>{const a=Math.floor(t0*SR),b=Math.min(n,a+Math.floor(len*SR));for(let i=a;i<b;i++){const k=(i-a)/SR,env=Math.min(1,k/.01,(len-k)/.02);d[44+i]=128+Math.round(Math.sin(2*Math.PI*fq*k)*vol*env)}};
+  for(const p of pts){if(p.t<=0||p.t>dur)continue;if(p.t>=5)bip(p.t-5,660,.15,70);bip(p.t,880,.2,110);bip(p.t+.3,880,.2,110);bip(p.t+.6,1175,.4,120)}
+  const v=new DataView(d.buffer),w=(o,t)=>{for(let i=0;i<t.length;i++)d[o+i]=t.charCodeAt(i)};
+  w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,SR,true);v.setUint32(28,SR,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
+  return URL.createObjectURL(new Blob([d],{type:"audio/wav"}))}
 function vibra(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
 const decorrido=()=>T.acum+(T.run&&!T.pausa?(Date.now()-T.t0)/1000:0);
 function tick(sohTela){const e=decorrido(),pts=pontos();
@@ -593,26 +603,36 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
   document.querySelectorAll("#steps li").forEach(li=>{const i=+li.dataset.i;li.classList.toggle("on",!!atual&&i===atual.i);li.classList.toggle("ok",!!atual&&pts.some(p=>p.i===i&&p.t<atual.t))});
   if(sohTela)return;
   for(const p of pts){
-    if(p.t>0&&!T.avisos.has(p.i)&&p.t-e<=5&&p.t-e>0){T.avisos.add(p.i);som(660,.12);vibra(80)}
-    if(!T.feitos.has(p.i)&&e>=p.t){T.feitos.add(p.i);if(e-p.t<2){som(880,.18);setTimeout(()=>som(880,.18),250);setTimeout(()=>som(1175,.35),500);vibra([200,100,200]);
+    const sonoro=!T.au;
+    if(p.t>0&&!T.avisos.has(p.i)&&p.t-e<=5&&p.t-e>0){T.avisos.add(p.i);if(sonoro)som(660,.12);vibra(80)}
+    if(!T.feitos.has(p.i)&&e>=p.t){T.feitos.add(p.i);if(e-p.t<2){if(sonoro){som(880,.18);setTimeout(()=>som(880,.18),250);setTimeout(()=>som(1175,.35),500)}vibra([200,100,200]);
       $("tmr").classList.add("alerta");setTimeout(()=>$("tmr").classList.remove("alerta"),1500)}}}
 }
 let tInt=null;
 async function iniciar(){
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
+  try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src)}}catch(e){}
+  T.au=null;
+  try{const pts=pontos();if(pts.some(p=>p.t>0)){const au=$("tAudio");au.src=faixa(pts);au.currentTime=0;const pr=au.play();T.au=au;
+    if(pr&&pr.catch)pr.catch(()=>{T.au=null});
+    if("mediaSession" in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:"Temporizador do café",artist:cur().n});
+      navigator.mediaSession.setActionHandler("pause",()=>$("tPause").click());navigator.mediaSession.setActionHandler("play",()=>$("tPause").click())}}}catch(e){T.au=null}
   try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();await T.ac.resume()}catch(e){}
-  som(523,.08,.15);
+  if(!T.au)som(523,.08,.15);
   try{T.wl=await navigator.wakeLock.request("screen")}catch(e){}
   Object.assign(T,{run:true,pausa:false,t0:Date.now(),acum:0,feitos:new Set(),avisos:new Set()});
   $("tmr").hidden=false;document.body.classList.add("timing");$("tPause").textContent="Pausar";$("tStart").textContent="Reiniciar temporizador";
   clearInterval(tInt);tInt=setInterval(()=>tick(false),200);tick(false);
   document.querySelector("#steps").scrollIntoView({behavior:"smooth",block:"start"})}
-function encerrar(){T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").textContent="Iniciar temporizador";
+function encerrar(){try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src);$("tAudio").removeAttribute("src")}}catch(e){}T.au=null;T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").textContent="Iniciar temporizador";
   try{T.wl&&T.wl.release()}catch(e){}T.wl=null;document.querySelectorAll("#steps li").forEach(li=>li.classList.remove("on","ok"))}
 $("tStart").onclick=iniciar;
 $("tStop").onclick=encerrar;
-$("tPause").onclick=()=>{if(!T.run)return;if(T.pausa){T.pausa=false;T.t0=Date.now();$("tPause").textContent="Pausar"}else{T.acum=decorrido();T.pausa=true;$("tPause").textContent="Continuar"}tick(true)};
-document.addEventListener("visibilitychange",async()=>{if(document.visibilityState==="visible"&&T.run){try{T.wl=await navigator.wakeLock.request("screen")}catch(e){}try{T.ac&&T.ac.resume()}catch(e){}}});
+$("tPause").onclick=()=>{if(!T.run)return;if(T.pausa){T.pausa=false;T.t0=Date.now();$("tPause").textContent="Pausar";
+    if(T.au){try{if(T.acum<T.au.duration){T.au.currentTime=T.acum;T.au.play()}}catch(e){}}}
+  else{T.acum=decorrido();T.pausa=true;$("tPause").textContent="Continuar";if(T.au)try{T.au.pause()}catch(e){}}tick(true)};
+document.addEventListener("visibilitychange",async()=>{if(document.visibilityState==="visible"&&T.run){
+    try{if(T.au&&!T.pausa){const e=decorrido();if(e<T.au.duration&&Math.abs(T.au.currentTime-e)>1.5)T.au.currentTime=e;if(T.au.paused&&e<T.au.duration)T.au.play()}}catch(_){}try{T.wl=await navigator.wakeLock.request("screen")}catch(e){}try{T.ac&&T.ac.resume()}catch(e){}}});
 $("pOn").addEventListener("change",e=>{st.pen.on=e.target.checked;render()});
 $("pSel").addEventListener("change",e=>{st.pen.sel=e.target.value;render()});
 $("pUm").addEventListener("input",e=>{st.pen.um=Number(e.target.value)||null;render()});
