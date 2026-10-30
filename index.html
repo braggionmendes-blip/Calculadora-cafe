@@ -120,6 +120,11 @@ details.bk p{color:var(--muted);font-size:.85rem;margin:8px 0 0;max-width:65ch}
         <div><label class="lbl" for="cOrig">Origem</label><input class="txt" id="cOrig" type="text" maxlength="60" placeholder="Ex.: Sul de Minas"></div>
       </div>
       <div>
+        <label class="lbl" for="cTipo">Tipo (variedade)</label>
+        <input class="txt" id="cTipo" type="text" maxlength="60" list="tipos" placeholder="Ex.: Bourbon Amarelo, Catuaí, Geisha">
+        <datalist id="tipos"><option value="Bourbon Amarelo"></option><option value="Bourbon Vermelho"></option><option value="Catuaí Amarelo"></option><option value="Catuaí Vermelho"></option><option value="Mundo Novo"></option><option value="Arara"></option><option value="Catucaí"></option><option value="Acaiá"></option><option value="Topázio"></option><option value="Obatã"></option><option value="Icatu"></option><option value="Paraíso"></option><option value="Catiguá"></option><option value="Arabica Geisha"></option><option value="Typica"></option><option value="Caturra"></option><option value="Pacamara"></option><option value="Maragogipe"></option><option value="SL28"></option><option value="Laurina"></option><option value="Conilon / Robusta"></option><option value="Blend"></option></datalist>
+      </div>
+      <div>
         <span class="lbl" id="lTorra">Torra</span>
         <div class="seg" id="cTorra" role="group" aria-labelledby="lTorra">
           <button type="button" data-v="Clara">Clara</button><button type="button" data-v="Média-clara">Média-clara</button><button type="button" data-v="Média">Média</button><button type="button" data-v="Média-escura">Média-escura</button><button type="button" data-v="Escura">Escura</button>
@@ -309,14 +314,14 @@ const st={met:"v60",moe:"k7",q:{},r:{},c:{},x:{},base:{},gr:{}};
 try{Object.assign(st,JSON.parse(localStorage.getItem("calcExtracao")||"{}"))}catch(e){}
 for(const k of ["q","r","c","x","base","gr"]) st[k]=st[k]||{};
 const CAR=[["corpo","Corpo"],["docura","Doçura"],["acidez","Acidez"],["aroma","Aroma"]];
-const CAFE0={desc:false,nome:"",origem:"",torra:"",corpo:0,docura:0,acidez:0,aroma:0};
+const CAFE0={desc:false,nome:"",tipo:"",origem:"",torra:"",corpo:0,docura:0,acidez:0,aroma:0};
 st.cafe=Object.assign({},CAFE0,st.cafe||{});
 const esc=t=>String(t??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
-const cafeTxt=k=>{if(!k||k.desc)return "Café desconhecido";const a=[k.nome,k.origem,k.torra&&("torra "+k.torra.toLowerCase())].filter(Boolean);
+const cafeTxt=k=>{if(!k||k.desc)return "Café desconhecido";const a=[k.nome,k.tipo,k.origem,k.torra&&("torra "+k.torra.toLowerCase())].filter(Boolean);
   const c=CAR.filter(([id])=>k[id]).map(([id,n])=>n+" "+k[id]).join(", ");return (a.join(" · ")||"Café sem nome")+(c?" · "+c:"")};
 let REC=null;
 try{REC=JSON.parse(localStorage.getItem("calcReceitas")||"null")}catch(e){}
-if(!Array.isArray(REC)) REC=[{nome:"B75 Black Tucano (vídeo)",cafe:{desc:false,nome:"Black Tucano Fruity",origem:"",torra:"",corpo:0,docura:0,acidez:0,aroma:0},met:"b75",moe:"k7",base:"cafe",c:20,q:300,r:15,gr:70}];
+if(!Array.isArray(REC)) REC=[{nome:"B75 Black Tucano (vídeo)",cafe:{desc:false,nome:"Black Tucano Fruity",tipo:"",origem:"",torra:"",corpo:0,docura:0,acidez:0,aroma:0},met:"b75",moe:"k7",base:"cafe",c:20,q:300,r:15,gr:70}];
 const saveRec=()=>{try{localStorage.setItem("calcReceitas",JSON.stringify(REC))}catch(e){}};
 const $=id=>document.getElementById(id);
 $("metodos").innerHTML=M.map(m=>`<button type="button" data-v="${m.id}">${m.n}</button>`).join("");
@@ -384,6 +389,7 @@ function render(){
   $("cDesc").checked=k.desc; $("cFields").hidden=k.desc; $("cResumo").hidden=!k.desc;
   if(document.activeElement!==$("cNome")) $("cNome").value=k.nome;
   if(document.activeElement!==$("cOrig")) $("cOrig").value=k.origem;
+  if(document.activeElement!==$("cTipo")) $("cTipo").value=k.tipo||"";
   document.querySelectorAll("#cTorra button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===k.torra));
   $("cScales").innerHTML=CAR.map(([id,n])=>`<div class="sc"><span id="l_${id}">${n}</span><div class="seg" role="group" aria-labelledby="l_${id}">${[1,2,3,4,5].map(v=>`<button type="button" data-c="${id}" data-v="${v}" aria-pressed="${k[id]===v}">${v}</button>`).join("")}</div></div>`).join("");
   renderSaved();
@@ -402,12 +408,13 @@ $("gMenos").onclick=()=>gbump(-1); $("gMais").onclick=()=>gbump(1);
 $("gReset").onclick=()=>{delete st.gr[gKey(cur())];render()};
 $("cDesc").addEventListener("change",e=>{st.cafe.desc=e.target.checked;render()});
 $("cNome").addEventListener("input",e=>{st.cafe.nome=e.target.value;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(_){}});
+$("cTipo").addEventListener("input",e=>{st.cafe.tipo=e.target.value;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(_){}});
 $("cOrig").addEventListener("input",e=>{st.cafe.origem=e.target.value;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(_){}});
 $("cTorra").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.cafe.torra=st.cafe.torra===b.dataset.v?"":b.dataset.v;render()});
 $("cScales").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const id=b.dataset.c,v=+b.dataset.v;st.cafe[id]=st.cafe[id]===v?0:v;render()});
 $("salvar").onclick=()=>{const m=cur(),k=calc(m),nome=$("nome").value.trim()||`${m.n} · ${(!st.cafe.desc&&st.cafe.nome.trim())||GN[st.moe]}`;
   const gv=st.gr[gKey(m)]??m.g[st.moe][2];
-  REC.unshift({nome,cafe:st.cafe.desc?{desc:true}:{...st.cafe,nome:st.cafe.nome.trim(),origem:st.cafe.origem.trim()},met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
+  REC.unshift({nome,cafe:st.cafe.desc?{desc:true}:{...st.cafe,nome:st.cafe.nome.trim(),tipo:(st.cafe.tipo||"").trim(),origem:st.cafe.origem.trim()},met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
   saveRec();$("nome").value="";toast("Receita salva");render()};
 const bkData=()=>JSON.stringify({app:"calculadora-extracao",versao:1,data:new Date().toISOString().slice(0,10),receitas:REC,moagens:st.gr});
 $("bkCopiar").onclick=()=>{const t=bkData();$("bkTxt").value=t;
@@ -421,7 +428,7 @@ const importar=txt=>{let d;try{d=JSON.parse(txt.trim())}catch(e){toast("Texto in
   const lista=Array.isArray(d)?d:(d&&d.receitas);if(!Array.isArray(lista)){toast("Não encontrei receitas nesse backup");return}
   const chave=x=>[x.nome,x.met,x.moe,x.gr,x.c,x.r].join("|");const tem=new Set(REC.map(chave));let n=0;
   for(const x of lista){if(!x||!M.find(y=>y.id===x.met)||!(x.moe in GN)||!(Number(x.r)>0))continue;if(tem.has(chave(x)))continue;
-    const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?{desc:true}:{desc:false,nome:String(x.cafe.nome||"").slice(0,60),origem:String(x.cafe.origem||"").slice(0,60),torra:["Clara","Média-clara","Média","Média-escura","Escura"].includes(x.cafe.torra)?x.cafe.torra:"",...Object.fromEntries(CAR.map(([id])=>[id,[1,2,3,4,5].includes(+x.cafe[id])?+x.cafe[id]:0]))}):undefined;
+    const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?{desc:true}:{desc:false,nome:String(x.cafe.nome||"").slice(0,60),tipo:String(x.cafe.tipo||"").slice(0,60),origem:String(x.cafe.origem||"").slice(0,60),torra:["Clara","Média-clara","Média","Média-escura","Escura"].includes(x.cafe.torra)?x.cafe.torra:"",...Object.fromEntries(CAR.map(([id])=>[id,[1,2,3,4,5].includes(+x.cafe[id])?+x.cafe[id]:0]))}):undefined;
     REC.push({nome:String(x.nome||"Receita").slice(0,60),cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
   saveRec();render();toast(n?`${n} receita${n>1?"s":""} importada${n>1?"s":""}`:"Nenhuma receita nova: todas já estavam salvas")};
