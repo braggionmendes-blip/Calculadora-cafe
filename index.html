@@ -121,6 +121,7 @@ select.txt{appearance:auto}
       <label class="lbl" for="cSel">Café</label>
       <select class="txt" id="cSel"></select>
       <p class="cres" id="cResumo" style="margin-top:8px"></p>
+      <label class="unk" for="cAuto" id="cAutoBox" style="margin-top:10px"><input type="checkbox" id="cAuto"> Ajustar o preparo pela torra e pelo frescor deste café</label>
       <div class="bkb" style="display:flex;gap:8px;margin-top:8px" id="cActs">
         <button class="btn" id="cEdit" type="button">Editar dados</button>
         <button class="btn" id="cDel" type="button">Excluir café</button>
@@ -385,6 +386,16 @@ function renderSaved(){
   $("saved").innerHTML=REC.length?REC.map((x,i)=>`<div class="rec"><div><b>${esc(x.nome)}</b>${x.cafe?`<span>${esc(cafeTxt(x.cafe))}</span><br>`:""}<span>${MN[x.met]||x.met} · ${GN[x.moe]||x.moe} ${pfmt(x.gr)} · ${f(x.c,1)} g / ${f(x.a??x.c*x.r)} g${x.x?" · xícara "+f(x.x)+" ml":""} · 1:${f(x.r,x.r%1?1:0)}</span></div><div class="acts"><button class="btn pri" type="button" data-open="${i}">Abrir receita</button>${(x.cafeId||(x.cafe&&!x.cafe.desc))?`<button class="btn" type="button" data-open="${i}" data-comcafe="1">Abrir com o café</button>`:""}<button class="btn" type="button" data-del="${i}">${delArm===i?"Confirmar":"Excluir"}</button></div></div>`).join(""):`<p class="empty">Nenhuma receita salva ainda. Ajuste tudo acima, dê um nome e toque em Salvar.</p>`;
 }
 let delArm=-1,cDelArm=false;
+const PERC=["v60","b75","fluire","origami","melitta","coador","chemex"];
+function ajuste(m){const o={off:0,temp:null,fresh:false,notas:[]};
+  if(st.auto===false||st.csel==="desc")return o;const k=st.cafe,gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
+  const quente=/\d.*°C/.test(m.temp)&&!["turco","moka","sifao","cold"].includes(m.id);
+  if(k.torra==="Clara"){o.off-=stp;if(quente)o.temp="94 a 96 °C";o.notas.push("torra clara: mais fina"+(quente?" e água mais quente":""))}
+  else if(k.torra==="Média-escura"||k.torra==="Escura"){o.off+=stp;if(quente)o.temp="88 a 90 °C";o.notas.push("torra "+k.torra.toLowerCase()+": mais grossa"+(quente?" e água mais fria":""))}
+  const d=dias(k.data);
+  if(d!=null&&d>=0&&d<=3&&PERC.includes(m.id)){o.fresh=true;o.notas.push("café fresco: pré-infusão mais longa (+15 s)")}
+  if(d!=null&&d>45){const v=Math.max(1,Math.floor(stp/2));o.off-=v;o.notas.push(`torrado há ${d} dias: um pouco mais fina`)}
+  return o}
 const TIPOSET=new Set([...document.querySelectorAll("#cTipoSel option")].map(o=>o.value));
 function renderCafe(){
   const k=st.cafe,sel=st.csel;
@@ -392,7 +403,7 @@ function renderCafe(){
   $("cSel").value=sel;
   const reg=sel!=="desc"&&sel!=="novo", d=dias(k.data);
   $("cResumo").textContent=sel==="desc"?"Sem dados do café. A receita fica registrada como café desconhecido.":sel==="novo"?"Preencha os dados e toque em Cadastrar café. Só o nome é obrigatório.":cafeTxt(k)+(d!=null&&d>=0?` · ${d} dia${d===1?"":"s"} desde a torra`:"");
-  $("cActs").hidden=!reg; $("cEdit").textContent=cEdit?"Esconder dados":"Editar dados"; $("cDel").textContent=cDelArm?"Confirmar exclusão":"Excluir café";
+  $("cActs").hidden=!reg; $("cAutoBox").hidden=sel==="desc"; $("cAuto").checked=st.auto!==false; $("cEdit").textContent=cEdit?"Esconder dados":"Editar dados"; $("cDel").textContent=cDelArm?"Confirmar exclusão":"Excluir café";
   $("cFields").hidden=!(sel==="novo"||(reg&&cEdit));
   $("cSave").textContent=sel==="novo"?"Cadastrar café":"Salvar alterações";
   if(document.activeElement!==$("cNome")) $("cNome").value=k.nome;
@@ -423,21 +434,23 @@ function render(){
   $("oCafe").innerHTML=f(c,1)+"<small>g</small>";
   $("lAgua").textContent=m.dose?"Na xícara":"Água";
   $("oAgua").innerHTML=f(a,m.dose?1:0)+"<small>g</small>";
-  const gr=m.g[st.moe], gv=st.gr[gKey(m)]??gr[2], custom=st.gr[gKey(m)]!=null&&st.gr[gKey(m)]!==gr[2];
+  const gr=m.g[st.moe], aj=ajuste(m), sv=Math.max(0,gr[2]+aj.off), gv=st.gr[gKey(m)]??sv, custom=st.gr[gKey(m)]!=null&&st.gr[gKey(m)]!==sv;
   const unit={oster:"Moagem · posição",mongdio:"Moagem · número do anel",icoffee:"Moagem · ajuste (de 30)"}[st.moe]||"Moagem · cliques";
   $("lMoag").textContent=unit; $("lMoagIn").textContent=unit;
   $("gUnit").textContent=st.moe==="oster"?"pos":st.moe==="mongdio"?"nº":"cl";
   if(document.activeElement!==$("moag")) $("moag").value=gv;
-  $("gSug").textContent=`Sugerida ${pfmt(gr[2])} · faixa ${pfmt(gr[0])} a ${pfmt(gr[1])}`;
+  $("gSug").textContent=`Sugerida ${pfmt(sv)}${aj.off?` (base ${pfmt(gr[2])}, ajustada pelo café)`:""} · faixa ${pfmt(gr[0])} a ${pfmt(gr[1])}`;
   $("gReset").hidden=!custom;
   $("oMoag").textContent=pfmt(gv);
-  $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+pfmt(gr[2])+" · ":"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${pfmt(gr[0])} a ${pfmt(gr[1])} · ${m.cls}`);
-  const steps=m.steps(c,a);
+  $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+pfmt(sv)+" · ":aj.off?`Ajustada pelo café · base ${pfmt(gr[2])} · `:"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${pfmt(gr[0])} a ${pfmt(gr[1])} · ${m.cls}`);
+  let steps=m.steps(c,a);
+  if(aj.fresh){steps=steps.map((s0,i)=>{const t=s0[0].replace(/(\d+):(\d\d)/g,(_,mm,ss)=>{const v=+mm*60+ +ss;return v>0?tm(v+15):"0:00"});
+    const first=i===steps.findIndex(x=>/^0:00/.test(x[0]));return [t,first?s0[1]+" · café fresco: espere 40 a 45 s antes do próximo despejo":s0[1]]})}
   const fim=m.tempo||("Total "+steps[steps.length-1][0]);
-  const TT={"Clara":"Torra clara: água no limite mais quente e moagem um pouco mais fina","Escura":"Torra escura: água 88 a 90 °C e moagem um pouco mais grossa","Média-escura":"Torra média-escura: prefira água abaixo de 92 °C"}[st.csel!=="desc"&&st.cafe.torra];
+  const TT=aj.notas.length?"Ajustado pelo café: "+aj.notas.join("; "):"";
   const dd=st.csel!=="desc"?dias(st.cafe.data):null;
-  const DT=dd==null||dd<0?"":dd<=3?`Torrado há ${dd} dia${dd===1?"":"s"}: muito fresco, faça pré-infusão mais longa (40 a 45 s)`:dd<=30?`Torrado há ${dd} dias: ponto ideal`:dd<=60?`Torrado há ${dd} dias: ainda bom; se faltar sabor, moa um pouco mais fino`:`Torrado há ${dd} dias: aromas já mais fracos`;
-  $("facts").innerHTML=(DT?`<span class="fact">${DT}</span>`:"")+(TT?`<span class="fact">${TT}</span>`:"")+(m.dose?"":`<span class="fact">Na xícara <b>≈ ${f(Math.round(b/5)*5)} ml</b> (o pó retém ${f(retOf(m),1)} g de água por g)</span>`)+`<span class="fact">Água <b>${m.temp}</b></span><span class="fact">Tempo <b>${fim}</b></span>`+
+  const DT=dd==null||dd<0?"":dd<=3?`Torrado há ${dd} dia${dd===1?"":"s"}: muito fresco`:dd<=30?`Torrado há ${dd} dias: ponto ideal`:dd<=60?`Torrado há ${dd} dias: ainda bom; se faltar sabor, moa um pouco mais fino`:`Torrado há ${dd} dias: aromas já mais fracos`;
+  $("facts").innerHTML=(DT?`<span class="fact">${DT}</span>`:"")+(TT?`<span class="fact">${TT}</span>`:"")+(m.dose?"":`<span class="fact">Na xícara <b>≈ ${f(Math.round(b/5)*5)} ml</b> (o pó retém ${f(retOf(m),1)} g de água por g)</span>`)+`<span class="fact">Água <b>${aj.temp||m.temp}</b></span><span class="fact">Tempo <b>${fim}</b></span>`+
     (st.moe==="oster"?`<span class="fact">Oster: posição 1 = bolinha mais fina (lado Espresso), 18 = mais grossa (Prensa)</span><span class="fact">Pese o café; o seletor de xícaras é só um timer</span>`:"")+
     (st.moe==="mongdio"?`<span class="fact">Mongdio: abra o cadeado, gire o anel até o número e trave de novo</span><span class="fact">Referência testada: Melitta no 20</span>`:"")+
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
@@ -455,13 +468,14 @@ $("base").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)
   st.base[m.id]=b.dataset.v;render()});
 $("moag").addEventListener("input",e=>{const v=e.target.value;if(v==="")return;st.gr[gKey(cur())]=Number(v);render()});
 $("moag").addEventListener("blur",render);
-const gbump=d=>{const m=cur(),gr=m.g[st.moe];st.gr[gKey(m)]=Math.max(0,(st.gr[gKey(m)]??gr[2])+d);render()};
+const gbump=d=>{const m=cur(),gr=m.g[st.moe],sv=Math.max(0,gr[2]+ajuste(m).off);st.gr[gKey(m)]=Math.max(0,(st.gr[gKey(m)]??sv)+d);render()};
 $("gMenos").onclick=()=>gbump(-1); $("gMais").onclick=()=>gbump(1);
 $("gReset").onclick=()=>{delete st.gr[gKey(cur())];render()};
 const persist=()=>{try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(_){}};
 const cmsg=t=>{$("cMsg").textContent=t;setTimeout(()=>$("cMsg").textContent="",2500)};
 $("cSel").addEventListener("change",e=>{const v=e.target.value;st.csel=v;cDelArm=false;cEdit=v==="novo";
   st.cafe=v==="desc"||v==="novo"?{...CAFE0}:{...CAF.find(c=>c.id===v)};render()});
+$("cAuto").addEventListener("change",e=>{st.auto=e.target.checked;render()});
 $("cEdit").onclick=()=>{cEdit=!cEdit;if(!cEdit){const o=CAF.find(c=>c.id===st.csel);if(o)st.cafe={...o}}render()};
 $("cCancel").onclick=()=>{if(st.csel==="novo"){st.csel="desc";st.cafe={...CAFE0}}else{const o=CAF.find(c=>c.id===st.csel);if(o)st.cafe={...o}}cEdit=false;render()};
 $("cDel").onclick=()=>{if(!cDelArm){cDelArm=true;renderCafe();return}CAF=CAF.filter(c=>c.id!==st.csel);saveCaf();st.csel="desc";st.cafe={...CAFE0};cDelArm=false;cEdit=false;render();toast("Café excluído")};
@@ -479,7 +493,7 @@ $("cSave").onclick=()=>{const o=san({...st.cafe,tipo:st.cafe.tipo==="__outro"?""
   else{o.id=st.csel;CAF=CAF.map(c=>c.id===o.id?o:c);cmsg("Alterações salvas")}
   CAF.sort((x,y)=>x.nome.localeCompare(y.nome,"pt-BR"));saveCaf();st.cafe={...o};cEdit=false;render()};
 $("salvar").onclick=()=>{const m=cur(),k=calc(m),nome=$("nome").value.trim()||`${m.n} · ${(st.csel!=="desc"&&st.cafe.nome.trim())||GN[st.moe]}`;
-  const gv=st.gr[gKey(m)]??m.g[st.moe][2];
+  const gv=st.gr[gKey(m)]??Math.max(0,m.g[st.moe][2]+ajuste(m).off);
   const snap=st.csel==="desc"?{desc:true}:san({...st.cafe,tipo:st.cafe.tipo==="__outro"?"":st.cafe.tipo});
   REC.unshift({nome,cafeId:(st.csel!=="desc"&&st.csel!=="novo")?st.csel:undefined,cafe:snap,met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
   saveRec();$("nome").value="";toast("Receita salva");render()};
