@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 20 · 30/10/2026 · contagem 3, 2, 1 com volume crescente</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 21 · 30/10/2026 · contagem de 5 s e opção de bipe</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -267,7 +267,7 @@ select.txt{appearance:auto}
       <div class="cell grind"><span class="lbl" id="lMoag">Moagem</span><div class="big" id="oMoag"></div><div class="note" id="oFaixa"></div></div>
     </div>
     <div class="facts" id="facts"></div>
-    <div class="sh"><h2>Passo a passo</h2><button class="btn pri" id="tStart" type="button">Iniciar temporizador</button></div>
+    <div class="sh"><h2>Passo a passo</h2><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="unk" for="tBipe"><input type="checkbox" id="tBipe"> Com bipe</label><button class="btn pri" id="tStart" type="button">Iniciar temporizador</button></div></div>
     <ol class="steps" id="steps"></ol>
     <p class="tip" id="tip"></p>
     <p class="tip">Ajuste fino: saiu ácido ou aguado, moa mais fino; saiu amargo ou adstringente, moa mais grosso. Mude uma coisa por vez. Moagem: K7, R3, R3 Pro e Oster partem das indicações dos manuais de cada fabricante, com interpolação nos métodos que o manual não cita. Os do Mongdio partem do seu teste (Melitta no 20) e da escala do anel; os do iCoffee são provisórios, proporcionais aos 30 ajustes.</p>
@@ -302,7 +302,7 @@ select.txt{appearance:auto}
     <div class="clk" id="tClk">0:00</div>
     <div class="now" id="tNow"></div>
     <div class="nxt" id="tNxt"></div>
-    <div class="bt"><button class="btn" id="tPause" type="button">Pausar</button><button class="btn" id="tStop" type="button">Encerrar</button></div>
+    <div class="bt"><button class="btn" id="tSom" type="button">Com bipe</button><button class="btn" id="tPause" type="button">Pausar</button><button class="btn" id="tStop" type="button">Encerrar</button></div>
   </div>
 </div>
 
@@ -588,8 +588,8 @@ function som(freq,dur,vol=.25){try{const a=T.ac;if(!a)return;const o=a.createOsc
 function faixa(pts){const SR=8000,ult=Math.max(0,...pts.map(p=>p.t)),dur=Math.min(ult+8,1800),n=Math.ceil(dur*SR);
   const d=new Uint8Array(44+n);d.fill(128,44);
   const bip=(t0,fq,len,vol)=>{const a=Math.floor(t0*SR),b=Math.min(n,a+Math.floor(len*SR));for(let i=a;i<b;i++){const k=(i-a)/SR,env=Math.min(1,k/.01,(len-k)/.02);d[44+i]=128+Math.round(Math.sin(2*Math.PI*fq*k)*vol*env)}};
-  // contagem: 3, 2, 1 com volume crescente; no despejo, bipe longo no volume cheio
-  for(const p of pts){if(p.t<=0||p.t>dur)continue;[[3,22],[2,48],[1,80]].forEach(([k,vol])=>{if(p.t>=k)bip(p.t-k,880,.12,vol)});bip(p.t,1175,.6,124)}
+  // contagem: 5, 4, 3, 2, 1 com volume crescente; no despejo, bipe longo no volume cheio
+  for(const p of pts){if(p.t<=0||p.t>dur)continue;[[5,12],[4,24],[3,40],[2,60],[1,85]].forEach(([k,vol])=>{if(p.t>=k)bip(p.t-k,880,.12,vol)});bip(p.t,1175,.6,124)}
   const v=new DataView(d.buffer),w=(o,t)=>{for(let i=0;i<t.length;i++)d[o+i]=t.charCodeAt(i)};
   w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
   v.setUint32(24,SR,true);v.setUint32(28,SR,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
@@ -604,8 +604,8 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
   document.querySelectorAll("#steps li").forEach(li=>{const i=+li.dataset.i;li.classList.toggle("on",!!atual&&i===atual.i);li.classList.toggle("ok",!!atual&&pts.some(p=>p.i===i&&p.t<atual.t))});
   if(sohTela)return;
   for(const p of pts){
-    const sonoro=!T.au;
-    for(const[k,vol]of[[3,.06],[2,.13],[1,.22]]){const key=p.i+"-"+k;if(p.t>0&&!T.avisos.has(key)&&p.t-e<=k&&p.t-e>k-1){T.avisos.add(key);if(sonoro)som(880,.12,vol);if(k===1)vibra(60)}}
+    const sonoro=!T.au&&st.bipe!==false;
+    for(const[k,vol]of[[5,.03],[4,.06],[3,.1],[2,.16],[1,.24]]){const key=p.i+"-"+k;if(p.t>0&&!T.avisos.has(key)&&p.t-e<=k&&p.t-e>k-1){T.avisos.add(key);if(sonoro)som(880,.12,vol);if(k===1)vibra(60)}}
     if(!T.feitos.has(p.i)&&e>=p.t){T.feitos.add(p.i);if(e-p.t<2){if(sonoro)som(1175,.6,.35);vibra([200,100,200]);
       $("tmr").classList.add("alerta");setTimeout(()=>$("tmr").classList.remove("alerta"),1500)}}}
 }
@@ -614,12 +614,12 @@ async function iniciar(){
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
   try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src)}}catch(e){}
   T.au=null;
-  try{const pts=pontos();if(pts.some(p=>p.t>0)){const au=$("tAudio");au.src=faixa(pts);au.currentTime=0;const pr=au.play();T.au=au;
+  try{const pts=pontos();if(pts.some(p=>p.t>0)){const au=$("tAudio");au.src=faixa(pts);au.currentTime=0;au.muted=st.bipe===false;const pr=au.play();T.au=au;
     if(pr&&pr.catch)pr.catch(()=>{T.au=null});
     if("mediaSession" in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:"Temporizador do café",artist:cur().n});
       navigator.mediaSession.setActionHandler("pause",()=>$("tPause").click());navigator.mediaSession.setActionHandler("play",()=>$("tPause").click())}}}catch(e){T.au=null}
   try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();await T.ac.resume()}catch(e){}
-  if(!T.au)som(523,.08,.15);
+  if(!T.au&&st.bipe!==false)som(523,.08,.15);
   try{T.wl=await navigator.wakeLock.request("screen")}catch(e){}
   Object.assign(T,{run:true,pausa:false,t0:Date.now(),acum:0,feitos:new Set(),avisos:new Set()});
   $("tmr").hidden=false;document.body.classList.add("timing");$("tPause").textContent="Pausar";$("tStart").textContent="Reiniciar temporizador";
@@ -627,6 +627,10 @@ async function iniciar(){
   document.querySelector("#steps").scrollIntoView({behavior:"smooth",block:"start"})}
 function encerrar(){try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src);$("tAudio").removeAttribute("src")}}catch(e){}T.au=null;T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").textContent="Iniciar temporizador";
   try{T.wl&&T.wl.release()}catch(e){}T.wl=null;document.querySelectorAll("#steps li").forEach(li=>li.classList.remove("on","ok"))}
+const setBipe=v=>{st.bipe=v;$("tBipe").checked=v;$("tSom").textContent=v?"Com bipe":"Sem bipe";if(T.au)T.au.muted=!v;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}};
+setBipe(st.bipe!==false);
+$("tBipe").addEventListener("change",e=>setBipe(e.target.checked));
+$("tSom").onclick=()=>setBipe(st.bipe===false);
 $("tStart").onclick=iniciar;
 $("tStop").onclick=encerrar;
 $("tPause").onclick=()=>{if(!T.run)return;if(T.pausa){T.pausa=false;T.t0=Date.now();$("tPause").textContent="Pausar";
