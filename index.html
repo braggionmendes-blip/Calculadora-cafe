@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 23 · 30/10/2026 · bipe mais alto</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 24 · 31/10/2026 · acessórios LilyDrip (Starflower e LOTOS)</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -238,6 +238,15 @@ select.txt{appearance:auto}
         <button class="step" id="gMais" type="button" aria-label="Moagem mais grossa">+</button>
       </div>
       <div class="hint"><span id="gSug"></span><button class="reset" id="gReset" type="button">Usar a sugerida</button></div>
+    </div>
+    <div id="aBox">
+      <label class="lbl" for="aSel">Acessório no fundo do coador</label>
+      <select class="txt" id="aSel">
+        <option value="">Nenhum</option>
+        <option value="star">LilyDrip Starflower (+ CFS)</option>
+        <option value="lotos">LilyDrip LOTOS (filtro de fundo plano)</option>
+      </select>
+      <p class="cres" id="aInfo" style="margin-top:8px"></p>
     </div>
     <div>
       <label class="unk" for="pOn"><input type="checkbox" id="pOn"> Peneirar o café para tirar os finos</label>
@@ -443,7 +452,7 @@ let fbOpen=-1,fbDraft=null;
 function renderSaved(){
   if(!REC.length){$("saved").innerHTML=`<p class="empty">Nenhuma receita salva ainda. Ajuste tudo acima, dê um nome e toque em Salvar.</p>`;return}
   $("saved").innerHTML=REC.map((x,i)=>{const fb=x.fb||{};const temCafe=x.cafeId||(x.cafe&&!x.cafe.desc);
-    const linha=`${MN[x.met]||x.met} · ${GN[x.moe]||x.moe} ${pfmt(x.gr)} · ${f(x.c,1)} g / ${f(x.a??x.c*x.r)} g${x.x?" · xícara "+f(x.x)+" ml":""} · 1:${f(x.r,x.r%1?1:0)}${x.pen&&x.pen.on?" · peneirado ("+(x.pen.sel==="inox"?"peneira inox":x.pen.sel+" µm")+")":""}`;
+    const linha=`${MN[x.met]||x.met} · ${GN[x.moe]||x.moe} ${pfmt(x.gr)} · ${f(x.c,1)} g / ${f(x.a??x.c*x.r)} g${x.x?" · xícara "+f(x.x)+" ml":""} · 1:${f(x.r,x.r%1?1:0)}${x.acc&&ACC[x.acc]?" · "+ACC[x.acc].n:""}${x.pen&&x.pen.on?" · peneirado ("+(x.pen.sel==="inox"?"peneira inox":x.pen.sel+" µm")+")":""}`;
     const ed=fbOpen===i?`<div class="fbe"><div class="nt" style="grid-template-columns:64px minmax(0,1fr) 44px 30px"><span id="fbl">Nota</span><input type="range" min="0" max="10" step="1" id="fbNota" aria-labelledby="fbl" value="${fbDraft.nota??5}" class="${fbDraft.nota==null?"unset":""}"><output id="fbOut">${fbDraft.nota??"—"}</output><button class="x" type="button" id="fbClr" aria-label="Limpar nota">×</button></div>
       <label class="lbl" for="fbTxt" style="margin:0">Comentário</label><textarea id="fbTxt" maxlength="400" placeholder="Ex.: doce e equilibrado; na próxima, 2 cliques mais grosso">${esc(fbDraft.txt||"")}</textarea>
       <div class="saverow"><button class="btn pri" type="button" id="fbSave" data-i="${i}" style="flex:1">Salvar feedback</button><button class="btn" type="button" id="fbCancel">Cancelar</button></div></div>`:"";
@@ -454,6 +463,13 @@ function renderSaved(){
 }
 let delArm=-1,cDelArm=false;
 st.pen=Object.assign({on:false,sel:"inox",um:null},st.pen||{});
+// Acessórios LilyDrip: só em coadores cônicos
+const CONE=["v60","b75","origami","switch"];
+const ACC={star:{n:"Starflower",info:"Escoa rápido (saída larga, 7 ranhuras): a camada de café fica mais rasa e plana. Moagem mais fina para compensar. Corpo mais leve e mais clareza.",
+    passo:"Dobre o filtro na costura e modele no CFS; encaixe o Starflower no fundo do coador e o filtro por cima"},
+  lotos:{n:"LOTOS",info:"Transforma o coador cônico em fundo plano: use filtro de fundo plano (tipo wave/cesta) sobre ele. A peça não tem furo central; mantenha a moagem e ajuste pelo tempo final.",
+    passo:"Encaixe o LOTOS no fundo do coador e coloque por cima um filtro de fundo plano (tipo wave), sem amassar as dobras"}};
+const accOf=m=>CONE.includes(m.id)&&ACC[st.acc]?st.acc:"";
 // Peneira recomendada por classe do método (µm)
 const PREC={moka:300,aeropress:300,switch:300,v60:300,b75:300,fluire:300,origami:300,melitta:300,pano:300,coador:300,sifao:300,clever:400,chemex:400,prensa:500,cold:600};
 const penUm=()=>st.pen.sel==="inox"?(Number(st.pen.um)||300):Number(st.pen.sel);
@@ -476,6 +492,7 @@ function ajDose(m){const gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.ro
   return {off,nota:`${off>0?"Mais":"Menos"} café (${f(c,1)} g) que a base (${f(cref,1)} g): moagem ${off>0?"+":""}${pfmt(off)} para manter o tempo de escoamento`}}
 function ajuste(m){const o={off:0,temp:null,fresh:false,notas:[],dose:ajDose(m),src:[]};o.off+=o.dose.off;if(o.dose.off)o.src.push("pela quantidade");
   {const pn=peneira(m,calc(m).c),gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
+   o.accOff=0;const ac=accOf(m);if(ac==="star"){o.accOff=-Math.max(1,stp);o.off+=o.accOff;o.src.push("pelo Starflower")}
    o.penOff=0;if(pn.on&&!pn.bloq&&PERC.concat(["switch","clever","sifao"]).includes(m.id)){o.penOff=-Math.max(1,Math.floor(stp/2));o.off+=o.penOff;o.src.push("pela peneira")}}
   const off0=o.off;
   if(st.auto===false||st.csel==="desc")return o;const k=st.cafe,gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
@@ -538,6 +555,9 @@ function render(){
   if(aj.fresh){steps=steps.map((s0,i)=>{const t=s0[0].replace(/(\d+):(\d\d)/g,(_,mm,ss)=>{const v=+mm*60+ +ss;return v>0?tm(v+15):"0:00"});
     const first=i===steps.findIndex(x=>/^0:00/.test(x[0]));return [t,first?s0[1]+" · café fresco: espere 40 a 45 s antes do próximo despejo":s0[1]]})}
   const pn=peneira(m,c);
+  {const ac=accOf(m);$("aBox").hidden=!CONE.includes(m.id);$("aSel").value=CONE.includes(m.id)?(st.acc||""):"";
+   $("aInfo").textContent=ac?ACC[ac].info+(ac==="star"?` Moagem ${pfmt(aj.accOff)} na sugestão. Se o escoamento terminar bem antes do previsto, afine mais um pouco.`:""):"";
+   if(ac){const k0=steps.findIndex(x=>x[0]==="Preparo");const st0=["Preparo",ACC[ac].passo];if(k0>=0)steps.splice(k0,1,[steps[k0][0],ACC[ac].passo+". "+steps[k0][1]]);else steps=[st0,...steps]}}
   if(pn.on&&!pn.bloq)steps=[["Peneirar",`Moa ${f(pn.moer,1)} g, ponha na peneira (${pn.um} µm), tampe e agite de um lado para o outro por ${pn.seg} s. Descarte o pó que passou (≈ ${f(pn.fino,1)} g) e use os ${f(c,1)} g que ficaram`],...steps];
   $("pOn").checked=st.pen.on;$("pBox").hidden=!st.pen.on;$("pSel").value=st.pen.sel;$("pInoxBox").hidden=st.pen.sel!=="inox";
   if(document.activeElement!==$("pUm"))$("pUm").value=st.pen.um||"";
@@ -645,6 +665,7 @@ $("tPause").onclick=()=>{if(!T.run)return;const tocando=T.au&&!T.auFim;
   else{if(tocando){try{T.au.pause()}catch(e){}}else T.acum=decorrido();T.pausa=true;$("tPause").textContent="Continuar"}tick(true)};
 document.addEventListener("visibilitychange",async()=>{if(document.visibilityState==="visible"&&T.run){
     try{if(T.au&&!T.auFim&&!T.pausa&&T.au.paused)T.au.play()}catch(_){}try{T.wl=await navigator.wakeLock.request("screen")}catch(e){}try{T.ac&&T.ac.resume()}catch(e){}}});
+$("aSel").addEventListener("change",e=>{st.acc=e.target.value;render()});
 $("pOn").addEventListener("change",e=>{st.pen.on=e.target.checked;render()});
 $("pSel").addEventListener("change",e=>{st.pen.sel=e.target.value;render()});
 $("pUm").addEventListener("input",e=>{st.pen.um=Number(e.target.value)||null;render()});
@@ -668,7 +689,7 @@ $("cSave").onclick=()=>{const o=san({...st.cafe,tipo:st.cafe.tipo==="__outro"?""
 $("salvar").onclick=()=>{const m=cur(),k=calc(m),nome=$("nome").value.trim()||`${m.n} · ${(st.csel!=="desc"&&st.cafe.nome.trim())||GN[st.moe]}`;
   const gv=st.gr[gKey(m)]??Math.max(0,m.g[st.moe][2]+ajuste(m).off);
   const snap=st.csel==="desc"?{desc:true}:san({...st.cafe,tipo:st.cafe.tipo==="__outro"?"":st.cafe.tipo});
-  REC.unshift({pen:{...st.pen},nome,cafeId:(st.csel!=="desc"&&st.csel!=="novo")?st.csel:undefined,cafe:snap,met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
+  REC.unshift({acc:accOf(m)||undefined,pen:{...st.pen},nome,cafeId:(st.csel!=="desc"&&st.csel!=="novo")?st.csel:undefined,cafe:snap,met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
   saveRec();$("nome").value="";toast("Receita salva");render()};
 const bkData=()=>JSON.stringify({app:"calculadora-extracao",versao:1,data:new Date().toISOString().slice(0,10),receitas:REC,cafes:CAF,moagens:st.gr});
 $("bkCopiar").onclick=()=>{const t=bkData();$("bkTxt").value=t;
@@ -687,7 +708,7 @@ const importar=txt=>{let d;try{d=JSON.parse(txt.trim())}catch(e){toast("Texto in
   for(const x of (lista||[])){if(!x||!M.find(y=>y.id===x.met)||!(x.moe in GN)||!(Number(x.r)>0))continue;if(tem.has(chave(x)))continue;
     const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?{desc:true}:san(x.cafe)):undefined;
     const fbi=x.fb&&typeof x.fb==="object"?{nota:(Number.isFinite(+x.fb.nota)&&x.fb.nota!==null&&+x.fb.nota>=0&&+x.fb.nota<=10)?Math.round(+x.fb.nota):null,txt:String(x.fb.txt||"").slice(0,400),data:String(x.fb.data||"").slice(0,10)}:undefined;
-    REC.push({pen:x.pen&&typeof x.pen==="object"?{on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null}:undefined,fb:fbi,nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
+    REC.push({acc:["star","lotos"].includes(x.acc)?x.acc:undefined,pen:x.pen&&typeof x.pen==="object"?{on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null}:undefined,fb:fbi,nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
   saveRec();render();toast(n||nc?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`:"Nada novo: tudo já estava salvo")};
 $("bkImport").onclick=()=>importar($("bkTxt").value);
@@ -700,7 +721,7 @@ $("saved").addEventListener("click",e=>{const o=e.target.closest("[data-open]"),
   if(e.target.id==="fbSave"){const i=+e.target.dataset.i;const t=(fbDraft.txt||"").trim();REC[i].fb=(fbDraft.nota==null&&!t)?undefined:{nota:fbDraft.nota,txt:t,data:new Date().toISOString().slice(0,10)};saveRec();fbOpen=-1;renderSaved();toast("Feedback salvo");return}
   if(o){const x=REC[+o.dataset.open],m=M.find(y=>y.id===x.met);if(!m)return;st.met=x.met;st.moe=x.moe;st.r[x.met]=x.r;
     if(o.dataset.comcafe){const reg=x.cafeId&&CAF.find(c=>c.id===x.cafeId);
-      if(reg){st.csel=reg.id;st.cafe={...reg};cEdit=false}else if(!x.cafe||x.cafe.desc){st.csel="desc";st.cafe={...CAFE0}}else{st.csel="novo";st.cafe=san(x.cafe);cEdit=true}}if(x.pen&&typeof x.pen==="object")st.pen={on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null};st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;if(x.base==="xicara")st.x[x.met]=x.x;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast(o.dataset.comcafe?"Receita e café abertos: "+x.nome:"Receita aberta com o café selecionado: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
+      if(reg){st.csel=reg.id;st.cafe={...reg};cEdit=false}else if(!x.cafe||x.cafe.desc){st.csel="desc";st.cafe={...CAFE0}}else{st.csel="novo";st.cafe=san(x.cafe);cEdit=true}}st.acc=x.acc||"";if(x.pen&&typeof x.pen==="object")st.pen={on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null};st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;if(x.base==="xicara")st.x[x.met]=x.x;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast(o.dataset.comcafe?"Receita e café abertos: "+x.nome:"Receita aberta com o café selecionado: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
   if(d){const i=+d.dataset.del;if(delArm===i){REC.splice(i,1);saveRec();delArm=-1;fbOpen=-1;toast("Receita excluída")}else delArm=i;renderSaved()}});
 $("qtd").addEventListener("blur",render);
 const bump=d=>{const m=cur();if(!m.dose&&baseOf(m)!=="agua"){const bs=baseOf(m),k=calc(m);if(bs==="cafe")st.c[m.id]=Math.max(0.5,Math.round((k.c+d*0.5)*10)/10);else st.x[m.id]=Math.max(10,Math.round(k.b/10)*10+d*10);render();return}st.q[m.id]=Math.max(m.qs,Math.round((Number(qOf(m))+d*m.qs*(m.dose?1:5))*100)/100);render()};
