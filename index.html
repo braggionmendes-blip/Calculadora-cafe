@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 27 · 03/11/2026 · três receitas de V60 Switch</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 28 · 03/11/2026 · receita híbrida @testandocafes no Switch</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -365,6 +365,10 @@ const M=[
   g:{k7:[58,70,64],r3:[85,115,100],pro:[55,80,68],oster:[7,10,8],mongdio:[14,19,16],icoffee:[11,15,13]},
   steps:(c,a)=>{const k=Math.sqrt(a/250);return[["Preparo","Escalde o filtro com a válvula aberta e descarte a água"],["Preparo",`Feche a válvula e despeje ${g(a)} de água a 92 °C`],["0:00",`Inicie o tempo e coloque os ${f(c,1)} g de café sobre a água`],["0:15","Mexa para quebrar a crosta e deixar tudo homogêneo"],["2:00","Abra a válvula"],[tm(170*k)+"–"+tm(190*k),"Fim do escoamento"]]},
   tip:"Receita @metodosecafes: 15 g para 250 ml a 92 °C (1:16,6). Água antes do café: todo o pó entra em contato com a água ao mesmo tempo, sem pré-infusão. Extração total de 2:50 a 3:10."},
+ {id:"swTC",n:"Switch · híbrido 60/150/300",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
+  g:{k7:[65,80,72],r3:[95,125,110],pro:[65,95,80],oster:[9,11,10],mongdio:[17,22,19],icoffee:[13,17,15]},
+  steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água, feche a válvula e coloque o café"],["0:00",`Válvula fechada: 1º despejo de ${g(a/5)}`],["0:45",`2º despejo até ${g(a/2)} na balança (válvula fechada)`],["1:30","Abra a válvula"],["1:45",`Último despejo até ${g(a)}`],["3:00–3:30","Fim do escoamento (estimado)"]],
+  tip:"Receita @testandocafes (V60 vs. Switch): 20 g para 300 ml (1:15), café Sertãozinho fermentado. Despejos em 60, 150 e 300 ml com a válvula fechada até 1:30. O vídeo não informa temperatura nem moagem: 93 °C e moagem média são ponto de partida. Resultado descrito: equilíbrio entre acidez e doçura, mais corpo e sabor intenso sem amargor ruim."},
  {id:"swU1",n:"Switch · imersão + percolação",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
   g:{k7:[65,80,72],r3:[95,125,110],pro:[65,95,80],oster:[9,11,10],mongdio:[17,22,19],icoffee:[13,17,15]},
   steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água e coloque o café"],["0:00",`Válvula fechada: despeje ${g(a/3)} no centro, cobrindo todo o café`],["0:40",`Quebre o bloom com um movimento no centro e complete até ${g(a*2/3)} (válvula fechada)`],["1:30","Abra a válvula"],["1:50",`Despeje os ${g(a/3)} restantes devagar, em círculos, até ${g(a)}`],["3:50","Fim do escoamento"]],
@@ -497,7 +501,7 @@ function renderSaved(){
 let delArm=-1,cDelArm=false;
 st.pen=Object.assign({on:false,sel:"inox",um:null},st.pen||{});
 // Acessórios LilyDrip: só em coadores cônicos
-const CONE=["v60","b75","origami","switch","swAgua","swU1","swU2"];
+const CONE=["v60","b75","origami","switch","swAgua","swU1","swU2","swTC"];
 const ACC={star:{n:"Starflower",info:"Escoa rápido (saída larga, 7 ranhuras): a camada de café fica mais rasa e plana. Moagem mais fina para compensar. Corpo mais leve e mais clareza.",
     passo:"Dobre o filtro na costura e modele no CFS; encaixe o Starflower no fundo do coador e o filtro por cima"},
   lotos:{n:"LOTOS",info:"Transforma o coador cônico em fundo plano: use filtro de fundo plano (tipo wave/cesta) sobre ele. A peça não tem furo central; mantenha a moagem e ajuste pelo tempo final.",
