@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 30 · 03/11/2026 · receitas Veroo nas listas de V60, Melitta, Origami, AeroPress e prensa</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 31 · 03/11/2026 · bipe também no fim da faixa de tempo final</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -683,7 +683,9 @@ $("cSel").addEventListener("change",e=>{const v=e.target.value;st.csel=v;cDelArm
 let CUR=[];const T={run:false,pausa:false,t0:0,acum:0,feitos:new Set(),avisos:new Set(),ac:null,wl:null};
 const pontos=()=>T.run&&T.pts?T.pts:pontosAgora();
 const seg=t=>{const mm=String(t).match(/(\d+):(\d\d)/);return mm?+mm[1]*60+ +mm[2]:null};
-const pontosAgora=()=>CUR.map((s,i)=>({i,t:seg(s[0]),txt:s[1],lbl:s[0]})).filter(x=>x.t!=null);
+// Faixa de tempo ("2:30–3:00"): bipe no início e de novo no limite final
+const pontosAgora=()=>CUR.flatMap((s,i)=>{const ts=[...String(s[0]).matchAll(/(\d+):(\d\d)/g)].map(m=>+m[1]*60+ +m[2]);if(!ts.length)return[];
+  const o=[{i,key:String(i),t:ts[0],txt:s[1],lbl:s[0]}];if(ts.length>1&&ts[1]>ts[0])o.push({i,key:i+"b",t:ts[1],txt:s[1]+" (limite do tempo)",lbl:s[0]});return o}).sort((a,b)=>a.t-b.t);
 function som(freq,dur,vol=.25){try{const a=T.ac;if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type="square";o.frequency.value=freq;
   g.gain.setValueAtTime(0,a.currentTime);g.gain.linearRampToValueAtTime(vol,a.currentTime+.01);g.gain.linearRampToValueAtTime(0,a.currentTime+dur);
   o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+dur+.02)}catch(e){}}
@@ -713,8 +715,8 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
   if(sohTela)return;
   for(const p of pts){
     const sonoro=!T.au&&st.bipe!==false;
-    for(const[k,vol]of[[5,.08],[4,.13],[3,.18],[2,.24],[1,.3]]){const key=p.i+"-"+k;if(p.t>0&&!T.avisos.has(key)&&p.t-e<=k&&p.t-e>k-1){T.avisos.add(key);if(sonoro)som(2000,.14,vol);if(k===1)vibra(60)}}
-    if(!T.feitos.has(p.i)&&e>=p.t){T.feitos.add(p.i);if(e-p.t<2){if(sonoro){[0,240,480,720].forEach((ms,j)=>setTimeout(()=>som(j%2?3200:2600,.2,.35),ms))}vibra([200,100,200]);
+    for(const[k,vol]of[[5,.08],[4,.13],[3,.18],[2,.24],[1,.3]]){const key=p.key+"-"+k;if(p.t>0&&!T.avisos.has(key)&&p.t-e<=k&&p.t-e>k-1){T.avisos.add(key);if(sonoro)som(2000,.14,vol);if(k===1)vibra(60)}}
+    if(!T.feitos.has(p.key)&&e>=p.t){T.feitos.add(p.key);if(e-p.t<2){if(sonoro){[0,240,480,720].forEach((ms,j)=>setTimeout(()=>som(j%2?3200:2600,.2,.35),ms))}vibra([200,100,200]);
       $("tmr").classList.add("alerta");setTimeout(()=>$("tmr").classList.remove("alerta"),1500)}}}
 }
 let tInt=null;
