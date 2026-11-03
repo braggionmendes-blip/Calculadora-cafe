@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 31 · 03/11/2026 · bipe também no fim da faixa de tempo final</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 32 · 03/11/2026 · backup pode atualizar cafés já cadastrados</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -790,15 +790,17 @@ if(navigator.share&&navigator.canShare){$("bkShare").hidden=false;
 const importar=txt=>{let d;try{d=JSON.parse(txt.trim())}catch(e){toast("Texto inválido: cole o backup completo, começando com {");return}
   const lista=Array.isArray(d)?d:(d&&d.receitas);const cl=d&&Array.isArray(d.cafes)?d.cafes:[];
   if(!Array.isArray(lista)&&!cl.length){toast("Não encontrei receitas nesse backup");return}
-  let nc=0;for(const c0 of cl){const c=san(c0);if(!c||!c.nome)continue;if(CAF.some(y=>y.id===c.id||(y.nome===c.nome&&y.tipo===c.tipo)))continue;c.id=c.id||"c-"+Date.now().toString(36)+nc;CAF.push(c);nc++}
-  if(nc)saveCaf();
+  // "atualizar": true no arquivo completa ou corrige cafés já cadastrados (só os campos preenchidos no arquivo)
+  const upd=d&&d.atualizar===true;let nc=0,nu=0;for(const c0 of cl){const c=san(c0);if(!c||!c.nome)continue;const ex=CAF.find(y=>y.id===c.id||(y.nome===c.nome&&y.tipo===c.tipo));
+    if(ex){if(upd){let ch=false;for(const[k,v]of Object.entries(c)){if(k==="id"||v==null||v==="")continue;if(ex[k]!==v){ex[k]=v;ch=true}}if(ch)nu++}continue}c.id=c.id||"c-"+Date.now().toString(36)+nc;CAF.push(c);nc++}
+  if(nc||nu)saveCaf();
   const chave=x=>[x.nome,x.met,x.moe,x.gr,x.c,x.r].join("|");const tem=new Set(REC.map(chave));let n=0;
   for(const x of (lista||[])){if(!x||!M.find(y=>y.id===x.met)||!(x.moe in GN)||!(Number(x.r)>0))continue;if(tem.has(chave(x)))continue;
     const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?{desc:true}:san(x.cafe)):undefined;
     const fbi=x.fb&&typeof x.fb==="object"?{nota:(Number.isFinite(+x.fb.nota)&&x.fb.nota!==null&&+x.fb.nota>=0&&+x.fb.nota<=10)?Math.round(+x.fb.nota):null,txt:String(x.fb.txt||"").slice(0,400),data:String(x.fb.data||"").slice(0,10)}:undefined;
     REC.push({sd:x.sd&&x.sd.on?{on:true,t200:Number(x.sd.t200)||null}:undefined,acc:["star","lotos"].includes(x.acc)?x.acc:undefined,pen:x.pen&&typeof x.pen==="object"?{on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null}:undefined,fb:fbi,nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
-  saveRec();render();toast(n||nc?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`:"Nada novo: tudo já estava salvo")};
+  saveRec();render();toast(n||nc||nu?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`+(nu?`; ${nu} café${nu===1?"":"s"} atualizado${nu===1?"":"s"}`:""):"Nada novo: tudo já estava salvo")};
 $("bkImport").onclick=()=>importar($("bkTxt").value);
 $("bkFile").addEventListener("change",e=>{const fl=e.target.files&&e.target.files[0];if(!fl)return;const rd=new FileReader();rd.onload=()=>{$("bkTxt").value=rd.result;importar(String(rd.result))};rd.readAsText(fl);e.target.value=""});
 $("saved").addEventListener("input",e=>{if(e.target.id==="fbNota"){fbDraft.nota=+e.target.value;$("fbOut").textContent=fbDraft.nota;e.target.classList.remove("unset")}if(e.target.id==="fbTxt")fbDraft.txt=e.target.value});
