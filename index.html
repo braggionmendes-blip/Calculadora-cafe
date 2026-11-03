@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 25 · 31/10/2026 · Timemore SimpleDrip</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 26 · 03/11/2026 · processo, pontuação SCA, produtor, altitude e amargor</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -162,6 +162,15 @@ select.txt{appearance:auto}
         <label class="lbl" for="cTipoSel">Tipo (variedade)</label>
         <select class="txt" id="cTipoSel"><option value="">Tipo desconhecido</option><option>Não informado</option><optgroup label="Arábica: cultivares brasileiras"><option>Acaiá</option><option>Arara</option><option>Bourbon Amarelo</option><option>Bourbon Vermelho</option><option>Bourbon Laranja</option><option>Bourbon Rosa</option><option>Catiguá</option><option>Catuaí Amarelo</option><option>Catuaí Vermelho</option><option>Catucaí</option><option>Icatu</option><option>Mundo Novo</option><option>Obatã</option><option>Paraíso</option><option>Siriema</option><option>Topázio</option><option>Tupi</option></optgroup><optgroup label="Arábica: clássicas e internacionais"><option>Bourbon</option><option>Bourbon Pointu (Laurina)</option><option>Castillo</option><option>Catimor</option><option>Caturra</option><option>Geisha (Gesha)</option><option>Heirloom etíope</option><option>Jamaica Blue Mountain</option><option>Java</option><option>Kona</option><option>Maracaturra</option><option>Maragogipe</option><option>Marsellesa</option><option>Pacamara</option><option>Pacas</option><option>Parainema</option><option>Ruiru 11</option><option>Sarchimor</option><option>Sidra</option><option>SL28</option><option>SL34</option><option>Batian</option><option>Typica</option><option>Villa Sarchi</option><option>Wush Wush</option></optgroup><optgroup label="Canéfora"><option>Conilon</option><option>Robusta</option><option>Robusta Amazônico</option></optgroup><optgroup label="Misturas"><option>Blend (várias variedades)</option><option>Arábica (variedade não informada)</option></optgroup><option value="__outro">Outro (digitar)</option></select>
         <input class="txt" id="cTipo" type="text" maxlength="60" placeholder="Digite o tipo" style="margin-top:8px" hidden>
+      </div>
+      <div class="cf2">
+        <div><label class="lbl" for="cProc">Processo</label><input class="txt" id="cProc" type="text" maxlength="60" list="procs" placeholder="Ex.: Natural">
+          <datalist id="procs"><option value="Natural"></option><option value="Natural fermentado"></option><option value="Cereja descascado"></option><option value="Cereja descascado e natural"></option><option value="Lavado"></option><option value="Honey"></option><option value="Fermentado anaeróbico"></option></datalist></div>
+        <div><label class="lbl" for="cPts">Pontuação SCA</label><input class="txt" id="cPts" type="number" inputmode="decimal" min="60" max="100" step="0.25" placeholder="Ex.: 86,5"></div>
+      </div>
+      <div class="cf2">
+        <div><label class="lbl" for="cProd">Produtor</label><input class="txt" id="cProd" type="text" maxlength="80" placeholder="Ex.: Fazenda Lagoinha"></div>
+        <div><label class="lbl" for="cAlt">Altitude</label><input class="txt" id="cAlt" type="text" maxlength="30" placeholder="Ex.: 1.100 m"></div>
       </div>
       <div class="cf2">
         <div><label class="lbl" for="cData">Data da torra</label><input class="txt" id="cData" type="date"></div>
@@ -409,11 +418,13 @@ const MOE={k7:"cliques",r3:"cliques",pro:"cliques"};
 const st={met:"v60",moe:"k7",q:{},r:{},c:{},x:{},base:{},gr:{}};
 try{Object.assign(st,JSON.parse(localStorage.getItem("calcExtracao")||"{}"))}catch(e){}
 for(const k of ["q","r","c","x","base","gr"]) st[k]=st[k]||{};
-const CAR=[["corpo","Corpo"],["docura","Doçura"],["acidez","Acidez"],["aroma","Aroma"]];
-const CAFE0={nome:"",tipo:"",origem:"",data:"",torra:"",corpo:null,docura:null,acidez:null,aroma:null,escala:10};
+const CAR=[["corpo","Corpo"],["docura","Doçura"],["acidez","Acidez"],["aroma","Aroma"],["amargor","Amargor"]];
+const CAFE0={nome:"",tipo:"",origem:"",processo:"",pontos:null,produtor:"",altitude:"",data:"",torra:"",corpo:null,docura:null,acidez:null,aroma:null,amargor:null,escala:10};
 const TORRAS=["Clara","Média-clara","Média","Média-escura","Escura"];
 const san=(x)=>{if(!x||typeof x!=="object"||x.desc)return null;const o={id:typeof x.id==="string"?x.id.slice(0,40):undefined,
   nome:String(x.nome||"").slice(0,60),tipo:String(x.tipo||"").slice(0,60),origem:String(x.origem||"").slice(0,60),
+  processo:String(x.processo||"").slice(0,60),produtor:String(x.produtor||"").slice(0,80),altitude:String(x.altitude||"").slice(0,30),
+  pontos:(()=>{const v=Number(String(x.pontos??"").replace(",","."));return x.pontos!=null&&x.pontos!==""&&v>=60&&v<=100?v:null})(),
   data:/^\d{4}-\d{2}-\d{2}$/.test(x.data||"")?x.data:"",torra:TORRAS.includes(x.torra)?x.torra:"",escala:10};
   const old=x.escala!==10;for(const[id]of CAR){let v=x[id];v=(v===null||v===undefined||v==="")?null:Number(v);
     if(old)v=(v>=1&&v<=5)?v*2:null;o[id]=(Number.isFinite(v)&&v>=0&&v<=10)?Math.round(v):null}return o};
@@ -429,7 +440,7 @@ let cEdit=st.csel==="novo";
 const dias=d=>{if(!d)return null;const t=new Date();t.setHours(0,0,0,0);const r=new Date(d+"T00:00:00");return Math.round((t-r)/864e5)};
 const dataBR=d=>d?d.split("-").reverse().join("/"):"";
 const esc=t=>String(t??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
-const cafeTxt=k0=>{const k=san(k0);if(!k)return "Café desconhecido";const a=[k.nome,k.tipo,k.origem,k.torra&&("torra "+k.torra.toLowerCase()),k.data&&("torrado em "+dataBR(k.data))].filter(Boolean);
+const cafeTxt=k0=>{const k=san(k0);if(!k)return "Café desconhecido";const a=[k.nome,k.tipo,k.processo,k.origem,k.torra&&("torra "+k.torra.toLowerCase()),k.pontos!=null&&(String(k.pontos).replace(".",",")+" pts"),k.data&&("torrado em "+dataBR(k.data))].filter(Boolean);
   const c=CAR.filter(([id])=>k[id]!=null).map(([id,n])=>n+" "+k[id]).join(", ");return (a.join(" · ")||"Café sem nome")+(c?" · "+c:"")};
 let REC=null;
 try{REC=JSON.parse(localStorage.getItem("calcReceitas")||"null")}catch(e){}
@@ -541,6 +552,7 @@ function renderCafe(){
   $("cSave").textContent=sel==="novo"?"Cadastrar café":"Salvar alterações";
   if(document.activeElement!==$("cNome")) $("cNome").value=k.nome;
   if(document.activeElement!==$("cOrig")) $("cOrig").value=k.origem;
+  for(const[f,id]of[["processo","cProc"],["produtor","cProd"],["altitude","cAlt"],["pontos","cPts"]])if(document.activeElement!==$(id))$(id).value=k[f]??"";
   const outro=!!k.tipo&&!TIPOSET.has(k.tipo)||k.tipo==="__outro";
   $("cTipoSel").value=outro?"__outro":(k.tipo||""); $("cTipo").hidden=!outro;
   if(document.activeElement!==$("cTipo")) $("cTipo").value=outro&&k.tipo!=="__outro"?k.tipo:"";
@@ -705,6 +717,8 @@ $("cEdit").onclick=()=>{cEdit=!cEdit;if(!cEdit){const o=CAF.find(c=>c.id===st.cs
 $("cCancel").onclick=()=>{if(st.csel==="novo"){st.csel="desc";st.cafe={...CAFE0}}else{const o=CAF.find(c=>c.id===st.csel);if(o)st.cafe={...o}}cEdit=false;render()};
 $("cDel").onclick=()=>{if(!cDelArm){cDelArm=true;renderCafe();return}CAF=CAF.filter(c=>c.id!==st.csel);saveCaf();st.csel="desc";st.cafe={...CAFE0};cDelArm=false;cEdit=false;render();toast("Café excluído")};
 $("cNome").addEventListener("input",e=>{st.cafe.nome=e.target.value;persist()});
+for(const[f,id]of[["processo","cProc"],["produtor","cProd"],["altitude","cAlt"]])$(id).addEventListener("input",e=>{st.cafe[f]=e.target.value;persist()});
+$("cPts").addEventListener("input",e=>{const v=Number(e.target.value);st.cafe.pontos=e.target.value===""?null:v;persist()});
 $("cOrig").addEventListener("input",e=>{st.cafe.origem=e.target.value;persist()});
 $("cTipoSel").addEventListener("change",e=>{st.cafe.tipo=e.target.value==="__outro"?"__outro":e.target.value;render();if(e.target.value==="__outro")$("cTipo").focus()});
 $("cTipo").addEventListener("input",e=>{st.cafe.tipo=e.target.value||"__outro";persist()});
