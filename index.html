@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 28 · 03/11/2026 · receita híbrida @testandocafes no Switch</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 29 · 03/11/2026 · receitas do Switch em lista suspensa</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -198,6 +198,7 @@ select.txt{appearance:auto}
     <div>
       <span class="lbl" id="lMet">Método</span>
       <div class="seg" id="metodos" role="group" aria-labelledby="lMet"></div>
+      <div id="varBox" hidden style="margin-top:10px"><label class="lbl" for="recVar">Receita deste método</label><select class="txt" id="recVar"></select></div>
     </div>
     <div>
       <span class="lbl" id="lMoe">Moedor</span>
@@ -361,19 +362,19 @@ const M=[
   g:{k7:[60,75,68],r3:[85,120,100],pro:[55,80,65],oster:[7,10,8],mongdio:[14,20,17],icoffee:[11,16,13]},
   steps:(c,a)=>[["Preparo","Escalde o filtro com a válvula aberta e descarte a água"],["0:00",`Feche a válvula e despeje ${g(a)} de água sobre ${f(c,1)} g de café`],["0:30","Mexa de leve até molhar todo o pó"],["2:00","Abra a válvula"],["2:45–3:15","Fim do escoamento"]],
   tip:"Imersão dá mais corpo e doçura. Para um café mais limpo e ácido, use a válvula sempre aberta, como um V60."},
- {id:"swAgua",n:"Switch · água primeiro",cls:"Média-fina",q:250,qs:10,r:[14,18,16.6,0.1],temp:"92 °C",tempo:"",
+ {id:"swAgua",grp:"switch",rn:"Água primeiro · @metodosecafes",n:"Switch · água primeiro",cls:"Média-fina",q:250,qs:10,r:[14,18,16.6,0.1],temp:"92 °C",tempo:"",
   g:{k7:[58,70,64],r3:[85,115,100],pro:[55,80,68],oster:[7,10,8],mongdio:[14,19,16],icoffee:[11,15,13]},
   steps:(c,a)=>{const k=Math.sqrt(a/250);return[["Preparo","Escalde o filtro com a válvula aberta e descarte a água"],["Preparo",`Feche a válvula e despeje ${g(a)} de água a 92 °C`],["0:00",`Inicie o tempo e coloque os ${f(c,1)} g de café sobre a água`],["0:15","Mexa para quebrar a crosta e deixar tudo homogêneo"],["2:00","Abra a válvula"],[tm(170*k)+"–"+tm(190*k),"Fim do escoamento"]]},
   tip:"Receita @metodosecafes: 15 g para 250 ml a 92 °C (1:16,6). Água antes do café: todo o pó entra em contato com a água ao mesmo tempo, sem pré-infusão. Extração total de 2:50 a 3:10."},
- {id:"swTC",n:"Switch · híbrido 60/150/300",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
+ {id:"swTC",grp:"switch",rn:"Híbrido 60/150/300 · @testandocafes",n:"Switch · híbrido 60/150/300",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
   g:{k7:[65,80,72],r3:[95,125,110],pro:[65,95,80],oster:[9,11,10],mongdio:[17,22,19],icoffee:[13,17,15]},
   steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água, feche a válvula e coloque o café"],["0:00",`Válvula fechada: 1º despejo de ${g(a/5)}`],["0:45",`2º despejo até ${g(a/2)} na balança (válvula fechada)`],["1:30","Abra a válvula"],["1:45",`Último despejo até ${g(a)}`],["3:00–3:30","Fim do escoamento (estimado)"]],
   tip:"Receita @testandocafes (V60 vs. Switch): 20 g para 300 ml (1:15), café Sertãozinho fermentado. Despejos em 60, 150 e 300 ml com a válvula fechada até 1:30. O vídeo não informa temperatura nem moagem: 93 °C e moagem média são ponto de partida. Resultado descrito: equilíbrio entre acidez e doçura, mais corpo e sabor intenso sem amargor ruim."},
- {id:"swU1",n:"Switch · imersão + percolação",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
+ {id:"swU1",grp:"switch",rn:"Imersão + percolação · Unique Cafés",n:"Switch · imersão + percolação",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
   g:{k7:[65,80,72],r3:[95,125,110],pro:[65,95,80],oster:[9,11,10],mongdio:[17,22,19],icoffee:[13,17,15]},
   steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água e coloque o café"],["0:00",`Válvula fechada: despeje ${g(a/3)} no centro, cobrindo todo o café`],["0:40",`Quebre o bloom com um movimento no centro e complete até ${g(a*2/3)} (válvula fechada)`],["1:30","Abra a válvula"],["1:50",`Despeje os ${g(a/3)} restantes devagar, em círculos, até ${g(a)}`],["3:50","Fim do escoamento"]],
   tip:"Receita Unique Cafés (review do Hario Switch): 20 g para 300 g a 93 °C, moagem média. Resultado descrito: acidez presente com boa estrutura, doçura equilibrada e final de chocolate meio amargo."},
- {id:"swU2",n:"Switch · percolação + imersão",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
+ {id:"swU2",grp:"switch",rn:"Percolação + imersão · Unique Cafés",n:"Switch · percolação + imersão",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
   g:{k7:[65,80,72],r3:[95,125,110],pro:[65,95,80],oster:[9,11,10],mongdio:[17,22,19],icoffee:[13,17,15]},
   steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água e coloque o café"],["0:00",`Válvula aberta: pré-infusão com ${g(a/6)}`],["0:35",`Despeje mais ${g(a/2)} (balança em ${g(a*2/3)}) e deixe filtrar com a válvula aberta`],["1:30",`Feche a válvula e complete até ${g(a)} em fluxo lento e circular`],["2:10","Abra a válvula para escoar"],["3:00","Fim do escoamento"]],
   tip:"Receita Unique Cafés (review do Hario Switch): 20 g para 300 g a 93 °C, moagem média. Resultado descrito: mais doçura, acidez cítrica elegante (tangerina, limão siciliano), corpo cremoso e final limpo, sem amargor."},
@@ -463,7 +464,8 @@ try{REC=JSON.parse(localStorage.getItem("calcReceitas")||"null")}catch(e){}
 if(!Array.isArray(REC)) REC=[{nome:"B75 Black Tucano (vídeo)",cafeId:"c-tucano",cafe:{...CAFE0,nome:"Black Tucano Fruity"},met:"b75",moe:"k7",base:"cafe",c:20,q:300,r:15,gr:70}];
 const saveRec=()=>{try{localStorage.setItem("calcReceitas",JSON.stringify(REC))}catch(e){}};
 const $=id=>document.getElementById(id);
-$("metodos").innerHTML=M.map(m=>`<button type="button" data-v="${m.id}">${m.n}</button>`).join("");
+const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Padrão do app");
+$("metodos").innerHTML=M.filter(m=>!m.grp).map(m=>`<button type="button" data-v="${m.id}">${m.n}</button>`).join("");
 const cur=()=>M.find(m=>m.id===st.met)||M[4];
 const qOf=m=>st.q[m.id]??m.q, rOf=m=>st.r[m.id]??m.r[2];
 const rfmt=(m,v)=>Number.isInteger(Math.round(v*10)/10)?f(Math.round(v)):f(v,1);
@@ -580,7 +582,9 @@ function renderCafe(){
 }
 function render(){
   const m=cur(), {q,r,c,a,b}=calc(m);
-  document.querySelectorAll("#metodos button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===m.id));
+  document.querySelectorAll("#metodos button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===G(m)));
+  {const vs=M.filter(x=>G(x)===G(m));$("varBox").hidden=vs.length<2;
+   if(vs.length>1){const h=vs.map(x=>`<option value="${x.id}">${vn(x)}</option>`).join("");if($("recVar").dataset.h!==h){$("recVar").innerHTML=h;$("recVar").dataset.h=h}$("recVar").value=m.id}}
   document.querySelectorAll("#moedores button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.moe));
   const bs=baseOf(m);
   $("base").hidden=!!m.dose;
@@ -639,7 +643,8 @@ function render(){
   renderSaved();
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}
 }
-$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(b){st.met=b.dataset.v;render()}});
+$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const g=b.dataset.v,l=(st.gsel||{})[g];st.met=l&&M.some(x=>x.id===l&&G(x)===g)?l:g;render()});
+$("recVar").addEventListener("change",e=>{st.met=e.target.value;st.gsel={...(st.gsel||{}),[G(cur())]:st.met};render()});
 $("moedores").addEventListener("click",e=>{const b=e.target.closest("button");if(b){st.moe=b.dataset.v;render()}});
 $("qtd").addEventListener("input",e=>{const m=cur(),v=Number(e.target.value)||0,bs=baseOf(m);if(!m.dose&&bs==="cafe")st.c[m.id]=v;else if(!m.dose&&bs==="xicara")st.x[m.id]=v;else st.q[m.id]=v;render()});
 $("base").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const m=cur(),k=calc(m);
