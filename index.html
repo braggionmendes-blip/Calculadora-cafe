@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 29 · 03/11/2026 · receitas do Switch em lista suspensa</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 30 · 03/11/2026 · receitas Veroo nas listas de V60, Melitta, Origami, AeroPress e prensa</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -429,7 +429,27 @@ const M=[
  {id:"cold",n:"Cold brew",cls:"Extragrossa",q:500,qs:50,r:[4,12,8,1],temp:"Água fria ou ambiente",tempo:"12 a 18 h",
   g:{k7:[110,125,115],r3:[160,180,170],pro:[100,110,108],oster:[17,18,18],mongdio:[32,38,35],icoffee:[25,30,28]},
   steps:(c,a)=>[["0:00",`Misture ${f(c,1)} g de café em ${g(a)} de água fria`],["0:00","Mexa até molhar todo o pó e tampe"],["12–18 h","Deixe na geladeira"],["Fim","Filtre em papel ou pano e guarde gelado por até 1 semana"]],
-  tip:"Proporções de 1:4 a 1:6 rendem concentrado: dilua 1:1 em água ou leite. De 1:8 a 1:12 já sai pronto para beber."}
+  tip:"Proporções de 1:4 a 1:6 rendem concentrado: dilua 1:1 em água ou leite. De 1:8 a 1:12 já sai pronto para beber."},
+ {id:"vV60",grp:"v60",rn:"Veroo · 50/150/240",n:"V60 · Veroo",cls:"Média-fina",q:240,qs:10,r:[14,18,16,0.5],temp:"93 °C",tempo:"2:30 a 3:00",
+  g:{k7:[60,78,70],r3:[90,125,105],pro:[60,95,75],oster:[8,10,9],mongdio:[15,20,17],icoffee:[12,16,13]},
+  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Escalde o filtro e descarte a água"],["0:00",`Despeje até ${g(a*50/240)} em movimentos circulares suaves`],[tm(40*k),`Complete até ${g(a*150/240)}`],[tm(80*k),`Finalize até ${g(a)}, mantendo o fluxo constante`],[tm(150*k)+"–"+tm(180*k),"Fim do escoamento"]]},
+  tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Original: 15 g para 240 g (1:16) a 93 °C. A divisão 21/42/37% põe mais água no meio do preparo, o que puxa doçura e segura o amargor."},
+ {id:"vMel",grp:"melitta",rn:"Veroo · 50/140/240",n:"Melitta · Veroo",cls:"Média",q:240,qs:10,r:[14,18,16,0.5],temp:"92 °C",tempo:"2:30 a 3:00",
+  g:{k7:[65,80,72],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[17,23,20],icoffee:[13,18,16]},
+  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Dobre as costuras do filtro, escalde e descarte a água"],["0:00",`Despeje até ${g(a*50/240)}`],[tm(40*k),`Complete até ${g(a*140/240)}`],[tm(80*k),`Finalize até ${g(a)}`],[tm(150*k)+"–"+tm(195*k),"Fim do escoamento"]]},
+  tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Original: 15 g para 240 g (1:16) a 92 °C. Despeje devagar, mantendo o nível da água estável. Os furos pequenos da Melitta tendem a levar o fim para perto de 3:00 ou um pouco além."},
+ {id:"vKal",grp:"origami",rn:"Veroo · receita Kalita (fundo plano)",n:"Origami · Veroo (Kalita)",cls:"Média",q:240,qs:10,r:[14,18,16,0.5],temp:"93 °C",tempo:"2:30 a 3:00",
+  g:{k7:[65,80,72],r3:[95,130,110],pro:[65,95,80],oster:[8,11,10],mongdio:[16,23,19],icoffee:[13,18,15]},
+  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Use filtro de fundo plano (tipo Wave), escalde e descarte a água"],["0:00",`Despeje até ${g(a*50/240)}`],[tm(40*k),`Complete até ${g(a*110/240)}`],[tm(70*k),`Complete até ${g(a*175/240)}`],[tm(100*k),`Finalize até ${g(a)}`],[tm(150*k)+"–"+tm(180*k),"Fim do escoamento"]]},
+  tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Feita para Kalita: 15 g para 240 g (1:16) a 93 °C. No Origami, use filtro de fundo plano. Faça despejos curtos e controlados, sem concentrar a água só no centro."},
+ {id:"vAero",grp:"aeropress",rn:"Veroo · 16 g / 220 g",n:"AeroPress · Veroo",cls:"Média-fina",q:220,qs:10,r:[12,16,13.75,0.25],temp:"90 °C",tempo:"1:45",
+  g:{k7:[55,70,60],r3:[70,90,80],pro:[40,70,55],oster:[5,9,7],mongdio:[11,18,14],icoffee:[9,14,11]},
+  steps:(c,a)=>[["0:00",`Adicione toda a água (${g(a)}) sobre os ${f(c,1)} g de café`],["0:10","Misture suavemente 3 vezes e encaixe o êmbolo"],["1:15","Comece a pressionar, devagar e de maneira constante"],["1:45","Fim da extração"]],
+  tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Original: 16 g para 220 g (1:13,75) a 90 °C. O cartão não diz a posição; na normal, encaixar o êmbolo logo após mexer segura o gotejamento."},
+ {id:"vPrensa",grp:"prensa",rn:"Veroo · 16 g / 240 g",n:"Prensa francesa · Veroo",cls:"Grossa",q:240,qs:10,r:[12,18,15,0.5],temp:"92 °C",tempo:"4 min + descanso",
+  g:{k7:[95,110,100],r3:[145,165,155],pro:[90,105,98],oster:[15,18,16],mongdio:[27,36,31],icoffee:[21,28,24]},
+  steps:(c,a)=>[["0:00",`Adicione toda a água (${g(a)}) sobre os ${f(c,1)} g de café e misture suavemente`],["4:00","Quebre a crosta e retire a espuma com duas colheres"],["7:00–9:00","Espere 3 a 5 min para o pó assentar"],["Fim","Encaixe o êmbolo só até a superfície e sirva logo"]],
+  tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Original: 16 g para 240 g (1:15) a 92 °C, prensando no 4:00. Retirar a espuma e esperar alguns minutos antes de prensar foi acréscimo meu, para a xícara sair mais limpa."}
 ];
 const MOE={k7:"cliques",r3:"cliques",pro:"cliques"};
 const st={met:"v60",moe:"k7",q:{},r:{},c:{},x:{},base:{},gr:{}};
@@ -503,7 +523,7 @@ function renderSaved(){
 let delArm=-1,cDelArm=false;
 st.pen=Object.assign({on:false,sel:"inox",um:null},st.pen||{});
 // Acessórios LilyDrip: só em coadores cônicos
-const CONE=["v60","b75","origami","switch","swAgua","swU1","swU2","swTC"];
+const CONE=["v60","b75","origami","switch","swAgua","swU1","swU2","swTC","vV60","vKal"];
 const ACC={star:{n:"Starflower",info:"Escoa rápido (saída larga, 7 ranhuras): a camada de café fica mais rasa e plana. Moagem mais fina para compensar. Corpo mais leve e mais clareza.",
     passo:"Dobre o filtro na costura e modele no CFS; encaixe o Starflower no fundo do coador e o filtro por cima"},
   lotos:{n:"LOTOS",info:"Transforma o coador cônico em fundo plano: use filtro de fundo plano (tipo wave/cesta) sobre ele. A peça não tem furo central; mantenha a moagem e ajuste pelo tempo final.",
@@ -536,7 +556,7 @@ function peneira(m,c){const r={on:false};if(!st.pen.on)return r;r.on=true;const 
   r.dica=um<rec-50?`Peneira mais fina que a indicada (${rec} µm): tira menos finos`:um>rec+50?`Peneira mais aberta que a indicada (${rec} µm): tira também parte do pó bom`:`Peneira adequada para este método`;
   if(st.pen.sel==="inox"&&!Number(st.pen.um))r.dica+=" (abertura da sua peneira considerada 300 µm)";
   return r}
-const PERC=["v60","b75","fluire","origami","melitta","pano","coador","chemex"];
+const PERC=["v60","b75","fluire","origami","melitta","pano","coador","chemex","vV60","vMel","vKal"];
 // Coados: mais café = camada mais alta = escoa mais devagar; compensa com moagem mais grossa (e vice-versa)
 function ajDose(m){const gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
   if(!PERC.includes(m.id))return {off:0,nota:""};
