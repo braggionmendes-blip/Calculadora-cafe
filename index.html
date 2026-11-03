@@ -139,7 +139,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 26 · 03/11/2026 · processo, pontuação SCA, produtor, altitude e amargor</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 27 · 03/11/2026 · três receitas de V60 Switch</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -361,6 +361,18 @@ const M=[
   g:{k7:[60,75,68],r3:[85,120,100],pro:[55,80,65],oster:[7,10,8],mongdio:[14,20,17],icoffee:[11,16,13]},
   steps:(c,a)=>[["Preparo","Escalde o filtro com a válvula aberta e descarte a água"],["0:00",`Feche a válvula e despeje ${g(a)} de água sobre ${f(c,1)} g de café`],["0:30","Mexa de leve até molhar todo o pó"],["2:00","Abra a válvula"],["2:45–3:15","Fim do escoamento"]],
   tip:"Imersão dá mais corpo e doçura. Para um café mais limpo e ácido, use a válvula sempre aberta, como um V60."},
+ {id:"swAgua",n:"Switch · água primeiro",cls:"Média-fina",q:250,qs:10,r:[14,18,16.6,0.1],temp:"92 °C",tempo:"",
+  g:{k7:[58,70,64],r3:[85,115,100],pro:[55,80,68],oster:[7,10,8],mongdio:[14,19,16],icoffee:[11,15,13]},
+  steps:(c,a)=>{const k=Math.sqrt(a/250);return[["Preparo","Escalde o filtro com a válvula aberta e descarte a água"],["Preparo",`Feche a válvula e despeje ${g(a)} de água a 92 °C`],["0:00",`Inicie o tempo e coloque os ${f(c,1)} g de café sobre a água`],["0:15","Mexa para quebrar a crosta e deixar tudo homogêneo"],["2:00","Abra a válvula"],[tm(170*k)+"–"+tm(190*k),"Fim do escoamento"]]},
+  tip:"Receita @metodosecafes: 15 g para 250 ml a 92 °C (1:16,6). Água antes do café: todo o pó entra em contato com a água ao mesmo tempo, sem pré-infusão. Extração total de 2:50 a 3:10."},
+ {id:"swU1",n:"Switch · imersão + percolação",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
+  g:{k7:[65,80,72],r3:[95,125,110],pro:[65,95,80],oster:[9,11,10],mongdio:[17,22,19],icoffee:[13,17,15]},
+  steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água e coloque o café"],["0:00",`Válvula fechada: despeje ${g(a/3)} no centro, cobrindo todo o café`],["0:40",`Quebre o bloom com um movimento no centro e complete até ${g(a*2/3)} (válvula fechada)`],["1:30","Abra a válvula"],["1:50",`Despeje os ${g(a/3)} restantes devagar, em círculos, até ${g(a)}`],["3:50","Fim do escoamento"]],
+  tip:"Receita Unique Cafés (review do Hario Switch): 20 g para 300 g a 93 °C, moagem média. Resultado descrito: acidez presente com boa estrutura, doçura equilibrada e final de chocolate meio amargo."},
+ {id:"swU2",n:"Switch · percolação + imersão",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
+  g:{k7:[65,80,72],r3:[95,125,110],pro:[65,95,80],oster:[9,11,10],mongdio:[17,22,19],icoffee:[13,17,15]},
+  steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água e coloque o café"],["0:00",`Válvula aberta: pré-infusão com ${g(a/6)}`],["0:35",`Despeje mais ${g(a/2)} (balança em ${g(a*2/3)}) e deixe filtrar com a válvula aberta`],["1:30",`Feche a válvula e complete até ${g(a)} em fluxo lento e circular`],["2:10","Abra a válvula para escoar"],["3:00","Fim do escoamento"]],
+  tip:"Receita Unique Cafés (review do Hario Switch): 20 g para 300 g a 93 °C, moagem média. Resultado descrito: mais doçura, acidez cítrica elegante (tangerina, limão siciliano), corpo cremoso e final limpo, sem amargor."},
  {id:"b75",n:"Timemore B75 (1:15)",cls:"Média-fina a média",q:300,qs:10,r:[14,17,15,1],temp:"90 °C",tempo:"",
   g:{k7:[65,75,70],r3:[90,130,110],pro:[60,100,80],oster:[8,11,9],mongdio:[15,22,18],icoffee:[12,17,14]},
   steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Escalde o filtro e descarte a água"],["0:00",`1º despejo: ${g(a*.2)} de água`],[tm(60*k),`2º despejo: complete até ${g(a*140/300)}`],[tm(100*k),`3º despejo: complete até ${g(a*220/300)}`],[tm(140*k),`4º despejo: complete até ${g(a)}`],[tm(195*k),"Fim do escoamento"]]},
@@ -450,7 +462,7 @@ const $=id=>document.getElementById(id);
 $("metodos").innerHTML=M.map(m=>`<button type="button" data-v="${m.id}">${m.n}</button>`).join("");
 const cur=()=>M.find(m=>m.id===st.met)||M[4];
 const qOf=m=>st.q[m.id]??m.q, rOf=m=>st.r[m.id]??m.r[2];
-const rfmt=(m,v)=>m.r[3]<1?f(v,1):f(v);
+const rfmt=(m,v)=>Number.isInteger(Math.round(v*10)/10)?f(Math.round(v)):f(v,1);
 const pfmt=v=>Number.isInteger(v)?f(v):f(v,1);
 
 const baseOf=m=>m.dose?"agua":(st.base[m.id]||"agua");
@@ -485,7 +497,7 @@ function renderSaved(){
 let delArm=-1,cDelArm=false;
 st.pen=Object.assign({on:false,sel:"inox",um:null},st.pen||{});
 // Acessórios LilyDrip: só em coadores cônicos
-const CONE=["v60","b75","origami","switch"];
+const CONE=["v60","b75","origami","switch","swAgua","swU1","swU2"];
 const ACC={star:{n:"Starflower",info:"Escoa rápido (saída larga, 7 ranhuras): a camada de café fica mais rasa e plana. Moagem mais fina para compensar. Corpo mais leve e mais clareza.",
     passo:"Dobre o filtro na costura e modele no CFS; encaixe o Starflower no fundo do coador e o filtro por cima"},
   lotos:{n:"LOTOS",info:"Transforma o coador cônico em fundo plano: use filtro de fundo plano (tipo wave/cesta) sobre ele. A peça não tem furo central; mantenha a moagem e ajuste pelo tempo final.",
