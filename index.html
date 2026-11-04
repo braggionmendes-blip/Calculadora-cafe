@@ -145,7 +145,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 36 · 03/11/2026 · saldo de café em cada pote</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 37 · 04/11/2026 · receita da prensa de viagem i Cafilas</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -467,7 +467,11 @@ const M=[
  {id:"vPrensa",grp:"prensa",rn:"Veroo · 16 g / 240 g",n:"Prensa francesa · Veroo",cls:"Grossa",q:240,qs:10,r:[12,18,15,0.5],temp:"92 °C",tempo:"4 min + descanso",
   g:{k7:[95,110,100],r3:[145,165,155],pro:[90,105,98],oster:[15,18,16],mongdio:[27,36,31],icoffee:[21,28,24]},
   steps:(c,a)=>[["0:00",`Adicione toda a água (${g(a)}) sobre os ${f(c,1)} g de café e misture suavemente`],["4:00","Quebre a crosta e retire a espuma com duas colheres"],["7:00–9:00","Espere 3 a 5 min para o pó assentar"],["Fim","Encaixe o êmbolo só até a superfície e sirva logo"]],
-  tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Original: 16 g para 240 g (1:15) a 92 °C, prensando no 4:00. Retirar a espuma e esperar alguns minutos antes de prensar foi acréscimo meu, para a xícara sair mais limpa."}
+  tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Original: 16 g para 240 g (1:15) a 92 °C, prensando no 4:00. Retirar a espuma e esperar alguns minutos antes de prensar foi acréscimo meu, para a xícara sair mais limpa."},
+ {id:"pViagem",grp:"prensa",rn:"Prensa de viagem (i Cafilas)",n:"Prensa de viagem (i Cafilas)",cls:"Grossa",q:300,qs:10,r:[12,18,15,0.5],temp:"93 a 96 °C",tempo:"4 min",
+  g:{k7:[95,110,100],r3:[145,165,155],pro:[90,105,98],oster:[15,18,16],mongdio:[27,36,31],icoffee:[21,28,24]},
+  steps:(c,a)=>[["Preparo",`Tire a tampa com o êmbolo e coloque os ${f(c,1)} g de café no copo`],["0:00",`Despeje os ${g(a)} de água de uma vez e mexa 3 vezes para molhar todo o pó`],["0:15","Encaixe a tampa com o êmbolo só apoiado na superfície, sem pressionar"],["4:00","Pressione o êmbolo devagar, em cerca de 20 s, até o fundo"],["Fim","Beba logo ou passe para outra xícara"]],
+  tip:"Copo de 350 ml: use no máximo 300 ml de água para sobrar espaço ao pó e ao êmbolo. O pó continua em contato com o café no fundo do copo; se for beber direto da caneca aos poucos, prense aos 3:00 (como o manual indica) para não amargar."}
 ];
 const MOE={k7:"cliques",r3:"cliques",pro:"cliques"};
 const st={met:"v60",moe:"k7",q:{},r:{},c:{},x:{},base:{},gr:{}};
