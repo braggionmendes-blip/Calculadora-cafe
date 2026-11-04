@@ -145,7 +145,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 35 · 03/11/2026 · potes em lista suspensa</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 36 · 03/11/2026 · saldo de café em cada pote</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -207,6 +207,7 @@ select.txt{appearance:auto}
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><label for="pN" style="font-size:.9rem">Quantidade de potes</label><select class="txt" id="pN" style="width:auto;min-width:80px"></select></div>
       <select class="txt" id="poteSel" aria-label="Escolha o pote" style="margin-top:10px"></select>
       <div id="potes" style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:8px"></div>
+      <p class="cres" id="pHist" style="margin-top:8px;font-size:.84rem"></p>
       <p class="cres" style="margin-top:8px;font-size:.82rem">Pote vazio recebe a sugestão do café mais antigo pela data de torra, desde que já tenha 7 dias de descanso. Toque em Acabou quando o café terminar: ele sai das sugestões.</p>
     </div>
   </section>
@@ -488,6 +489,7 @@ if(!Array.isArray(CAF)){CAF=[{...CAFE0,id:"c-tucano",nome:"Black Tucano Fruity"}
   const o=san(st.cafe);if(o&&o.nome.trim()&&!CAF.some(c=>c.nome===o.nome))CAF.push({...o,id:"c-"+Date.now().toString(36)})}
 CAF=CAF.map(san).filter(Boolean);
 let POT={n:5,p:[]};try{const x=JSON.parse(localStorage.getItem("calcPotes")||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[]}}catch(e){}
+POT.g=Array.isArray(POT.g)?POT.g.slice(0,12):[];POT.u=Array.isArray(POT.u)?POT.u.slice(0,12):[];POT.h=Array.isArray(POT.h)?POT.h.slice(0,10):[];
 const savePot=()=>{try{localStorage.setItem("calcPotes",JSON.stringify(POT))}catch(e){}};
 let potArm=-1,potSel=-1;
 const saveCaf=()=>{try{localStorage.setItem("calcCafes",JSON.stringify(CAF))}catch(e){}};saveCaf();
@@ -616,6 +618,10 @@ function renderPotes(){
     let info="",acts="";
     if(v){const k=CAF.find(c=>c.id===v),d=k?dias(k.data):null;
       info=k?(k.data?`Torrado em ${dataBR(k.data)} · ${d} dia${d===1?"":"s"}`+(d>60?" · consuma logo":d<7?" · ainda em descanso":""):"Sem data de torra"):"";
+      const gs=POT.g[i],u=POT.u[i]||{n:0,g:0,ini:null},dose=calc(cur()).c;
+      info+=`</p><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><label for="pg${i}" style="font-size:.86rem">Café no pote</label><input class="txt" id="pg${i}" data-pg="${i}" type="number" inputmode="decimal" min="0" step="1" style="width:110px" placeholder="peso (g)" value="${gs!=null?Math.round(gs*10)/10:""}"><span style="font-size:.86rem">g</span></div><p class="pi">`+
+        (gs==null?"Pese só o café (zere a balança com o pote vazio) e informe acima. A cada temporizador iniciado com este café, o app desconta a dose.":
+        `${u.ini!=null?`Início ${f(u.ini)} g · `:""}${u.n} preparo${u.n===1?"":"s"} · ${f(u.g,1)} g descontados`+(gs<dose?` · <b>menos de uma dose</b>`:` · dá para ≈ ${Math.floor(gs/dose)} preparo${Math.floor(gs/dose)===1?"":"s"} como o atual`));
       acts=`<div class="acts"><button class="btn pri" type="button" data-pusar="${i}">Usar no preparo</button><button class="btn" type="button" data-pfim="${i}">${potArm===i?"Confirmar: acabou":"Acabou"}</button></div>`}
     else{const sg=fila[si++];
       if(sg){const d=dias(sg.data),nx=fila.slice(si,si+2).map(x=>x.nome);
@@ -626,7 +632,8 @@ function renderPotes(){
     h.push(`<div class="pote" data-pc="${i}"><div class="ph"><b>Pote ${i+1}</b></div><select class="txt" data-pote="${i}" aria-label="Café do pote ${i+1}">${ops}</select>${v?`<p class="pi">${info}</p>`:info}${acts}</div>`)}
   if(potSel>=POT.n)potSel=-1;
   let vaz=0;for(let i=0;i<POT.n;i++)if(!POT.p[i])vaz++;
-  $("poteSel").innerHTML=`<option value="-1">Escolha um pote (${vaz} vazio${vaz===1?"":"s"} de ${POT.n})</option>`+Array.from({length:POT.n},(_,i)=>{const v=POT.p[i]||"";return `<option value="${i}">Pote ${i+1} · ${v?esc(potNome(v)):"Vazio"}</option>`}).join("");
+  const hs=POT.h[0];$("pHist").innerHTML=hs?`Último teste: ${esc(hs.nome)} acabou em ${dataBR(hs.data)} com saldo previsto de ${f(hs.prev,1)} g (${hs.n} preparos). ${Math.abs(hs.prev)<=5?"Contagem bateu.":hs.prev>0?"O app achava que ainda tinha café: as doses reais foram maiores, ou houve uso fora do app.":"O app achava que já tinha acabado: as doses reais foram menores que as da receita."}`:"";
+  $("poteSel").innerHTML=`<option value="-1">Escolha um pote (${vaz} vazio${vaz===1?"":"s"} de ${POT.n})</option>`+Array.from({length:POT.n},(_,i)=>{const v=POT.p[i]||"";return `<option value="${i}">Pote ${i+1} · ${v?esc(potNome(v))+(POT.g[i]!=null?" · "+f(Math.max(0,POT.g[i]))+" g":""):"Vazio"}</option>`}).join("");
   $("poteSel").value=String(potSel);
   $("potes").innerHTML=potSel>=0?h[potSel]:"";
   const el=document.querySelector(`[data-pote="${potSel}"]`);if(el)el.value=POT.p[potSel]||"";
@@ -773,7 +780,14 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
       $("tmr").classList.add("alerta");setTimeout(()=>$("tmr").classList.remove("alerta"),1500)}}}
 }
 let tInt=null;
-async function iniciar(){
+// Desconta a dose do pote que contém o café selecionado; reinício em até 10 min conta como o mesmo preparo
+let ultDesc=null;
+function descontaPote(){try{if(st.csel==="novo")return;const i=POT.p.slice(0,POT.n).findIndex(v=>v&&v===st.csel);if(i<0||POT.g[i]==null)return;
+  if(ultDesc&&ultDesc.i===i&&Date.now()-ultDesc.t<6e5)return;
+  const m=cur(),c=calc(m).c,pn=peneira(m,c),g=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;
+  POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini};savePot();ultDesc={i,t:Date.now()};
+  toast(`Descontei ${f(g,1)} g do Pote ${i+1}: restam ${f(Math.max(0,POT.g[i]),1)} g`+(POT.g[i]<c?". Está acabando":""));renderPotes()}catch(e){}}
+async function iniciar(){descontaPote();
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
   try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src)}}catch(e){}
   T.au=null;
@@ -814,11 +828,16 @@ $("cCancel").onclick=()=>{if(st.csel==="novo"){st.csel="desc";st.cafe={...CAFE0}
 $("cFim").onclick=()=>{const o=CAF.find(c=>c.id===st.csel);if(o){delete o.fim;st.cafe={...o};saveCaf();render();toast("Café de volta às sugestões")}};
 $("pN").addEventListener("change",e=>{POT.n=+e.target.value;savePot();potArm=-1;renderPotes()});
 $("poteSel").addEventListener("change",e=>{potSel=+e.target.value;potArm=-1;renderPotes()});
-$("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pote]");if(!el)return;const i=+el.dataset.pote,v=el.value;if(v)POT.p=POT.p.map((x,j)=>j!==i&&x===v&&!ISD(v)?"":x);POT.p[i]=v;savePot();potArm=-1;renderPotes()});
+$("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pote]");if(!el)return;const i=+el.dataset.pote,v=el.value;if(v)POT.p=POT.p.map((x,j)=>j!==i&&x===v&&!ISD(v)?"":x);if(POT.p[i]!==v){POT.g[i]=null;POT.u[i]=null}POT.p[i]=v;savePot();potArm=-1;renderPotes()});
+$("potes").addEventListener("input",e=>{const el=e.target.closest("[data-pg]");if(!el)return;const i=+el.dataset.pg,v=el.value===""?null:Math.max(0,Number(el.value));POT.g[i]=v;const u0=POT.u[i];if(!(u0&&u0.n>0))POT.u[i]={n:0,g:0,ini:v};savePot();
+  const o=$("poteSel").options[i+1];if(o)o.textContent=`Pote ${i+1} · ${potNome(POT.p[i])}${v!=null?" · "+f(v)+" g":""}`});
+$("potes").addEventListener("change",e=>{if(e.target.closest("[data-pg]"))setTimeout(renderPotes,0)});
 $("potes").addEventListener("click",e=>{const u=e.target.closest("[data-pusar]"),fm=e.target.closest("[data-pfim]"),po=e.target.closest("[data-ppor]");
-  if(po){POT.p[+po.dataset.ppor]=po.dataset.id;savePot();potArm=-1;renderPotes();return}
+  if(po){POT.g[+po.dataset.ppor]=null;POT.u[+po.dataset.ppor]=null;POT.p[+po.dataset.ppor]=po.dataset.id;savePot();potArm=-1;renderPotes();return}
   if(u){const v=POT.p[+u.dataset.pusar];st.csel=v;cEdit=false;cDelArm=false;st.cafe=ISD(v)?{...CAFE0}:{...CAF.find(c=>c.id===v)};render();toast("Café do pote selecionado");return}
-  if(fm){const i=+fm.dataset.pfim;if(potArm!==i){potArm=i;renderPotes();return}const v=POT.p[i];const o=CAF.find(c=>c.id===v);if(o){o.fim=true;saveCaf()}POT.p[i]="";savePot();potArm=-1;render();toast("Pote vazio")}});
+  if(fm){const i=+fm.dataset.pfim;if(potArm!==i){potArm=i;renderPotes();return}const v=POT.p[i];const o=CAF.find(c=>c.id===v);if(o){o.fim=true;saveCaf()}
+    if(POT.g[i]!=null){const u=POT.u[i]||{n:0};const dt=new Date();POT.h.unshift({nome:potNome(v),prev:Math.round(POT.g[i]*10)/10,n:u.n,data:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`});POT.h=POT.h.slice(0,10)}
+    POT.p[i]="";POT.g[i]=null;POT.u[i]=null;savePot();potArm=-1;render();toast("Pote vazio")}});
 $("cDel").onclick=()=>{if(!cDelArm){cDelArm=true;renderCafe();return}CAF=CAF.filter(c=>c.id!==st.csel);saveCaf();st.csel="desc";st.cafe={...CAFE0};cDelArm=false;cEdit=false;render();toast("Café excluído")};
 $("cNome").addEventListener("input",e=>{st.cafe.nome=e.target.value;persist()});
 for(const[f,id]of[["processo","cProc"],["produtor","cProd"],["altitude","cAlt"]])$(id).addEventListener("input",e=>{st.cafe[f]=e.target.value;persist()});
