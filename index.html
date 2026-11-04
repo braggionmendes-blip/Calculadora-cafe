@@ -145,7 +145,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 38 · 04/11/2026 · método 4:6 nos coados e correção do saldo dos potes</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 39 · 04/11/2026 · máquina portátil i Cafilas ME2604 (pó, Nespresso e Dolce Gusto)</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -494,6 +494,19 @@ M.push(
  {...k46base,id:"k46ori",grp:"origami",rn:"Método 4:6 (Kasuya)",n:"Origami · 4:6",steps:k46steps("Escalde o filtro e descarte a água"),tip:K46TIP},
  {...k46base,id:"k46b75",grp:"b75",rn:"Método 4:6 (Kasuya)",n:"B75 · 4:6",steps:k46steps("Escalde o filtro e descarte a água"),tip:K46TIP+" O B75 escoa rápido: se terminar antes de 3:00, moa 3 a 5 cliques mais fino."},
  {...k46base,id:"k46sw",grp:"switch",rn:"Método 4:6 (Kasuya)",n:"Switch · 4:6",steps:k46steps("Válvula aberta o tempo todo: escalde o filtro e descarte a água"),tip:K46TIP+" No Switch, mantenha a válvula aberta: o 4:6 é percolação pura."});
+M.push(
+ {id:"me26",n:"i Cafilas ME2604",rn:"Espresso com café moído",cls:"Fina",dose:true,tank:true,q:8,qs:0.5,r:[3,6,5,0.5],temp:"92 °C (automático)",tempo:"cerca de 3:30",
+  g:{k7:[35,45,40],r3:[25,45,35],pro:[8,24,15],oster:[1,3,1,'Pode não chegar à finura de espresso'],mongdio:[3,9,6,'Pode não chegar à finura de espresso'],icoffee:[2,7,5,'Pode não chegar à finura de espresso']},
+  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no cesto do adaptador de pó, nivele e compacte de leve (sem socar forte)`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (máx. 80 ml). Água já quente da chaleira encurta o aquecimento e poupa a bateria`],["0:00","Monte o adaptador, ligue e aperte o botão: a máquina aquece a água"],["3:20","Com água fria, a extração começa sozinha ao chegar a 92 °C (com água quente, bem antes)"],["3:50","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
+  tip:"Na ME2604 a quantidade de bebida é definida pela água que você põe no reservatório: 30 a 40 ml é espresso, 60 a 80 ml é lungo. A proporção aqui é água no reservatório : café. Se sair rápido e aguado, moa mais fino ou compacte um pouco mais; se travar ou pingar, moa mais grosso."},
+ {id:"me26ns",grp:"me26",rn:"Cápsula Nespresso",n:"ME2604 · cápsula Nespresso",cls:"Cápsula",cap:true,q:40,qs:5,r:[1,30,8,1],temp:"92 °C (automático)",tempo:"cerca de 3:30",
+  g:{k7:[0,0,0],r3:[0,0,0],pro:[0,0,0],oster:[0,0,0],mongdio:[0,0,0],icoffee:[0,0,0]},
+  steps:(c,a)=>[["Preparo","Encaixe a cápsula Nespresso no adaptador NS"],["Preparo",`Encha o reservatório com ${f(a)} ml de água: 25 ml ristretto, 40 ml espresso, 80 ml lungo`],["0:00","Monte o adaptador, ligue e aperte o botão"],["3:20","Extração automática a 92 °C (com água já quente, bem antes)"],["3:50","Fim: retire e descarte a cápsula com cuidado, ela sai quente"]],
+  tip:"Cápsula não usa moedor nem balança de café. Para um espresso mais intenso, use menos água; uma segunda cápsula exige reabastecer e reaquecer."},
+ {id:"me26dg",grp:"me26",rn:"Cápsula Dolce Gusto",n:"ME2604 · cápsula Dolce Gusto",cls:"Cápsula",cap:true,q:60,qs:5,r:[1,30,8,1],temp:"92 °C (automático)",tempo:"cerca de 3:30",
+  g:{k7:[0,0,0],r3:[0,0,0],pro:[0,0,0],oster:[0,0,0],mongdio:[0,0,0],icoffee:[0,0,0]},
+  steps:(c,a)=>[["Preparo","Encaixe a cápsula Dolce Gusto no adaptador DG"],["Preparo",`Encha o reservatório com ${f(a)} ml de água: 50 a 60 ml espresso, até 80 ml lungo`],["0:00","Monte o adaptador, ligue e aperte o botão"],["3:20","Extração automática a 92 °C (com água já quente, bem antes)"],["3:50","Fim: retire e descarte a cápsula com cuidado, ela sai quente"]],
+  tip:"O reservatório tem 80 ml, então bebidas grandes da Dolce Gusto (cappuccino, latte, cápsulas de leite) não cabem numa extração só: use as cápsulas de café e complete com leite à parte."});
 const MOE={k7:"cliques",r3:"cliques",pro:"cliques"};
 const st={met:"v60",moe:"k7",q:{},r:{},c:{},x:{},base:{},gr:{}};
 try{Object.assign(st,JSON.parse(localStorage.getItem("calcExtracao")||"{}"))}catch(e){}
@@ -746,6 +759,8 @@ function render(){
   if(T.run)tick(true);
   $("tip").textContent=m.tip;
   renderCafe();
+  {const cp=!!m.cap;$("ratio").parentElement.hidden=cp;$("lMoagIn").parentElement.hidden=cp;$("moedores").parentElement.hidden=cp;$("pOn").parentElement.hidden=cp;if(cp){$("pBox").hidden=true;$("base").hidden=true;$("oCafe").innerHTML="1<small>cápsula</small>";$("oMoag").textContent="—";$("oFaixa").textContent="Cápsula: não usa moedor"}
+   if(m.tank||cp){$("lAgua").textContent="Água no reservatório";$("oAgua").innerHTML=f(a)+"<small>ml</small>";$("lQtd").textContent=cp?"Água no reservatório (ml)":"Café no cesto"}}
   renderSaved();
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}
 }
@@ -810,7 +825,7 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
 let tInt=null;
 // Desconta a dose do pote que contém o café selecionado; reinício em até 10 min conta como o mesmo preparo
 let ultDesc=null;
-function descontaPote(){try{if(st.csel==="novo")return;const i=POT.p.slice(0,POT.n).findIndex(v=>v&&v===st.csel);if(i<0||POT.g[i]==null)return;
+function descontaPote(){try{if(st.csel==="novo"||cur().cap)return;const i=POT.p.slice(0,POT.n).findIndex(v=>v&&v===st.csel);if(i<0||POT.g[i]==null)return;
   if(ultDesc&&ultDesc.i===i&&Date.now()-ultDesc.t<6e5)return;
   const m=cur(),c=calc(m).c,pn=peneira(m,c),g=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;
   POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini};savePot();ultDesc={i,t:Date.now()};
