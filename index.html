@@ -100,6 +100,13 @@ body.timing{padding-bottom:170px}
 .fbe textarea{width:100%;min-height:70px;font:400 .95rem var(--display);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}
 .btn{padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:600 .88rem var(--display);cursor:pointer}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.ola{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.ola[hidden]{display:none}
+.ola .cx{background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:22px 20px;max-width:360px;width:100%;display:grid;gap:16px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.ola .cx p{margin:0;font-size:1.15rem;font-weight:600;line-height:1.35}
+.ola .cx .acts{display:flex;gap:10px}.ola .cx .acts .btn{flex:1;padding:12px;font-size:1rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.aviso{margin:0;padding:10px 12px;border-radius:10px;background:var(--heat);color:var(--heat-fg);font-size:.9rem;font-weight:600}
 .btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .saverow{display:flex;gap:8px}
 .saverow input{flex:1;min-width:0;font:500 1rem var(--display);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
@@ -146,8 +153,10 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 42 · 05/11/2026 · botão Usar no preparo segue o padrão de seleção do app</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 43 · 05/11/2026 · boas-vindas e botão Preparar um novo café</p>
+    <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
+  <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
 
   <section class="panel" aria-label="Café">
     <div>
@@ -319,6 +328,7 @@ select.txt{appearance:auto}
       <div class="cell grind"><span class="lbl" id="lMoag">Moagem</span><div class="big" id="oMoag"></div><div class="note" id="oFaixa"></div></div>
     </div>
     <div class="facts" id="facts"></div>
+    <p class="aviso" id="novoAviso" hidden></p>
     <div class="sh"><h2>Passo a passo</h2><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="unk" for="tBipe"><input type="checkbox" id="tBipe"> Com bipe</label><button class="btn pri" id="tStart" type="button">Iniciar temporizador</button></div></div>
     <ol class="steps" id="steps"></ol>
     <p class="tip" id="tip"></p>
@@ -524,6 +534,9 @@ const san=(x)=>{if(!x||typeof x!=="object"||x.desc)return null;const o={id:typeo
   const old=x.escala!==10;for(const[id]of CAR){let v=x[id];v=(v===null||v===undefined||v==="")?null:Number(v);
     if(old)v=(v>=1&&v<=5)?v*2:null;o[id]=(Number.isFinite(v)&&v>=0&&v<=10)?Math.round(v):null}return o};
 const ISD=v=>v==="desc"||v==="descpo";
+// Novo preparo: método, moedor e café precisam ser escolhidos antes de liberar o temporizador
+let NOVO=null;const novoFalta=()=>NOVO?[!NOVO.met&&"o método",!NOVO.moe&&"o moedor",!NOVO.caf&&"o café"].filter(Boolean):[];
+const marca=k=>{if(NOVO){NOVO[k]=true;if(!novoFalta().length)NOVO=null}};
 let CAF=null;try{CAF=JSON.parse(localStorage.getItem("calcCafes")||"null")}catch(e){}
 if(!Array.isArray(CAF)){CAF=[{...CAFE0,id:"c-tucano",nome:"Black Tucano Fruity"}];
   const o=san(st.cafe);if(o&&o.nome.trim()&&!CAF.some(c=>c.nome===o.nome))CAF.push({...o,id:"c-"+Date.now().toString(36)})}
@@ -684,7 +697,7 @@ function renderPotes(){
 function renderCafe(){
   const k=st.cafe,sel=st.csel;
   $("cSel").innerHTML=`<option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option>`+(CAF.length?`<optgroup label="Meus cafés">${CAF.map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}${c.fim?" · acabou":""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
-  $("cSel").value=sel;
+  if(NOVO&&!NOVO.caf){$("cSel").insertAdjacentHTML("afterbegin",`<option value="__esc">Escolha o café…</option>`);$("cSel").value="__esc"}else $("cSel").value=sel;
   const reg=!ISD(sel)&&sel!=="novo", d=dias(k.data);
   $("cResumo").textContent=sel==="desc"?"Café em grãos sem dados. A receita fica registrada como café desconhecido.":sel==="descpo"?"Café já moído, sem dados. A moagem sugerida não se aplica: ajuste pela proporção e pelo tempo.":sel==="novo"?"Preencha os dados e toque em Cadastrar café. Só o nome é obrigatório.":cafeTxt(k)+(d!=null&&d>=0?` · ${d} dia${d===1?"":"s"} desde a torra`:"");
   $("cActs").hidden=!reg; $("cAutoBox").hidden=ISD(sel);$("cFim").hidden=!(reg&&k.fim); $("cAuto").checked=st.auto!==false; $("cEdit").textContent=cEdit?"Esconder dados":"Editar dados"; $("cDel").textContent=cDelArm?"Confirmar exclusão":"Excluir café";
@@ -705,11 +718,11 @@ function renderCafe(){
 function render(){
   try{renderPotes()}catch(e){}
   const m=cur(), {q,r,c,a,b}=calc(m);
-  document.querySelectorAll("#metodos button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===G(m)));
+  document.querySelectorAll("#metodos button").forEach(b=>b.setAttribute("aria-pressed",!(NOVO&&!NOVO.met)&&b.dataset.v===G(m)));
   {const o=st.k46||{};$("k46Box").hidden=!m.k46;document.querySelectorAll("#k46s button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===(o.s||"eq")));document.querySelectorAll("#k46c button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===(o.c||"normal")))}
   {const vs=M.filter(x=>G(x)===G(m));$("varBox").hidden=vs.length<2;
    if(vs.length>1){const h=vs.map(x=>`<option value="${x.id}">${vn(x)}</option>`).join("");if($("recVar").dataset.h!==h){$("recVar").innerHTML=h;$("recVar").dataset.h=h}$("recVar").value=m.id}}
-  document.querySelectorAll("#moedores button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.moe));
+  document.querySelectorAll("#moedores button").forEach(b=>b.setAttribute("aria-pressed",!(NOVO&&!NOVO.moe)&&b.dataset.v===st.moe));
   const bs=baseOf(m);
   $("base").hidden=!!m.dose;
   document.querySelectorAll("#base button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===bs));
@@ -764,16 +777,17 @@ function render(){
   if(T.run)tick(true);
   $("tip").textContent=m.tip;
   renderCafe();
+  {const fl=novoFalta();$("tStart").disabled=!T.run&&fl.length>0;$("novoAviso").hidden=!fl.length;$("novoAviso").textContent=fl.length?`Novo preparo: escolha ${fl.length>1?fl.slice(0,-1).join(", ")+" e "+fl.slice(-1):fl[0]} para liberar o temporizador.`:"";}
   {const cp=!!m.cap;$("ratio").parentElement.hidden=cp;$("lMoagIn").parentElement.hidden=cp;$("moedores").parentElement.hidden=cp;$("pOn").parentElement.hidden=cp;if(cp){$("pBox").hidden=true;$("base").hidden=true;$("oCafe").innerHTML="1<small>cápsula</small>";$("oMoag").textContent="—";$("oFaixa").textContent="Cápsula: não usa moedor"}
    if(m.tank||cp){$("lAgua").textContent="Água no reservatório";$("oAgua").innerHTML=f(a)+"<small>ml</small>";$("lQtd").textContent=cp?"Água no reservatório (ml)":"Café no cesto"}}
   renderSaved();
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}
 }
-$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const g=b.dataset.v,l=(st.gsel||{})[g];st.met=l&&M.some(x=>x.id===l&&G(x)===g)?l:g;render()});
+$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=l&&M.some(x=>x.id===l&&G(x)===g)?l:g;render()});
 $("k46s").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),s:b.dataset.v};render()});
 $("k46c").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),c:b.dataset.v};render()});
-$("recVar").addEventListener("change",e=>{st.met=e.target.value;st.gsel={...(st.gsel||{}),[G(cur())]:st.met};render()});
-$("moedores").addEventListener("click",e=>{const b=e.target.closest("button");if(b){st.moe=b.dataset.v;render()}});
+$("recVar").addEventListener("change",e=>{marca("met");st.met=e.target.value;st.gsel={...(st.gsel||{}),[G(cur())]:st.met};render()});
+$("moedores").addEventListener("click",e=>{const b=e.target.closest("button");if(b){marca("moe");st.moe=b.dataset.v;render()}});
 $("qtd").addEventListener("input",e=>{const m=cur(),v=Number(e.target.value)||0,bs=baseOf(m);if(!m.dose&&bs==="cafe")st.c[m.id]=v;else if(!m.dose&&bs==="xicara")st.x[m.id]=v;else st.q[m.id]=v;render()});
 $("base").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const m=cur(),k=calc(m);
   if(b.dataset.v==="cafe"){st.c[m.id]=Math.round(k.c*10)/10}else if(b.dataset.v==="xicara"){st.x[m.id]=Math.round(k.b/5)*5}else{st.q[m.id]=Math.round(k.a)}
@@ -785,7 +799,7 @@ $("gMenos").onclick=()=>gbump(-1); $("gMais").onclick=()=>gbump(1);
 $("gReset").onclick=()=>{delete st.gr[gKey(cur())];render()};
 const persist=()=>{try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(_){}};
 const cmsg=t=>{$("cMsg").textContent=t;setTimeout(()=>$("cMsg").textContent="",2500)};
-$("cSel").addEventListener("change",e=>{const v=e.target.value;st.csel=v;cDelArm=false;cEdit=v==="novo";
+$("cSel").addEventListener("change",e=>{const v=e.target.value;if(v==="__esc")return;marca("caf");st.csel=v;cDelArm=false;cEdit=v==="novo";
   st.cafe=ISD(v)||v==="novo"?{...CAFE0}:{...CAF.find(c=>c.id===v)};render()});
 // ---------- Temporizador ----------
 let CUR=[];const T={run:false,pausa:false,t0:0,acum:0,feitos:new Set(),avisos:new Set(),ac:null,wl:null};
@@ -835,7 +849,7 @@ function descontaPote(){try{if(st.csel==="novo"||cur().cap)return;loadPot();cons
   const m=cur(),c=calc(m).c,pn=peneira(m,c),g=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;
   POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};const dn=new Date(),p2=n=>String(n).padStart(2,"0");POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini,last:`${p2(dn.getDate())}/${p2(dn.getMonth()+1)} ${p2(dn.getHours())}:${p2(dn.getMinutes())}`};logPot(`preparo −${f(g,1)} g → ${f(POT.g[i],1)} g`,i);savePot();ultDesc={i,t:Date.now()};
   toast(`Descontei ${f(g,1)} g do Pote ${i+1}: restam ${f(Math.max(0,POT.g[i]),1)} g`+(POT.g[i]<c?". Está acabando":""));renderPotes()}catch(e){}}
-async function iniciar(){descontaPote();
+async function iniciar(){if(novoFalta().length)return;descontaPote();
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
   try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src)}}catch(e){}
   T.au=null;
@@ -858,6 +872,11 @@ setBipe(st.bipe!==false);
 $("tBipe").addEventListener("change",e=>setBipe(e.target.checked));
 $("tSom").onclick=()=>setBipe(st.bipe===false);
 $("tStart").onclick=iniciar;
+const novoPreparo=()=>{if(T.run)try{encerrar()}catch(e){}NOVO={met:false,moe:false,caf:false};potSel=-1;window.scrollTo({top:0,behavior:"smooth"});render()};
+$("novoCafe").onclick=novoPreparo;
+$("olaSim").onclick=()=>{$("ola").hidden=true;novoPreparo()};
+$("olaNao").onclick=()=>{$("ola").hidden=true};
+$("ola").hidden=false;
 $("tStop").onclick=encerrar;
 $("tPause").onclick=()=>{if(!T.run)return;const tocando=T.au&&!T.auFim;
   if(T.pausa){T.pausa=false;T.t0=Date.now();$("tPause").textContent="Pausar";if(tocando)try{T.au.play()}catch(e){}}
@@ -883,7 +902,7 @@ $("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pg]");
 $("potes").addEventListener("click",e=>{const u=e.target.closest("[data-pusar]"),fm=e.target.closest("[data-pfim]"),po=e.target.closest("[data-ppor]");
   if(po||fm)loadPot();
   if(po){logPot("recebeu "+potNome(po.dataset.id),+po.dataset.ppor);POT.g[+po.dataset.ppor]=null;POT.u[+po.dataset.ppor]=null;POT.p[+po.dataset.ppor]=po.dataset.id;savePot();potArm=-1;renderPotes();return}
-  if(u){const v=POT.p[+u.dataset.pusar];if(st.csel===v){st.csel="desc";cEdit=false;cDelArm=false;st.cafe={...CAFE0};render();toast("Café do pote desmarcado");return}st.csel=v;cEdit=false;cDelArm=false;st.cafe=ISD(v)?{...CAFE0}:{...CAF.find(c=>c.id===v)};render();toast("Café do pote selecionado");return}
+  if(u){const v=POT.p[+u.dataset.pusar];if(st.csel===v&&!(NOVO&&!NOVO.caf)){st.csel="desc";cEdit=false;cDelArm=false;st.cafe={...CAFE0};render();toast("Café do pote desmarcado");return}marca("caf");st.csel=v;cEdit=false;cDelArm=false;st.cafe=ISD(v)?{...CAFE0}:{...CAF.find(c=>c.id===v)};render();toast("Café do pote selecionado");return}
   if(fm){const i=+fm.dataset.pfim;if(potArm!==i){potArm=i;renderPotes();return}const v=POT.p[i];const o=CAF.find(c=>c.id===v);if(o){o.fim=true;saveCaf()}
     if(POT.g[i]!=null){const u=POT.u[i]||{n:0};const dt=new Date();POT.h.unshift({nome:potNome(v),prev:Math.round(POT.g[i]*10)/10,n:u.n,data:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`});POT.h=POT.h.slice(0,10)}
     logPot("acabou",i);POT.p[i]="";POT.g[i]=null;POT.u[i]=null;savePot();potArm=-1;render();toast("Pote vazio")}});
@@ -944,7 +963,7 @@ $("saved").addEventListener("click",e=>{const o=e.target.closest("[data-open]"),
   if(e.target.id==="fbClr"){fbDraft.nota=null;renderSaved();return}
   if(e.target.id==="fbCancel"){fbOpen=-1;renderSaved();return}
   if(e.target.id==="fbSave"){const i=+e.target.dataset.i;const t=(fbDraft.txt||"").trim();REC[i].fb=(fbDraft.nota==null&&!t)?undefined:{nota:fbDraft.nota,txt:t,data:new Date().toISOString().slice(0,10)};saveRec();fbOpen=-1;renderSaved();toast("Feedback salvo");return}
-  if(o){const x=REC[+o.dataset.open],m=M.find(y=>y.id===x.met);if(!m)return;st.met=x.met;st.moe=x.moe;st.r[x.met]=x.r;
+  if(o){const x=REC[+o.dataset.open],m=M.find(y=>y.id===x.met);if(!m)return;marca("met");marca("moe");if(o.dataset.comcafe)marca("caf");st.met=x.met;st.moe=x.moe;st.r[x.met]=x.r;
     if(o.dataset.comcafe){const reg=x.cafeId&&CAF.find(c=>c.id===x.cafeId);
       if(reg){st.csel=reg.id;st.cafe={...reg};cEdit=false}else if(!x.cafe||x.cafe.desc){st.csel=x.cafe&&x.cafe.po?"descpo":"desc";st.cafe={...CAFE0}}else{st.csel="novo";st.cafe=san(x.cafe);cEdit=true}}if(x.k46)st.k46={...x.k46};st.acc=x.acc||"";if(x.sd&&x.sd.on)st.sd={on:true,t200:Number(x.sd.t200)||st.sd.t200||null};else st.sd.on=false;if(x.pen&&typeof x.pen==="object")st.pen={on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null};st.base[x.met]=x.base;if(x.base==="cafe")st.c[x.met]=x.c;if(x.base==="xicara")st.x[x.met]=x.x;st.q[x.met]=x.q;st.gr[x.met+"|"+x.moe]=x.gr;delArm=-1;render();toast(o.dataset.comcafe?"Receita e café abertos: "+x.nome:"Receita aberta com o café selecionado: "+x.nome);document.querySelector('[aria-label="Resultado"]').scrollIntoView({behavior:"smooth"})}
   if(d){const i=+d.dataset.del;if(delArm===i){REC.splice(i,1);saveRec();delArm=-1;fbOpen=-1;rsel=-1;toast("Receita excluída")}else delArm=i;renderSaved()}});
