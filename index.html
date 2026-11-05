@@ -145,7 +145,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 39 · 04/11/2026 · máquina portátil i Cafilas ME2604 (pó, Nespresso e Dolce Gusto)</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 40 · 05/11/2026 · saldo dos potes protegido contra janela antiga do app e registro de alterações</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -208,6 +208,7 @@ select.txt{appearance:auto}
       <select class="txt" id="poteSel" aria-label="Escolha o pote" style="margin-top:10px"></select>
       <div id="potes" style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:8px"></div>
       <p class="cres" id="pHist" style="margin-top:8px;font-size:.84rem"></p>
+      <details style="margin-top:6px"><summary style="font-size:.84rem;cursor:pointer">Registro dos potes</summary><div id="pLog" class="cres" style="font-size:.8rem;line-height:1.5;margin-top:6px"></div></details>
       <p class="cres" style="margin-top:8px;font-size:.82rem">Pote vazio recebe a sugestão do café mais antigo pela data de torra, desde que já tenha 7 dias de descanso. Toque em Acabou quando o café terminar: ele sai das sugestões.</p>
     </div>
   </section>
@@ -526,8 +527,11 @@ let CAF=null;try{CAF=JSON.parse(localStorage.getItem("calcCafes")||"null")}catch
 if(!Array.isArray(CAF)){CAF=[{...CAFE0,id:"c-tucano",nome:"Black Tucano Fruity"}];
   const o=san(st.cafe);if(o&&o.nome.trim()&&!CAF.some(c=>c.nome===o.nome))CAF.push({...o,id:"c-"+Date.now().toString(36)})}
 CAF=CAF.map(san).filter(Boolean);
-let POT={n:5,p:[]};try{const x=JSON.parse(localStorage.getItem("calcPotes")||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[]}}catch(e){}
-POT.g=Array.isArray(POT.g)?POT.g.slice(0,12):[];POT.u=Array.isArray(POT.u)?POT.u.slice(0,12):[];POT.h=Array.isArray(POT.h)?POT.h.slice(0,10):[];
+// Potes: o armazenamento é a fonte da verdade. Toda alteração relê antes de gravar, para que uma janela antiga do app nunca sobrescreva o saldo atual.
+let POT={n:5,p:[],g:[],u:[],h:[],log:[]};
+function loadPot(){try{const x=JSON.parse(localStorage.getItem("calcPotes")||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[]}}catch(e){}}
+loadPot();
+const logPot=(ev,i)=>{const d=new Date(),p2=n=>String(n).padStart(2,"0");POT.log.unshift(`${p2(d.getDate())}/${p2(d.getMonth()+1)} ${p2(d.getHours())}:${p2(d.getMinutes())} · Pote ${i+1} · ${ev}`);POT.log=POT.log.slice(0,40)};
 const savePot=()=>{try{localStorage.setItem("calcPotes",JSON.stringify(POT))}catch(e){}};
 let potArm=-1,potSel=-1;
 const saveCaf=()=>{try{localStorage.setItem("calcCafes",JSON.stringify(CAF))}catch(e){}};saveCaf();
@@ -670,7 +674,7 @@ function renderPotes(){
     h.push(`<div class="pote" data-pc="${i}"><div class="ph"><b>Pote ${i+1}</b></div><select class="txt" data-pote="${i}" aria-label="Café do pote ${i+1}">${ops}</select>${v?`<p class="pi">${info}</p>`:info}${acts}</div>`)}
   if(potSel>=POT.n)potSel=-1;
   let vaz=0;for(let i=0;i<POT.n;i++)if(!POT.p[i])vaz++;
-  const hs=POT.h[0];$("pHist").innerHTML=hs?`Último teste: ${esc(hs.nome)} acabou em ${dataBR(hs.data)} com saldo previsto de ${f(hs.prev,1)} g (${hs.n} preparos). ${Math.abs(hs.prev)<=5?"Contagem bateu.":hs.prev>0?"O app achava que ainda tinha café: as doses reais foram maiores, ou houve uso fora do app.":"O app achava que já tinha acabado: as doses reais foram menores que as da receita."}`:"";
+  $("pLog").innerHTML=POT.log.length?POT.log.map(esc).join("<br>"):"Nada registrado ainda.";const hs=POT.h[0];$("pHist").innerHTML=hs?`Último teste: ${esc(hs.nome)} acabou em ${dataBR(hs.data)} com saldo previsto de ${f(hs.prev,1)} g (${hs.n} preparos). ${Math.abs(hs.prev)<=5?"Contagem bateu.":hs.prev>0?"O app achava que ainda tinha café: as doses reais foram maiores, ou houve uso fora do app.":"O app achava que já tinha acabado: as doses reais foram menores que as da receita."}`:"";
   $("poteSel").innerHTML=`<option value="-1">Escolha um pote (${vaz} vazio${vaz===1?"":"s"} de ${POT.n})</option>`+Array.from({length:POT.n},(_,i)=>{const v=POT.p[i]||"";return `<option value="${i}">Pote ${i+1} · ${v?esc(potNome(v))+(POT.g[i]!=null?" · "+f(Math.max(0,POT.g[i]))+" g":""):"Vazio"}</option>`}).join("");
   $("poteSel").value=String(potSel);
   $("potes").innerHTML=potSel>=0?h[potSel]:"";
@@ -825,10 +829,10 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
 let tInt=null;
 // Desconta a dose do pote que contém o café selecionado; reinício em até 10 min conta como o mesmo preparo
 let ultDesc=null;
-function descontaPote(){try{if(st.csel==="novo"||cur().cap)return;const i=POT.p.slice(0,POT.n).findIndex(v=>v&&v===st.csel);if(i<0||POT.g[i]==null)return;
+function descontaPote(){try{if(st.csel==="novo"||cur().cap)return;loadPot();const i=POT.p.slice(0,POT.n).findIndex(v=>v&&v===st.csel);if(i<0||POT.g[i]==null)return;
   if(ultDesc&&ultDesc.i===i&&Date.now()-ultDesc.t<6e5)return;
   const m=cur(),c=calc(m).c,pn=peneira(m,c),g=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;
-  POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini};savePot();ultDesc={i,t:Date.now()};
+  POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini};logPot(`preparo −${f(g,1)} g → ${f(POT.g[i],1)} g`,i);savePot();ultDesc={i,t:Date.now()};
   toast(`Descontei ${f(g,1)} g do Pote ${i+1}: restam ${f(Math.max(0,POT.g[i]),1)} g`+(POT.g[i]<c?". Está acabando":""));renderPotes()}catch(e){}}
 async function iniciar(){descontaPote();
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
@@ -869,18 +873,23 @@ $("cAuto").addEventListener("change",e=>{st.auto=e.target.checked;render()});
 $("cEdit").onclick=()=>{cEdit=!cEdit;if(!cEdit){const o=CAF.find(c=>c.id===st.csel);if(o)st.cafe={...o}}render()};
 $("cCancel").onclick=()=>{if(st.csel==="novo"){st.csel="desc";st.cafe={...CAFE0}}else{const o=CAF.find(c=>c.id===st.csel);if(o)st.cafe={...o}}cEdit=false;render()};
 $("cFim").onclick=()=>{const o=CAF.find(c=>c.id===st.csel);if(o){delete o.fim;st.cafe={...o};saveCaf();render();toast("Café de volta às sugestões")}};
-$("pN").addEventListener("change",e=>{POT.n=+e.target.value;savePot();potArm=-1;renderPotes()});
+$("pN").addEventListener("change",e=>{loadPot();POT.n=+e.target.value;savePot();potArm=-1;renderPotes()});
 $("poteSel").addEventListener("change",e=>{potSel=+e.target.value;potArm=-1;renderPotes()});
-$("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pote]");if(!el)return;const i=+el.dataset.pote,v=el.value;if(v)POT.p=POT.p.map((x,j)=>j!==i&&x===v&&!ISD(v)?"":x);if(POT.p[i]!==v){POT.g[i]=null;POT.u[i]=null}POT.p[i]=v;savePot();potArm=-1;renderPotes()});
-$("potes").addEventListener("input",e=>{const el=e.target.closest("[data-pg]");if(!el)return;const i=+el.dataset.pg,v=el.value===""?null:Math.max(0,Number(el.value));POT.g[i]=v;const u0=POT.u[i];if(!(u0&&u0.n>0))POT.u[i]={n:0,g:0,ini:v};savePot();
+$("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pote]");if(!el)return;loadPot();const i=+el.dataset.pote,v=el.value;logPot(v?"recebeu "+potNome(v):"esvaziado",i);if(v)POT.p=POT.p.map((x,j)=>j!==i&&x===v&&!ISD(v)?"":x);if(POT.p[i]!==v){POT.g[i]=null;POT.u[i]=null}POT.p[i]=v;savePot();potArm=-1;renderPotes()});
+$("potes").addEventListener("input",e=>{const el=e.target.closest("[data-pg]");if(!el)return;loadPot();const i=+el.dataset.pg,v=el.value===""?null:Math.max(0,Number(el.value));POT.g[i]=v;const u0=POT.u[i];if(!(u0&&u0.n>0))POT.u[i]={n:0,g:0,ini:v};savePot();
   const o=$("poteSel").options[i+1];if(o)o.textContent=`Pote ${i+1} · ${potNome(POT.p[i])}${v!=null?" · "+f(v)+" g":""}`});
-$("potes").addEventListener("change",e=>{if(e.target.closest("[data-pg]"))setTimeout(renderPotes,0)});
+$("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pg]");if(el){loadPot();logPot("peso informado: "+(POT.g[+el.dataset.pg]??"vazio")+" g",+el.dataset.pg);savePot();setTimeout(renderPotes,0)}});
 $("potes").addEventListener("click",e=>{const u=e.target.closest("[data-pusar]"),fm=e.target.closest("[data-pfim]"),po=e.target.closest("[data-ppor]");
-  if(po){POT.g[+po.dataset.ppor]=null;POT.u[+po.dataset.ppor]=null;POT.p[+po.dataset.ppor]=po.dataset.id;savePot();potArm=-1;renderPotes();return}
+  if(po||fm)loadPot();
+  if(po){logPot("recebeu "+potNome(po.dataset.id),+po.dataset.ppor);POT.g[+po.dataset.ppor]=null;POT.u[+po.dataset.ppor]=null;POT.p[+po.dataset.ppor]=po.dataset.id;savePot();potArm=-1;renderPotes();return}
   if(u){const v=POT.p[+u.dataset.pusar];st.csel=v;cEdit=false;cDelArm=false;st.cafe=ISD(v)?{...CAFE0}:{...CAF.find(c=>c.id===v)};render();toast("Café do pote selecionado");return}
   if(fm){const i=+fm.dataset.pfim;if(potArm!==i){potArm=i;renderPotes();return}const v=POT.p[i];const o=CAF.find(c=>c.id===v);if(o){o.fim=true;saveCaf()}
     if(POT.g[i]!=null){const u=POT.u[i]||{n:0};const dt=new Date();POT.h.unshift({nome:potNome(v),prev:Math.round(POT.g[i]*10)/10,n:u.n,data:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`});POT.h=POT.h.slice(0,10)}
-    POT.p[i]="";POT.g[i]=null;POT.u[i]=null;savePot();potArm=-1;render();toast("Pote vazio")}});
+    logPot("acabou",i);POT.p[i]="";POT.g[i]=null;POT.u[i]=null;savePot();potArm=-1;render();toast("Pote vazio")}});
+// Voltar ao app ou mudança feita em outra janela: recarrega os potes do armazenamento
+window.addEventListener("storage",e=>{if(e.key==="calcPotes"){loadPot();renderPotes()}});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){loadPot();renderPotes()}});
+window.addEventListener("pageshow",()=>{loadPot();renderPotes()});
 $("cDel").onclick=()=>{if(!cDelArm){cDelArm=true;renderCafe();return}CAF=CAF.filter(c=>c.id!==st.csel);saveCaf();st.csel="desc";st.cafe={...CAFE0};cDelArm=false;cEdit=false;render();toast("Café excluído")};
 $("cNome").addEventListener("input",e=>{st.cafe.nome=e.target.value;persist()});
 for(const[f,id]of[["processo","cProc"],["produtor","cProd"],["altitude","cAlt"]])$(id).addEventListener("input",e=>{st.cafe[f]=e.target.value;persist()});
@@ -922,7 +931,7 @@ const importar=txt=>{try{$("bkTxt").blur()}catch(e){}const toast=t=>{$("bkMsg").
     const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?(x.cafe.po?{desc:true,po:true}:{desc:true}):san(x.cafe)):undefined;
     const fbi=x.fb&&typeof x.fb==="object"?{nota:(Number.isFinite(+x.fb.nota)&&x.fb.nota!==null&&+x.fb.nota>=0&&+x.fb.nota<=10)?Math.round(+x.fb.nota):null,txt:String(x.fb.txt||"").slice(0,400),data:String(x.fb.data||"").slice(0,10)}:undefined;
     REC.push({k46:x.k46&&typeof x.k46==="object"?{s:K46S[x.k46.s]?x.k46.s:"eq",c:K46C[x.k46.c]?x.k46.c:"normal"}:undefined,sd:x.sd&&x.sd.on?{on:true,t200:Number(x.sd.t200)||null}:undefined,acc:["star","lotos"].includes(x.acc)?x.acc:undefined,pen:x.pen&&typeof x.pen==="object"?{on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null}:undefined,fb:fbi,nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
-  if(d&&d.potes&&Array.isArray(d.potes.p)&&!POT.p.some(Boolean)){POT={n:Math.min(12,Math.max(1,+d.potes.n||5)),p:d.potes.p.slice(0,12).map(v=>typeof v==="string"?v:"")};savePot()}
+  if(d&&d.potes&&Array.isArray(d.potes.p)&&!POT.p.some(Boolean)){localStorage.setItem("calcPotes",JSON.stringify(d.potes));loadPot();savePot()}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
   saveRec();render();toast(n||nc||nu?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`+(nu?`; ${nu} café${nu===1?"":"s"} atualizado${nu===1?"":"s"}`:""):"Nada novo: tudo já estava salvo")};
 $("bkImport").onclick=()=>{try{importar($("bkTxt").value)}catch(e){$("bkMsg").textContent="Erro ao importar: "+(e&&e.message||e)}};
