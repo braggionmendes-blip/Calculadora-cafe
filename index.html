@@ -100,6 +100,7 @@ body.timing{padding-bottom:170px}
 .fbe textarea{width:100%;min-height:70px;font:400 .95rem var(--display);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}
 .btn{padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:600 .88rem var(--display);cursor:pointer}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .saverow{display:flex;gap:8px}
 .saverow input{flex:1;min-width:0;font:500 1rem var(--display);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .empty{color:var(--muted);font-size:.9rem;margin:0}
@@ -145,7 +146,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 41 · 05/11/2026 · botão do pote mostra se o café está em uso e o último preparo</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 42 · 05/11/2026 · botão Usar no preparo segue o padrão de seleção do app</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -664,7 +665,7 @@ function renderPotes(){
       info+=`</p><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><label for="pg${i}" style="font-size:.86rem">Café no pote</label><input class="txt" id="pg${i}" data-pg="${i}" type="number" inputmode="decimal" min="0" step="1" style="width:110px" placeholder="peso (g)" value="${gs!=null?Math.round(gs*10)/10:""}"><span style="font-size:.86rem">g</span></div><p class="pi">`+
         (gs==null?"Pese só o café (zere a balança com o pote vazio) e informe acima. A cada temporizador iniciado com este café, o app desconta a dose.":
         `${u.ini!=null?`Início ${f(u.ini)} g · `:""}${u.n} preparo${u.n===1?"":"s"}${u.last?" · último em "+u.last:""} · ${f(u.g,1)} g descontados`+(gs<dose?` · <b>menos de uma dose</b>`:` · dá para ≈ ${Math.floor(gs/dose)} preparo${Math.floor(gs/dose)===1?"":"s"} como o atual`));
-      acts=`<div class="acts">${v===st.csel?`<button class="btn" type="button" disabled style="opacity:1;border-color:var(--accent);color:var(--accent);font-weight:600">✓ Em uso no preparo</button>`:`<button class="btn" type="button" data-pusar="${i}">Usar no preparo</button>`}<button class="btn" type="button" data-pfim="${i}">${potArm===i?"Confirmar: acabou":"Acabou"}</button></div>`}
+      acts=`<div class="acts"><button class="btn" type="button" data-pusar="${i}" aria-pressed="${v===st.csel}">${v===st.csel?"Em uso no preparo":"Usar no preparo"}</button><button class="btn" type="button" data-pfim="${i}">${potArm===i?"Confirmar: acabou":"Acabou"}</button></div>`}
     else{const sg=fila[si++];
       if(sg){const d=dias(sg.data),nx=fila.slice(si,si+2).map(x=>x.nome);
         const pq=d==null||d<0?"sem data de torra; os cafés com data já estão nos potes":d<7?`torrado há ${d} dia${d===1?"":"s"}, ainda em descanso, mas é o próximo da fila`:`torrado em ${dataBR(sg.data)}, há ${d} dias: o mais antigo pronto para consumo`;
@@ -882,7 +883,7 @@ $("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pg]");
 $("potes").addEventListener("click",e=>{const u=e.target.closest("[data-pusar]"),fm=e.target.closest("[data-pfim]"),po=e.target.closest("[data-ppor]");
   if(po||fm)loadPot();
   if(po){logPot("recebeu "+potNome(po.dataset.id),+po.dataset.ppor);POT.g[+po.dataset.ppor]=null;POT.u[+po.dataset.ppor]=null;POT.p[+po.dataset.ppor]=po.dataset.id;savePot();potArm=-1;renderPotes();return}
-  if(u){const v=POT.p[+u.dataset.pusar];st.csel=v;cEdit=false;cDelArm=false;st.cafe=ISD(v)?{...CAFE0}:{...CAF.find(c=>c.id===v)};render();toast("Café do pote selecionado");return}
+  if(u){const v=POT.p[+u.dataset.pusar];if(st.csel===v){st.csel="desc";cEdit=false;cDelArm=false;st.cafe={...CAFE0};render();toast("Café do pote desmarcado");return}st.csel=v;cEdit=false;cDelArm=false;st.cafe=ISD(v)?{...CAFE0}:{...CAF.find(c=>c.id===v)};render();toast("Café do pote selecionado");return}
   if(fm){const i=+fm.dataset.pfim;if(potArm!==i){potArm=i;renderPotes();return}const v=POT.p[i];const o=CAF.find(c=>c.id===v);if(o){o.fim=true;saveCaf()}
     if(POT.g[i]!=null){const u=POT.u[i]||{n:0};const dt=new Date();POT.h.unshift({nome:potNome(v),prev:Math.round(POT.g[i]*10)/10,n:u.n,data:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`});POT.h=POT.h.slice(0,10)}
     logPot("acabou",i);POT.p[i]="";POT.g[i]=null;POT.u[i]=null;savePot();potArm=-1;render();toast("Pote vazio")}});
