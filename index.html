@@ -145,7 +145,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 40 · 05/11/2026 · saldo dos potes protegido contra janela antiga do app e registro de alterações</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 41 · 05/11/2026 · botão do pote mostra se o café está em uso e o último preparo</p>
   </header>
 
   <section class="panel" aria-label="Café">
@@ -663,8 +663,8 @@ function renderPotes(){
       const gs=POT.g[i],u=POT.u[i]||{n:0,g:0,ini:null},dose=calc(cur()).c;
       info+=`</p><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><label for="pg${i}" style="font-size:.86rem">Café no pote</label><input class="txt" id="pg${i}" data-pg="${i}" type="number" inputmode="decimal" min="0" step="1" style="width:110px" placeholder="peso (g)" value="${gs!=null?Math.round(gs*10)/10:""}"><span style="font-size:.86rem">g</span></div><p class="pi">`+
         (gs==null?"Pese só o café (zere a balança com o pote vazio) e informe acima. A cada temporizador iniciado com este café, o app desconta a dose.":
-        `${u.ini!=null?`Início ${f(u.ini)} g · `:""}${u.n} preparo${u.n===1?"":"s"} · ${f(u.g,1)} g descontados`+(gs<dose?` · <b>menos de uma dose</b>`:` · dá para ≈ ${Math.floor(gs/dose)} preparo${Math.floor(gs/dose)===1?"":"s"} como o atual`));
-      acts=`<div class="acts"><button class="btn pri" type="button" data-pusar="${i}">Usar no preparo</button><button class="btn" type="button" data-pfim="${i}">${potArm===i?"Confirmar: acabou":"Acabou"}</button></div>`}
+        `${u.ini!=null?`Início ${f(u.ini)} g · `:""}${u.n} preparo${u.n===1?"":"s"}${u.last?" · último em "+u.last:""} · ${f(u.g,1)} g descontados`+(gs<dose?` · <b>menos de uma dose</b>`:` · dá para ≈ ${Math.floor(gs/dose)} preparo${Math.floor(gs/dose)===1?"":"s"} como o atual`));
+      acts=`<div class="acts">${v===st.csel?`<button class="btn" type="button" disabled style="opacity:1;border-color:var(--accent);color:var(--accent);font-weight:600">✓ Em uso no preparo</button>`:`<button class="btn" type="button" data-pusar="${i}">Usar no preparo</button>`}<button class="btn" type="button" data-pfim="${i}">${potArm===i?"Confirmar: acabou":"Acabou"}</button></div>`}
     else{const sg=fila[si++];
       if(sg){const d=dias(sg.data),nx=fila.slice(si,si+2).map(x=>x.nome);
         const pq=d==null||d<0?"sem data de torra; os cafés com data já estão nos potes":d<7?`torrado há ${d} dia${d===1?"":"s"}, ainda em descanso, mas é o próximo da fila`:`torrado em ${dataBR(sg.data)}, há ${d} dias: o mais antigo pronto para consumo`;
@@ -832,7 +832,7 @@ let ultDesc=null;
 function descontaPote(){try{if(st.csel==="novo"||cur().cap)return;loadPot();const i=POT.p.slice(0,POT.n).findIndex(v=>v&&v===st.csel);if(i<0||POT.g[i]==null)return;
   if(ultDesc&&ultDesc.i===i&&Date.now()-ultDesc.t<6e5)return;
   const m=cur(),c=calc(m).c,pn=peneira(m,c),g=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;
-  POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini};logPot(`preparo −${f(g,1)} g → ${f(POT.g[i],1)} g`,i);savePot();ultDesc={i,t:Date.now()};
+  POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};const dn=new Date(),p2=n=>String(n).padStart(2,"0");POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini,last:`${p2(dn.getDate())}/${p2(dn.getMonth()+1)} ${p2(dn.getHours())}:${p2(dn.getMinutes())}`};logPot(`preparo −${f(g,1)} g → ${f(POT.g[i],1)} g`,i);savePot();ultDesc={i,t:Date.now()};
   toast(`Descontei ${f(g,1)} g do Pote ${i+1}: restam ${f(Math.max(0,POT.g[i]),1)} g`+(POT.g[i]<c?". Está acabando":""));renderPotes()}catch(e){}}
 async function iniciar(){descontaPote();
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
