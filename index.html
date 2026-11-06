@@ -153,7 +153,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 48 · 06/11/2026 · ranking de métodos só para cafés nos potes</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 49 · 06/11/2026 · ranking de métodos no cartão do pote e lista de cafés só com os dos potes</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -679,6 +679,8 @@ function renderPotes(){
       info+=`</p><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><label for="pg${i}" style="font-size:.86rem">Café no pote</label><input class="txt" id="pg${i}" data-pg="${i}" type="number" inputmode="decimal" min="0" step="1" style="width:110px" placeholder="peso (g)" value="${gs!=null?Math.round(gs*10)/10:""}"><span style="font-size:.86rem">g</span></div><p class="pi">`+
         (gs==null?"Pese só o café (zere a balança com o pote vazio) e informe acima. A cada temporizador iniciado com este café, o app desconta a dose.":
         `${u.ini!=null?`Início ${f(u.ini)} g · `:""}${u.n} preparo${u.n===1?"":"s"}${u.last?" · último em "+u.last:""} · ${f(u.g,1)} g descontados`+(gs<dose?` · <b>menos de uma dose</b>`:` · dá para ≈ ${Math.floor(gs/dose)} preparo${Math.floor(gs/dose)===1?"":"s"} como o atual`));
+      if(k){const rk=rankMetodos(k),it=(r,j)=>{const mm=M.find(x=>x.id===r.id),on=st.csel===v&&G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="pi" style="color:var(--fg)"><b>${j+1}. ${esc(mm.n)}</b> · ${r.nota}%<br><span style="color:var(--muted)">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-pind="${i}:${j}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
+        info+=`</p><div style="margin-top:4px;padding:10px 12px;border-radius:10px;background:var(--soft);display:grid;gap:8px"><span class="lbl" style="margin:0">Métodos para este café, do mais ao menos indicado</span>${rk.slice(0,5).map(it).join("")}<details><summary style="font-size:.84rem;cursor:pointer">Ver os demais métodos</summary><div style="display:grid;gap:8px;margin-top:8px">${rk.slice(5).map((r,j)=>it(r,j+5)).join("")}</div></details></div><p class="pi" hidden>`}
       acts=`<div class="acts"><button class="btn" type="button" data-pusar="${i}" aria-pressed="${v===st.csel}">${v===st.csel?"Em uso no preparo":"Usar no preparo"}</button><button class="btn" type="button" data-pfim="${i}">${potArm===i?"Confirmar: acabou":"Acabou"}</button></div>`}
     else{const sg=fila[si++];
       if(sg){const d=dias(sg.data),nx=fila.slice(si,si+2).map(x=>x.nome);
@@ -714,10 +716,10 @@ function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,c
     return{g,id,k46,nota:Math.round(sc*100),why:top.length?"favorece "+top.join(" e "):"pouco a ver com o perfil deste café"}}).sort((x,y)=>y.nota-x.nota)}
 function renderCafe(){
   const k=st.cafe,sel=st.csel;
-  $("cSel").innerHTML=`<option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option>`+(CAF.length?`<optgroup label="Meus cafés">${CAF.map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}${c.fim?" · acabou":""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
+  $("cSel").innerHTML=`<option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option>`+(CAF.length?`<optgroup label="Cafés nos potes">${CAF.filter(c=>POT.p.slice(0,POT.n).includes(c.id)||(c.id===sel&&!(NOVO&&!NOVO.caf))).map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}${c.fim?" · acabou":""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
   if(NOVO&&!NOVO.caf){$("cSel").insertAdjacentHTML("afterbegin",`<option value="__esc">Escolha o café no pote…</option>`);$("cSel").value="__esc"}else $("cSel").value=sel;
   const reg=!ISD(sel)&&sel!=="novo", d=dias(k.data);
-  {const noPote=POT.p.slice(0,POT.n).includes(st.csel);const rk=!ISD(st.csel)&&st.csel!=="novo"&&noPote?rankMetodos(st.cafe):[];$("cIndBox").hidden=!rk.length;
+  {const noPote=POT.p.slice(0,POT.n).includes(st.csel);const rk=[];$("cIndBox").hidden=!rk.length;
    const item=(r,i)=>{const m=M.find(x=>x.id===r.id),on=G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="cres" style="color:var(--fg)"><b>${i+1}. ${esc(m.n)}</b> · ${r.nota}%<br><span style="color:var(--muted);font-size:.84rem">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-ind="${i}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
    $("cIndList").innerHTML=rk.slice(0,5).map(item).join("");$("cIndRest").innerHTML=rk.slice(5).map((r,i)=>item(r,i+5)).join("")}
   $("cResumo").textContent=sel==="desc"?"Café em grãos sem dados. A receita fica registrada como café desconhecido.":sel==="descpo"?"Café já moído, sem dados. A moagem sugerida não se aplica: ajuste pela proporção e pelo tempo.":sel==="novo"?"Preencha os dados e toque em Cadastrar café. Só o nome é obrigatório.":cafeTxt(k)+(d!=null&&d>=0?` · ${d} dia${d===1?"":"s"} desde a torra`:"");
@@ -917,13 +919,15 @@ $("cCancel").onclick=()=>{if(st.csel==="novo"){st.csel="desc";st.cafe={...CAFE0}
 $("cFim").onclick=()=>{const o=CAF.find(c=>c.id===st.csel);if(o){delete o.fim;st.cafe={...o};saveCaf();render();toast("Café de volta às sugestões")}};
 $("pN").addEventListener("change",e=>{loadPot();POT.n=+e.target.value;savePot();potArm=-1;renderPotes()});
 $("poteSel").addEventListener("change",e=>{potSel=+e.target.value;potArm=-1;renderPotes()});
-$("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pote]");if(!el)return;loadPot();const i=+el.dataset.pote,v=el.value;logPot(v?"recebeu "+potNome(v):"esvaziado",i);if(v)POT.p=POT.p.map((x,j)=>j!==i&&x===v&&!ISD(v)?"":x);if(POT.p[i]!==v){POT.g[i]=null;POT.u[i]=null}POT.p[i]=v;savePot();potArm=-1;renderPotes()});
+$("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pote]");if(!el)return;loadPot();const i=+el.dataset.pote,v=el.value;logPot(v?"recebeu "+potNome(v):"esvaziado",i);if(v)POT.p=POT.p.map((x,j)=>j!==i&&x===v&&!ISD(v)?"":x);if(POT.p[i]!==v){POT.g[i]=null;POT.u[i]=null}POT.p[i]=v;savePot();potArm=-1;render()});
 $("potes").addEventListener("input",e=>{const el=e.target.closest("[data-pg]");if(!el)return;loadPot();const i=+el.dataset.pg,v=el.value===""?null:Math.max(0,Number(el.value));POT.g[i]=v;const u0=POT.u[i];if(!(u0&&u0.n>0))POT.u[i]={n:0,g:0,ini:v};savePot();
   const o=$("poteSel").options[i+1];if(o)o.textContent=`Pote ${i+1} · ${potNome(POT.p[i])}${v!=null?" · "+f(v)+" g":""}`});
 $("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pg]");if(el){loadPot();logPot("peso informado: "+(POT.g[+el.dataset.pg]??"vazio")+" g",+el.dataset.pg);savePot();setTimeout(renderPotes,0)}});
-$("potes").addEventListener("click",e=>{const u=e.target.closest("[data-pusar]"),fm=e.target.closest("[data-pfim]"),po=e.target.closest("[data-ppor]");
+$("potes").addEventListener("click",e=>{const pi=e.target.closest("[data-pind]");if(pi){const[i,j]=pi.dataset.pind.split(":").map(Number);const v=POT.p[i],k=CAF.find(c=>c.id===v);if(!k)return;const r=rankMetodos(k)[j];if(!r)return;
+    marca("caf");marca("met");st.csel=v;cEdit=false;cDelArm=false;st.cafe={...k};st.met=r.id;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:r.id};render();toast("Café do pote e método selecionados");return}
+  const u=e.target.closest("[data-pusar]"),fm=e.target.closest("[data-pfim]"),po=e.target.closest("[data-ppor]");
   if(po||fm)loadPot();
-  if(po){logPot("recebeu "+potNome(po.dataset.id),+po.dataset.ppor);POT.g[+po.dataset.ppor]=null;POT.u[+po.dataset.ppor]=null;POT.p[+po.dataset.ppor]=po.dataset.id;savePot();potArm=-1;renderPotes();return}
+  if(po){logPot("recebeu "+potNome(po.dataset.id),+po.dataset.ppor);POT.g[+po.dataset.ppor]=null;POT.u[+po.dataset.ppor]=null;POT.p[+po.dataset.ppor]=po.dataset.id;savePot();potArm=-1;render();return}
   if(u){const v=POT.p[+u.dataset.pusar];if(st.csel===v&&!(NOVO&&!NOVO.caf)){st.csel="desc";cEdit=false;cDelArm=false;st.cafe={...CAFE0};render();toast("Café do pote desmarcado");return}marca("caf");st.csel=v;cEdit=false;cDelArm=false;st.cafe=ISD(v)?{...CAFE0}:{...CAF.find(c=>c.id===v)};render();toast("Café do pote selecionado");return}
   if(fm){const i=+fm.dataset.pfim;if(potArm!==i){potArm=i;renderPotes();return}const v=POT.p[i];const o=CAF.find(c=>c.id===v);if(o){o.fim=true;saveCaf()}
     if(POT.g[i]!=null){const u=POT.u[i]||{n:0};const dt=new Date();POT.h.unshift({nome:potNome(v),prev:Math.round(POT.g[i]*10)/10,n:u.n,data:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`});POT.h=POT.h.slice(0,10)}
