@@ -153,7 +153,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 46 · 06/11/2026 · B75 nas indicações de método</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 47 · 06/11/2026 · ranking de todos os métodos para cada café</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -163,7 +163,7 @@ select.txt{appearance:auto}
       <label class="lbl" for="cSel">Café</label>
       <select class="txt" id="cSel"></select>
       <p class="cres" id="cResumo" style="margin-top:8px"></p>
-      <div id="cIndBox" hidden style="margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--soft)"><p class="cres" id="cInd" style="color:var(--fg)"></p><button class="btn" id="cIndUsar" type="button" style="margin-top:8px">Usar o método indicado</button></div>
+      <div id="cIndBox" hidden style="margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--soft)"><span class="lbl" style="margin-bottom:6px">Métodos para este café, do mais ao menos indicado</span><div id="cIndList" style="display:grid;gap:8px"></div><details style="margin-top:8px"><summary style="font-size:.84rem;cursor:pointer">Ver os demais métodos</summary><div id="cIndRest" style="display:grid;gap:8px;margin-top:8px"></div></details></div>
       <label class="unk" for="cAuto" id="cAutoBox" style="margin-top:10px"><input type="checkbox" id="cAuto"> Ajustar o preparo pela torra e pelo frescor deste café</label>
       <div class="bkb" style="display:flex;gap:8px;margin-top:8px" id="cActs">
         <button class="btn" id="cEdit" type="button">Editar dados</button>
@@ -695,24 +695,31 @@ function renderPotes(){
   $("potes").innerHTML=potSel>=0?h[potSel]:"";
   const el=document.querySelector(`[data-pote="${potSel}"]`);if(el)el.value=POT.p[potSel]||"";
 }
-// Método indicado pelo perfil do café: maturado/velho → imersão; claro e ácido/aromático → percolação limpa; corpo e doçura → híbrido
-function indicaMetodo(k){if(!k||!k.nome)return null;const t=k.torra||"",a=k.acidez,co=k.corpo,d=k.docura,ar=k.aroma,dd=dias(k.data),tx=(k.nome+" "+k.processo+" "+k.tipo).toLowerCase();
-  const clara=t==="Clara"||t==="Média-clara",escura=t==="Média-escura"||t==="Escura";
-  if(/barrel|barril|maturad/.test(tx))return{id:"prensa",alt:"me26",why:"café maturado em barril: a imersão da prensa realça o corpo licoroso e as notas da madeira; como espresso na ME2604 também fica ótimo"};
-  if(dd!=null&&dd>90)return{id:"swU1",alt:"prensa",why:`torrado há ${dd} dias: já perdeu parte dos aromas, e a imersão do Switch extrai melhor um café menos fresco do que a percolação`};
-  if(escura||(co!=null&&co>=7&&a!=null&&a<=5)||/blend/.test(tx)&&!clara)return{id:"melitta",alt:"me26",why:"perfil de chocolate e corpo com acidez baixa: a Melitta, mais lenta, entrega corpo e doçura; também serve para espresso"};
-  if(clara&&((a!=null&&a>=7)||(ar!=null&&ar>=8)||/geisha|gesha|floral/.test(tx)))return{id:"v60",alt:"b75",why:"torra clara com acidez e aroma altos: a V60 dá clareza e separa bem as notas frutadas e florais",k46:null};
-  if(co!=null&&co>=8&&d!=null&&d>=8)return{id:"swTC",alt:"k46v60",why:"muito corpo e doçura: o híbrido do Switch (imersão + percolação) valoriza os dois; no 4:6, escolha mais doce",k46:{s:"doce",c:"normal"}};
-  if(d!=null&&d>=8)return{id:"b75",alt:"k46v60",why:"doçura alta com perfil frutado: o B75, de escoamento rápido e receita em 1:15, destaca doçura e fruta; no 4:6, use mais doce",k46:{s:"doce",c:"normal"}};
-  if(dd!=null&&dd>60)return{id:"switch",alt:"prensa",why:`torrado há ${dd} dias: imersão compensa a perda de frescor`};
-  return{id:"v60",alt:"b75",why:"perfil equilibrado: a V60 é um bom ponto de partida"}}
+// Ranking de métodos pelo perfil do café. Cada método tem notas de clareza, corpo, tolerância a café menos fresco (imersão), doçura e espresso;
+// o café define quanto pesa cada atributo (acidez/aroma em torra clara → clareza; corpo/torra escura → corpo; idade → imersão; doçura → doçura; barril → corpo e espresso)
+const PERF={v60:{c:3,b:1,i:0,d:2,e:0},b75:{c:3,b:1,i:0,d:3,e:0},origami:{c:3,b:1,i:0,d:2,e:0},chemex:{c:3,b:0,i:0,d:1,e:0},sifao:{c:3,b:2,i:1,d:2,e:0},
+  fluire:{c:2,b:2,i:0,d:2,e:0},melitta:{c:1,b:2,i:0,d:2,e:0},pano:{c:1,b:3,i:0,d:2,e:0},coador:{c:1,b:1,i:0,d:1,e:0},aeropress:{c:2,b:2,i:2,d:2,e:1},
+  switch:{c:2,b:3,i:3,d:3,e:0},clever:{c:1,b:2,i:3,d:2,e:0},prensa:{c:0,b:3,i:3,d:2,e:0},cold:{c:1,b:2,i:3,d:3,e:0},moka:{c:0,b:3,i:1,d:1,e:2},
+  espresso:{c:1,b:3,i:1,d:2,e:3},me26:{c:1,b:3,i:1,d:2,e:3},turco:{c:0,b:3,i:1,d:1,e:1}};
+const ROT={c:"clareza para acidez e aromas",b:"corpo",i:"imersão, que extrai melhor café menos fresco",d:"doçura",e:"concentração (espresso)"};
+function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,co=k.corpo,d=k.docura,ar=k.aroma,dd=dias(k.data),tx=(k.nome+" "+k.processo+" "+k.tipo).toLowerCase();
+  const clara=t==="Clara"||t==="Média-clara",escura=t==="Média-escura"||t==="Escura",barril=/barrel|barril|maturad/.test(tx);
+  const w={c:(clara?1.5:0.5)+((a??5)>=7?1.5:0)+((ar??5)>=8?1:0)+(/geisha|gesha|floral/.test(tx)?1:0)-(escura?1:0)-(dd>90?1:0),
+    b:((co??5)>=8?1.5:(co??5)>=6?.7:0)+(escura?1.5:0)+((a??5)<=5?.7:0)+(barril?2:0)+(/blend/.test(tx)?.7:0),
+    i:dd==null?0:dd>90?2.5:dd>60?1.5:dd>45?.7:0, d:(d??5)>=8?1.5:(d??5)>=6?.5:0, e:(barril?1.5:0)+(escura?1:0)+(/blend/.test(tx)&&!clara?.7:0)};
+  const tot=Object.values(w).reduce((x,y)=>x+Math.max(0,y),0)||1;
+  return Object.entries(PERF).filter(([g])=>M.some(m=>m.id===g)).map(([g,pf])=>{const contrib=Object.keys(w).map(kk=>[kk,Math.max(0,w[kk])*pf[kk]]);const sc=contrib.reduce((x,y)=>x+y[1],0)/(3*tot);
+    const top=contrib.filter(x=>x[1]>0).sort((x,y)=>y[1]-x[1]).slice(0,2).map(x=>ROT[x[0]]);
+    let id=g,k46=null;if(g==="switch")id=dd>60?"swU1":(w.b>=1.5&&w.d>=1.5?"swTC":"switch");if(g==="v60"&&w.d>=1.5&&!(w.c>=3))id="k46v60",k46={s:"doce",c:"normal"};if(g==="v60"&&w.c>=3)id="k46v60",k46={s:"acido",c:"normal"};
+    return{g,id,k46,nota:Math.round(sc*100),why:top.length?"favorece "+top.join(" e "):"pouco a ver com o perfil deste café"}}).sort((x,y)=>y.nota-x.nota)}
 function renderCafe(){
   const k=st.cafe,sel=st.csel;
   $("cSel").innerHTML=`<option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option>`+(CAF.length?`<optgroup label="Meus cafés">${CAF.map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}${c.fim?" · acabou":""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
   if(NOVO&&!NOVO.caf){$("cSel").insertAdjacentHTML("afterbegin",`<option value="__esc">Escolha o café no pote…</option>`);$("cSel").value="__esc"}else $("cSel").value=sel;
   const reg=!ISD(sel)&&sel!=="novo", d=dias(k.data);
-  {const ind=!ISD(st.csel)&&st.csel!=="novo"?indicaMetodo(st.cafe):null,mi=ind&&M.find(x=>x.id===ind.id),ma=ind&&M.find(x=>x.id===ind.alt);$("cIndBox").hidden=!mi;
-   if(mi){$("cInd").innerHTML=`<b>Método indicado: ${esc(mi.n)}</b>${ma?` · alternativa: ${esc(ma.n)}`:""}<br>${esc(ind.why)}.`;$("cIndUsar").dataset.id=mi.id;$("cIndUsar").setAttribute("aria-pressed",String(st.met===mi.id&&!(NOVO&&!NOVO.met)));$("cIndUsar").textContent=st.met===mi.id&&!(NOVO&&!NOVO.met)?"Método indicado em uso":"Usar o método indicado"}}
+  {const rk=!ISD(st.csel)&&st.csel!=="novo"?rankMetodos(st.cafe):[];$("cIndBox").hidden=!rk.length;
+   const item=(r,i)=>{const m=M.find(x=>x.id===r.id),on=G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="cres" style="color:var(--fg)"><b>${i+1}. ${esc(m.n)}</b> · ${r.nota}%<br><span style="color:var(--muted);font-size:.84rem">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-ind="${i}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
+   $("cIndList").innerHTML=rk.slice(0,5).map(item).join("");$("cIndRest").innerHTML=rk.slice(5).map((r,i)=>item(r,i+5)).join("")}
   $("cResumo").textContent=sel==="desc"?"Café em grãos sem dados. A receita fica registrada como café desconhecido.":sel==="descpo"?"Café já moído, sem dados. A moagem sugerida não se aplica: ajuste pela proporção e pelo tempo.":sel==="novo"?"Preencha os dados e toque em Cadastrar café. Só o nome é obrigatório.":cafeTxt(k)+(d!=null&&d>=0?` · ${d} dia${d===1?"":"s"} desde a torra`:"");
   $("cActs").hidden=!reg; $("cAutoBox").hidden=ISD(sel);$("cFim").hidden=!(reg&&k.fim); $("cAuto").checked=st.auto!==false; $("cEdit").textContent=cEdit?"Esconder dados":"Editar dados"; $("cDel").textContent=cDelArm?"Confirmar exclusão":"Excluir café";
   $("cFields").hidden=!(sel==="novo"||(reg&&cEdit));
@@ -886,7 +893,7 @@ setBipe(st.bipe!==false);
 $("tBipe").addEventListener("change",e=>setBipe(e.target.checked));
 $("tSom").onclick=()=>setBipe(st.bipe===false);
 $("tStart").onclick=iniciar;
-$("cIndUsar").onclick=()=>{const ind=indicaMetodo(st.cafe);if(!ind)return;marca("met");st.met=ind.id;if(ind.k46)st.k46={...ind.k46};const g0=G(M.find(x=>x.id===ind.id));st.gsel={...(st.gsel||{}),[g0]:ind.id};render()};
+$("cIndBox").addEventListener("click",e=>{const b=e.target.closest("[data-ind]");if(!b)return;const r=rankMetodos(st.cafe)[+b.dataset.ind];if(!r)return;marca("met");st.met=r.id;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:r.id};render()});
 const novoPreparo=()=>{if(T.run)try{encerrar()}catch(e){}NOVO={met:false,moe:false,caf:false};potSel=-1;window.scrollTo({top:0,behavior:"smooth"});render()};
 $("novoCafe").onclick=novoPreparo;
 $("olaSim").onclick=()=>{$("ola").hidden=true;novoPreparo()};
