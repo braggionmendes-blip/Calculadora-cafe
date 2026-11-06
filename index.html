@@ -153,7 +153,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 49 · 06/11/2026 · ranking de métodos no cartão do pote e lista de cafés só com os dos potes</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 50 · 06/11/2026 · lista de cafés com todos os cadastrados; ranking de métodos só nos potes</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -716,7 +716,7 @@ function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,c
     return{g,id,k46,nota:Math.round(sc*100),why:top.length?"favorece "+top.join(" e "):"pouco a ver com o perfil deste café"}}).sort((x,y)=>y.nota-x.nota)}
 function renderCafe(){
   const k=st.cafe,sel=st.csel;
-  $("cSel").innerHTML=`<option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option>`+(CAF.length?`<optgroup label="Cafés nos potes">${CAF.filter(c=>POT.p.slice(0,POT.n).includes(c.id)||(c.id===sel&&!(NOVO&&!NOVO.caf))).map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}${c.fim?" · acabou":""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
+  $("cSel").innerHTML=`<option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option>`+(CAF.length?`<optgroup label="Meus cafés">${CAF.map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}${c.fim?" · acabou":""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
   if(NOVO&&!NOVO.caf){$("cSel").insertAdjacentHTML("afterbegin",`<option value="__esc">Escolha o café no pote…</option>`);$("cSel").value="__esc"}else $("cSel").value=sel;
   const reg=!ISD(sel)&&sel!=="novo", d=dias(k.data);
   {const noPote=POT.p.slice(0,POT.n).includes(st.csel);const rk=[];$("cIndBox").hidden=!rk.length;
