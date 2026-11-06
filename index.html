@@ -153,7 +153,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 45 · 06/11/2026 · método indicado para cada café</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 46 · 06/11/2026 · B75 nas indicações de método</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -701,11 +701,11 @@ function indicaMetodo(k){if(!k||!k.nome)return null;const t=k.torra||"",a=k.acid
   if(/barrel|barril|maturad/.test(tx))return{id:"prensa",alt:"me26",why:"café maturado em barril: a imersão da prensa realça o corpo licoroso e as notas da madeira; como espresso na ME2604 também fica ótimo"};
   if(dd!=null&&dd>90)return{id:"swU1",alt:"prensa",why:`torrado há ${dd} dias: já perdeu parte dos aromas, e a imersão do Switch extrai melhor um café menos fresco do que a percolação`};
   if(escura||(co!=null&&co>=7&&a!=null&&a<=5)||/blend/.test(tx)&&!clara)return{id:"melitta",alt:"me26",why:"perfil de chocolate e corpo com acidez baixa: a Melitta, mais lenta, entrega corpo e doçura; também serve para espresso"};
-  if(clara&&((a!=null&&a>=7)||(ar!=null&&ar>=8)||/geisha|gesha|floral/.test(tx)))return{id:"v60",alt:"origami",why:"torra clara com acidez e aroma altos: a V60 dá clareza e separa bem as notas frutadas e florais",k46:null};
+  if(clara&&((a!=null&&a>=7)||(ar!=null&&ar>=8)||/geisha|gesha|floral/.test(tx)))return{id:"v60",alt:"b75",why:"torra clara com acidez e aroma altos: a V60 dá clareza e separa bem as notas frutadas e florais",k46:null};
   if(co!=null&&co>=8&&d!=null&&d>=8)return{id:"swTC",alt:"k46v60",why:"muito corpo e doçura: o híbrido do Switch (imersão + percolação) valoriza os dois; no 4:6, escolha mais doce",k46:{s:"doce",c:"normal"}};
-  if(d!=null&&d>=8)return{id:"k46v60",alt:"origami",why:"doçura alta: o 4:6 na opção mais doce destaca isso",k46:{s:"doce",c:"normal"}};
+  if(d!=null&&d>=8)return{id:"b75",alt:"k46v60",why:"doçura alta com perfil frutado: o B75, de escoamento rápido e receita em 1:15, destaca doçura e fruta; no 4:6, use mais doce",k46:{s:"doce",c:"normal"}};
   if(dd!=null&&dd>60)return{id:"switch",alt:"prensa",why:`torrado há ${dd} dias: imersão compensa a perda de frescor`};
-  return{id:"v60",alt:"origami",why:"perfil equilibrado: a V60 é um bom ponto de partida"}}
+  return{id:"v60",alt:"b75",why:"perfil equilibrado: a V60 é um bom ponto de partida"}}
 function renderCafe(){
   const k=st.cafe,sel=st.csel;
   $("cSel").innerHTML=`<option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option>`+(CAF.length?`<optgroup label="Meus cafés">${CAF.map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}${c.fim?" · acabou":""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
