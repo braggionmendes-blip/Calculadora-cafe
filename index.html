@@ -153,7 +153,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 47 · 06/11/2026 · ranking de todos os métodos para cada café</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 48 · 06/11/2026 · ranking de métodos só para cafés nos potes</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -717,7 +717,7 @@ function renderCafe(){
   $("cSel").innerHTML=`<option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option>`+(CAF.length?`<optgroup label="Meus cafés">${CAF.map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}${c.fim?" · acabou":""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
   if(NOVO&&!NOVO.caf){$("cSel").insertAdjacentHTML("afterbegin",`<option value="__esc">Escolha o café no pote…</option>`);$("cSel").value="__esc"}else $("cSel").value=sel;
   const reg=!ISD(sel)&&sel!=="novo", d=dias(k.data);
-  {const rk=!ISD(st.csel)&&st.csel!=="novo"?rankMetodos(st.cafe):[];$("cIndBox").hidden=!rk.length;
+  {const noPote=POT.p.slice(0,POT.n).includes(st.csel);const rk=!ISD(st.csel)&&st.csel!=="novo"&&noPote?rankMetodos(st.cafe):[];$("cIndBox").hidden=!rk.length;
    const item=(r,i)=>{const m=M.find(x=>x.id===r.id),on=G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="cres" style="color:var(--fg)"><b>${i+1}. ${esc(m.n)}</b> · ${r.nota}%<br><span style="color:var(--muted);font-size:.84rem">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-ind="${i}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
    $("cIndList").innerHTML=rk.slice(0,5).map(item).join("");$("cIndRest").innerHTML=rk.slice(5).map((r,i)=>item(r,i+5)).join("")}
   $("cResumo").textContent=sel==="desc"?"Café em grãos sem dados. A receita fica registrada como café desconhecido.":sel==="descpo"?"Café já moído, sem dados. A moagem sugerida não se aplica: ajuste pela proporção e pelo tempo.":sel==="novo"?"Preencha os dados e toque em Cadastrar café. Só o nome é obrigatório.":cafeTxt(k)+(d!=null&&d>=0?` · ${d} dia${d===1?"":"s"} desde a torra`:"");
