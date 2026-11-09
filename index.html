@@ -153,7 +153,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 50 · 06/11/2026 · lista de cafés com todos os cadastrados; ranking de métodos só nos potes</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 51 · 09/11/2026 · ranking de métodos recalibrado (Switch não domina mais)</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -699,18 +699,21 @@ function renderPotes(){
 }
 // Ranking de métodos pelo perfil do café. Cada método tem notas de clareza, corpo, tolerância a café menos fresco (imersão), doçura e espresso;
 // o café define quanto pesa cada atributo (acidez/aroma em torra clara → clareza; corpo/torra escura → corpo; idade → imersão; doçura → doçura; barril → corpo e espresso)
-const PERF={v60:{c:3,b:1,i:0,d:2,e:0},b75:{c:3,b:1,i:0,d:3,e:0},origami:{c:3,b:1,i:0,d:2,e:0},chemex:{c:3,b:0,i:0,d:1,e:0},sifao:{c:3,b:2,i:1,d:2,e:0},
-  fluire:{c:2,b:2,i:0,d:2,e:0},melitta:{c:1,b:2,i:0,d:2,e:0},pano:{c:1,b:3,i:0,d:2,e:0},coador:{c:1,b:1,i:0,d:1,e:0},aeropress:{c:2,b:2,i:2,d:2,e:1},
-  switch:{c:2,b:3,i:3,d:3,e:0},clever:{c:1,b:2,i:3,d:2,e:0},prensa:{c:0,b:3,i:3,d:2,e:0},cold:{c:1,b:2,i:3,d:3,e:0},moka:{c:0,b:3,i:1,d:1,e:2},
-  espresso:{c:1,b:3,i:1,d:2,e:3},me26:{c:1,b:3,i:1,d:2,e:3},turco:{c:0,b:3,i:1,d:1,e:1}};
+const PERF={v60:{c:3,b:1,i:0,d:2,e:0},b75:{c:3,b:1,i:0,d:3,e:0},origami:{c:2,b:2,i:0,d:3,e:0},chemex:{c:3,b:0,i:0,d:1,e:0},sifao:{c:3,b:2,i:1,d:2,e:0},
+  fluire:{c:1,b:2,i:0,d:2,e:0},melitta:{c:1,b:3,i:0,d:2,e:0},pano:{c:1,b:3,i:0,d:3,e:0},coador:{c:1,b:1,i:0,d:1,e:0},aeropress:{c:2,b:2,i:1,d:2,e:1},
+  switch:{c:2,b:2,i:2,d:2,e:0},clever:{c:1,b:2,i:3,d:2,e:0},prensa:{c:0,b:3,i:3,d:1,e:0},cold:{c:0,b:2,i:2,d:3,e:0},moka:{c:0,b:3,i:0,d:1,e:2},
+  espresso:{c:0,b:3,i:0,d:2,e:3},me26:{c:0,b:3,i:0,d:2,e:3},turco:{c:0,b:3,i:1,d:0,e:1}};
+// Métodos que o Jeff tem
+const MEUS=["v60","b75","origami","melitta","pano","fluire","switch","prensa","me26"];
 const ROT={c:"clareza para acidez e aromas",b:"corpo",i:"imersão, que extrai melhor café menos fresco",d:"doçura",e:"concentração (espresso)"};
 function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,co=k.corpo,d=k.docura,ar=k.aroma,dd=dias(k.data),tx=(k.nome+" "+k.processo+" "+k.tipo).toLowerCase();
   const clara=t==="Clara"||t==="Média-clara",escura=t==="Média-escura"||t==="Escura",barril=/barrel|barril|maturad/.test(tx);
-  const w={c:(clara?1.5:0.5)+((a??5)>=7?1.5:0)+((ar??5)>=8?1:0)+(/geisha|gesha|floral/.test(tx)?1:0)-(escura?1:0)-(dd>90?1:0),
-    b:((co??5)>=8?1.5:(co??5)>=6?.7:0)+(escura?1.5:0)+((a??5)<=5?.7:0)+(barril?2:0)+(/blend/.test(tx)?.7:0),
-    i:dd==null?0:dd>90?2.5:dd>60?1.5:dd>45?.7:0, d:(d??5)>=8?1.5:(d??5)>=6?.5:0, e:(barril?1.5:0)+(escura?1:0)+(/blend/.test(tx)&&!clara?.7:0)};
-  const tot=Object.values(w).reduce((x,y)=>x+Math.max(0,y),0)||1;
-  return Object.entries(PERF).filter(([g])=>M.some(m=>m.id===g)).map(([g,pf])=>{const contrib=Object.keys(w).map(kk=>[kk,Math.max(0,w[kk])*pf[kk]]);const sc=contrib.reduce((x,y)=>x+y[1],0)/(3*tot);
+  // Perfil desejado do café; a idade pesa pouco (ela já ajusta moagem e temperatura) para não empurrar tudo para a imersão
+  const w={c:(clara?1.5:escura?0:0.7)+((a??5)>=7?1.5:0)+((ar??5)>=8?0.7:0)+(/geisha|gesha|floral/.test(tx)?1:0),
+    b:.4+((co??5)>=8?1.5:(co??5)>=6?.8:0)+(escura?1.5:0)+((a??5)<=4?.5:0)+(barril?2:0),
+    i:(dd!=null&&dd>90?.8:dd!=null&&dd>60?.4:0)+(barril?.5:0), d:.4+((d??5)>=9?2:(d??5)>=8?1.5:(d??5)>=6?.7:0), e:(barril?1.5:0)+(escura?1:0)};
+  const nw=Math.hypot(...Object.values(w))||1;
+  return Object.entries(PERF).filter(([g])=>MEUS.includes(g)&&M.some(m=>m.id===g)).map(([g,pf])=>{const contrib=Object.keys(w).map(kk=>[kk,Math.max(0,w[kk])*pf[kk]]);const sc=contrib.reduce((x,y)=>x+y[1],0)/(nw*(Math.hypot(...Object.values(pf))||1));
     const top=contrib.filter(x=>x[1]>0).sort((x,y)=>y[1]-x[1]).slice(0,2).map(x=>ROT[x[0]]);
     let id=g,k46=null;if(g==="switch")id=dd>60?"swU1":(w.b>=1.5&&w.d>=1.5?"swTC":"switch");if(g==="v60"&&w.d>=1.5&&!(w.c>=3))id="k46v60",k46={s:"doce",c:"normal"};if(g==="v60"&&w.c>=3)id="k46v60",k46={s:"acido",c:"normal"};
     return{g,id,k46,nota:Math.round(sc*100),why:top.length?"favorece "+top.join(" e "):"pouco a ver com o perfil deste café"}}).sort((x,y)=>y.nota-x.nota)}
