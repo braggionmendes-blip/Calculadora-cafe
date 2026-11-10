@@ -155,7 +155,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 53 · 10/11/2026 · desconto do pote sempre avisa o resultado</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 54 · 10/11/2026 · kit portátil Joinout</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -523,6 +523,10 @@ M.push(
   g:{k7:[0,0,0],r3:[0,0,0],pro:[0,0,0],oster:[0,0,0],mongdio:[0,0,0],icoffee:[0,0,0]},
   steps:(c,a)=>[["Preparo","Encaixe a cápsula Dolce Gusto no adaptador DG"],["Preparo",`Encha o reservatório com ${f(a)} ml de água: 50 a 60 ml espresso, até 80 ml lungo`],["0:00","Monte o adaptador, ligue e aperte o botão"],["3:20","Extração automática a 92 °C (com água já quente, bem antes)"],["3:50","Fim: retire e descarte a cápsula com cuidado, ela sai quente"]],
   tip:"O reservatório tem 80 ml, então bebidas grandes da Dolce Gusto (cappuccino, latte, cápsulas de leite) não cabem numa extração só: use as cápsulas de café e complete com leite à parte."});
+M.push({id:"joinout",grp:"v60",rn:"Kit portátil Joinout (cone de silicone)",n:"Kit portátil Joinout",cls:"Média",q:240,qs:10,r:[14,18,16,0.5],temp:"93 a 96 °C",tempo:"2:30 a 3:00",
+  g:{k7:[65,80,72],r3:[95,125,110],pro:[60,90,75],oster:[8,10,9],mongdio:[16,21,18],icoffee:[12,16,14]},
+  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Abra o cone de silicone, encaixe o filtro de papel 01 e escalde com água quente (o silicone esfria a água, pré-aqueça bem). Descarte a água da caneca"],["0:00",`Pré-infusão: ${g(a/6)}, molhando todo o pó`],[tm(40*k),`Complete até ${g(a*0.58)} em círculos lentos`],[tm(80*k),`Complete até ${g(a)}, sem passar da borda do cone`],[tm(150*k)+"–"+tm(180*k),"Fim do escoamento"]]},
+  tip:"Cone dobrável de silicone (Φ95 mm) com filtro de papel 01 e caneca de inox. A caneca de 77 mm comporta cerca de 300 ml: não passe de 250 g de água. O silicone perde calor; use água no topo da faixa (95–96 °C). Escoamento mais lento que a V60: se passar de 3:15, moa 3 cliques mais grosso."});
 const MOE={k7:"cliques",r3:"cliques",pro:"cliques"};
 const st={met:"v60",moe:"k7",q:{},r:{},c:{},x:{},base:{},gr:{}};
 try{Object.assign(st,JSON.parse(localStorage.getItem("calcExtracao")||"{}"))}catch(e){}
@@ -609,7 +613,7 @@ function renderSaved(){
 let delArm=-1,cDelArm=false,rsel=-1;
 st.pen=Object.assign({on:false,sel:"inox",um:null,perda:null},st.pen||{});
 // Acessórios LilyDrip: só em coadores cônicos
-const CONE=["v60","b75","origami","switch","swAgua","swU1","swU2","swTC","vV60","vKal","k46v60","k46ori","k46b75","k46sw"];
+const CONE=["v60","b75","origami","switch","swAgua","swU1","swU2","swTC","vV60","vKal","k46v60","k46ori","k46b75","k46sw","joinout"];
 const ACC={star:{n:"Starflower",info:"Escoa rápido (saída larga, 7 ranhuras): a camada de café fica mais rasa e plana. Moagem mais fina para compensar. Corpo mais leve e mais clareza.",
     passo:"Dobre o filtro na costura e modele no CFS; encaixe o Starflower no fundo do coador e o filtro por cima"},
   lotos:{n:"LOTOS",info:"Transforma o coador cônico em fundo plano: use filtro de fundo plano (tipo wave/cesta) sobre ele. A peça não tem furo central; mantenha a moagem e ajuste pelo tempo final.",
@@ -642,7 +646,7 @@ function peneira(m,c){const r={on:false};if(!st.pen.on)return r;r.on=true;const 
   r.dica=um<rec-50?`Peneira mais fina que a indicada (${rec} µm): tira menos finos`:um>rec+50?`Peneira mais aberta que a indicada (${rec} µm): tira também parte do pó bom`:`Peneira adequada para este método`;
   if(st.pen.sel==="inox"&&!Number(st.pen.um))r.dica+=" (abertura da sua peneira considerada 300 µm)";
   return r}
-const PERC=["v60","b75","fluire","origami","melitta","pano","coador","chemex","vV60","vMel","vKal","k46v60","k46mel","k46ori","k46b75"];
+const PERC=["v60","b75","fluire","origami","melitta","pano","coador","chemex","vV60","vMel","vKal","k46v60","k46mel","k46ori","k46b75","joinout"];
 // Coados: mais café = camada mais alta = escoa mais devagar; compensa com moagem mais grossa (e vice-versa)
 function ajDose(m){const gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
   if(!PERC.includes(m.id))return {off:0,nota:""};
