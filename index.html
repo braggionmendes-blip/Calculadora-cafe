@@ -155,7 +155,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 55 · 10/11/2026 · peneira: quanto quero no coador ou quanto tenho para moer</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 56 · 10/11/2026 · modo "tenho para moer" atualiza os cards e o passo a passo</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -591,7 +591,9 @@ const calc=m=>{const r=Number(rOf(m));const q=Math.max(0,Number(qOf(m))||0);
   if(bs==="cafe") c=Math.max(0,Number(st.c[m.id]??Math.round(q/r*10)/10)||0);
   else if(bs==="xicara"){const b=Math.max(0,Number(st.x[m.id]??Math.round(q-ret*q/r))||0);c=b/Math.max(0.5,r-ret)}
   else c=q/r;
-  const a=bs==="agua"?q:c*r;
+  let a=bs==="agua"?q:c*r;
+  // Peneira no modo "quanto tenho para moer": a dose da receita passa a ser o que sobra depois de peneirar
+  if(st.pen&&st.pen.on&&st.pen.modo==="tenho"&&Number(st.pen.tenho)>0&&PREC[m.id]){const pn=peneira(m,1);if(pn.on&&!pn.bloq){c=Number(st.pen.tenho)*(1-pn.perda);a=c*r}}
   return {r,q,c,a,b:Math.max(0,a-ret*c)}};
 let toastT;const toast=window.toastG=t=>{$("toast").textContent=t;clearTimeout(toastT);toastT=setTimeout(()=>$("toast").textContent="",5000)};
 const MN=Object.fromEntries(M.map(m=>[m.id,m.n]));
