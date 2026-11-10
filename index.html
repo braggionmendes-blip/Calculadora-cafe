@@ -153,7 +153,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 51 · 09/11/2026 · ranking de métodos recalibrado (Switch não domina mais)</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 52 · 10/11/2026 · perda medida da peneira</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -315,6 +315,7 @@ select.txt{appearance:auto}
           <label class="lbl" for="pUm">Abertura da peneira inox <span style="text-transform:none">(µm)</span></label>
           <input class="txt" id="pUm" type="number" inputmode="numeric" min="100" max="1000" step="10" placeholder="Não sei (considerar 300)">
         </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0"><label for="penPerda" style="font-size:.88rem">Perda medida na peneira</label><input class="txt" id="penPerda" type="number" inputmode="decimal" min="1" max="40" step="0.5" style="width:90px" placeholder="auto"><span style="font-size:.88rem">%</span></div>
         <p class="cres" id="pInfo"></p>
       </div>
     </div>
@@ -604,7 +605,7 @@ function renderSaved(){
   $("rSel").value=String(rsel);
 }
 let delArm=-1,cDelArm=false,rsel=-1;
-st.pen=Object.assign({on:false,sel:"inox",um:null},st.pen||{});
+st.pen=Object.assign({on:false,sel:"inox",um:null,perda:null},st.pen||{});
 // Acessórios LilyDrip: só em coadores cônicos
 const CONE=["v60","b75","origami","switch","swAgua","swU1","swU2","swTC","vV60","vKal","k46v60","k46ori","k46b75","k46sw"];
 const ACC={star:{n:"Starflower",info:"Escoa rápido (saída larga, 7 ranhuras): a camada de café fica mais rasa e plana. Moagem mais fina para compensar. Corpo mais leve e mais clareza.",
@@ -632,7 +633,7 @@ const PREC={moka:300,aeropress:300,switch:300,v60:300,b75:300,fluire:300,origami
 const penUm=()=>st.pen.sel==="inox"?(Number(st.pen.um)||300):Number(st.pen.sel);
 function peneira(m,c){const r={on:false};if(!st.pen.on)return r;r.on=true;const rec=PREC[m.id];
   if(!rec){r.bloq=true;r.msg=m.id==="espresso"?"No espresso não se peneira: os finos ajudam a formar a crema e a resistência na extração.":"Neste método o pó vai inteiro para a bebida; não peneire.";return r}
-  const um=penUm(),perda=Math.min(.25,Math.max(.05,.10+(um-rec)/1000));
+  const um=penUm(),pm=Number(st.pen.perda),medida=pm>0&&pm<=40,perda=medida?pm/100:Math.min(.25,Math.max(.05,.10+(um-rec)/1000));r.medida=medida;
   r.rec=rec;r.um=um;r.perda=perda;r.moer=c/(1-perda);r.fino=r.moer-c;
   r.seg=Math.round((15+Math.max(0,Math.ceil((r.moer-20)/10))*5)/5)*5;
   const blade=st.moe==="r3"||st.moe==="pro";
@@ -785,7 +786,7 @@ function render(){
   if(pn.on&&!pn.bloq)steps=[["Peneirar",`Moa ${f(pn.moer,1)} g, ponha na peneira (${pn.um} µm), tampe e agite de um lado para o outro por ${pn.seg} s. Descarte o pó que passou (≈ ${f(pn.fino,1)} g) e use os ${f(c,1)} g que ficaram`],...steps];
   $("pOn").checked=st.pen.on;$("pBox").hidden=!st.pen.on;$("pSel").value=st.pen.sel;$("pInoxBox").hidden=st.pen.sel!=="inox";
   if(document.activeElement!==$("pUm"))$("pUm").value=st.pen.um||"";
-  $("pInfo").textContent=!pn.on?"":pn.bloq?pn.msg:`Moa ${f(pn.moer,1)} g para sobrarem ${f(c,1)} g (perda estimada de ${Math.round(pn.perda*100)}%). Agite por ${pn.seg} s. ${pn.dica}.${aj.penOff?` Sem os finos o café escoa mais rápido: moagem ${pfmt(aj.penOff)}.`:""}`;
+  $("pInfo").textContent=!pn.on?"":pn.bloq?pn.msg:`Moa ${f(pn.moer,1)} g para sobrarem ${f(c,1)} g (perda ${pn.medida?"medida":"estimada"} de ${f(Math.round(pn.perda*1000)/10,1).replace(/,0$/,"")}%). Agite por ${pn.seg} s. ${pn.dica}.${aj.penOff?` Sem os finos o café escoa mais rápido: moagem ${pfmt(aj.penOff)}.`:""}`;
   const fim=m.tempo||("Total "+steps.filter(x=>x[0]!=="Peneirar").slice(-1)[0][0]);
   {const tv=aj.temp||m.temp,mt=tv.match(/(\d+)(?:\s*a\s*(\d+))?\s*°C/);
    $("oTemp").className="big"+(mt?"":" txtv");
@@ -806,6 +807,7 @@ function render(){
   {const fl=novoFalta();$("tStart").disabled=!T.run&&fl.length>0;$("novoAviso").hidden=!fl.length;$("novoAviso").textContent=fl.length?`Novo preparo: escolha ${fl.length>1?fl.slice(0,-1).join(", ")+" e "+fl.slice(-1):fl[0]} para liberar o temporizador.`:"";}
   {const cp=!!m.cap;$("ratio").parentElement.hidden=cp;$("lMoagIn").parentElement.hidden=cp;$("moedores").parentElement.hidden=cp;$("pOn").parentElement.hidden=cp;if(cp){$("pBox").hidden=true;$("base").hidden=true;$("oCafe").innerHTML="1<small>cápsula</small>";$("oMoag").textContent="—";$("oFaixa").textContent="Cápsula: não usa moedor"}
    if(m.tank||cp){$("lAgua").textContent="Água no reservatório";$("oAgua").innerHTML=f(a)+"<small>ml</small>";$("lQtd").textContent=cp?"Água no reservatório (ml)":"Café no cesto"}}
+  if(document.activeElement!==$("penPerda"))$("penPerda").value=st.pen.perda??"";
   renderSaved();
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}
 }
@@ -898,6 +900,7 @@ setBipe(st.bipe!==false);
 $("tBipe").addEventListener("change",e=>setBipe(e.target.checked));
 $("tSom").onclick=()=>setBipe(st.bipe===false);
 $("tStart").onclick=iniciar;
+$("penPerda").addEventListener("input",e=>{const v=e.target.value===""?null:Number(e.target.value);st.pen.perda=v>0&&v<=40?v:null;render()});
 $("cIndBox").addEventListener("click",e=>{const b=e.target.closest("[data-ind]");if(!b)return;const r=rankMetodos(st.cafe)[+b.dataset.ind];if(!r)return;marca("met");st.met=r.id;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:r.id};render()});
 const novoPreparo=()=>{if(T.run)try{encerrar()}catch(e){}NOVO={met:false,moe:false,caf:false};potSel=-1;window.scrollTo({top:0,behavior:"smooth"});render()};
 $("novoCafe").onclick=novoPreparo;
