@@ -155,7 +155,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 54 · 10/11/2026 · kit portátil Joinout</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 55 · 10/11/2026 · peneira: quanto quero no coador ou quanto tenho para moer</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -318,6 +318,8 @@ select.txt{appearance:auto}
           <input class="txt" id="pUm" type="number" inputmode="numeric" min="100" max="1000" step="10" placeholder="Não sei (considerar 300)">
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0"><label for="penPerda" style="font-size:.88rem">Perda medida na peneira</label><input class="txt" id="penPerda" type="number" inputmode="decimal" min="1" max="40" step="0.5" style="width:90px" placeholder="auto"><span style="font-size:.88rem">%</span></div>
+        <div style="margin:6px 0"><span class="lbl">O que você sabe</span><div class="seg" id="penModo"><button type="button" data-v="quero">Quanto quero no coador</button><button type="button" data-v="tenho">Quanto tenho para moer</button></div></div>
+        <div id="penTenhoBox" hidden style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0"><label for="penTenho" style="font-size:.88rem">Café que vou moer</label><input class="txt" id="penTenho" type="number" inputmode="decimal" min="1" step="0.1" style="width:100px" placeholder="g"><span style="font-size:.88rem">g</span></div>
         <p class="cres" id="pInfo"></p>
       </div>
     </div>
@@ -611,7 +613,7 @@ function renderSaved(){
   $("rSel").value=String(rsel);
 }
 let delArm=-1,cDelArm=false,rsel=-1;
-st.pen=Object.assign({on:false,sel:"inox",um:null,perda:null},st.pen||{});
+st.pen=Object.assign({on:false,sel:"inox",um:null,perda:null,modo:"quero",tenho:null},st.pen||{});
 // Acessórios LilyDrip: só em coadores cônicos
 const CONE=["v60","b75","origami","switch","swAgua","swU1","swU2","swTC","vV60","vKal","k46v60","k46ori","k46b75","k46sw","joinout"];
 const ACC={star:{n:"Starflower",info:"Escoa rápido (saída larga, 7 ranhuras): a camada de café fica mais rasa e plana. Moagem mais fina para compensar. Corpo mais leve e mais clareza.",
@@ -793,6 +795,9 @@ function render(){
   $("pOn").checked=st.pen.on;$("pBox").hidden=!st.pen.on;$("pSel").value=st.pen.sel;$("pInoxBox").hidden=st.pen.sel!=="inox";
   if(document.activeElement!==$("pUm"))$("pUm").value=st.pen.um||"";
   $("pInfo").textContent=!pn.on?"":pn.bloq?pn.msg:`Moa ${f(pn.moer,1)} g para sobrarem ${f(c,1)} g (perda ${pn.medida?"medida":"estimada"} de ${f(Math.round(pn.perda*1000)/10,1).replace(/,0$/,"")}%). Agite por ${pn.seg} s. ${pn.dica}.${aj.penOff?` Sem os finos o café escoa mais rápido: moagem ${pfmt(aj.penOff)}.`:""}`;
+  {const tm2=st.pen.modo==="tenho";document.querySelectorAll("#penModo button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===(tm2?"tenho":"quero"))));$("penTenhoBox").hidden=!tm2;
+   if(document.activeElement!==$("penTenho"))$("penTenho").value=st.pen.tenho??"";
+   if(pn.on&&!pn.bloq&&tm2){const t=Number(st.pen.tenho);if(t>0){const sob=t*(1-pn.perda),ag=sob*rOf(m);$("pInfo").textContent=`Moendo ${f(t,1)} g, sobram ${f(sob,1)} g depois de peneirar (perda ${pn.medida?"medida":"estimada"} de ${f(Math.round(pn.perda*1000)/10,1).replace(/,0$/,"")}%). Para manter a proporção 1:${f(rOf(m),1).replace(/,0$/,"")}, use ${f(Math.round(ag))} g de água. Agite por ${pn.seg} s.`}else $("pInfo").textContent="Informe quanto café você vai moer."}}
   const fim=m.tempo||("Total "+steps.filter(x=>x[0]!=="Peneirar").slice(-1)[0][0]);
   {const tv=aj.temp||m.temp,mt=tv.match(/(\d+)(?:\s*a\s*(\d+))?\s*°C/);
    $("oTemp").className="big"+(mt?"":" txtv");
@@ -911,6 +916,8 @@ setBipe(st.bipe!==false);
 $("tBipe").addEventListener("change",e=>setBipe(e.target.checked));
 $("tSom").onclick=()=>setBipe(st.bipe===false);
 $("tStart").onclick=iniciar;
+$("penModo").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.pen.modo=b.dataset.v;render()});
+$("penTenho").addEventListener("input",e=>{const v=e.target.value===""?null:Number(e.target.value);st.pen.tenho=v>0?v:null;render()});
 $("penPerda").addEventListener("input",e=>{const v=e.target.value===""?null:Number(e.target.value);st.pen.perda=v>0&&v<=40?v:null;render()});
 $("cIndBox").addEventListener("click",e=>{const b=e.target.closest("[data-ind]");if(!b)return;const r=rankMetodos(st.cafe)[+b.dataset.ind];if(!r)return;marca("met");st.met=r.id;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:r.id};render()});
 const novoPreparo=()=>{if(T.run)try{encerrar()}catch(e){}NOVO={met:false,moe:false,caf:false};potSel=-1;window.scrollTo({top:0,behavior:"smooth"});render()};
