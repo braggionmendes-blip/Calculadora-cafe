@@ -155,7 +155,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 56 · 10/11/2026 · modo "tenho para moer" atualiza os cards e o passo a passo</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 57 · 10/11/2026 · ordem de consumo dos potes</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -220,6 +220,7 @@ select.txt{appearance:auto}
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><label for="pN" style="font-size:.9rem">Quantidade de potes</label><select class="txt" id="pN" style="width:auto;min-width:80px"></select></div>
       <select class="txt" id="poteSel" aria-label="Escolha o pote" style="margin-top:10px"></select>
       <div id="potes" style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:8px"></div>
+      <div id="pOrdemBox" style="margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--soft)"><span class="lbl" style="margin-bottom:6px">Ordem de consumo dos potes (torra mais antiga primeiro)</span><div id="pOrdem" class="cres" style="color:var(--fg);font-size:.88rem;line-height:1.6"></div></div>
       <p class="cres" id="pHist" style="margin-top:8px;font-size:.84rem"></p>
       <details style="margin-top:6px"><summary style="font-size:.84rem;cursor:pointer">Registro dos potes</summary><div id="pLog" class="cres" style="font-size:.8rem;line-height:1.5;margin-top:6px"></div></details>
       <p class="cres" style="margin-top:8px;font-size:.82rem">Pote vazio recebe a sugestão do café mais antigo pela data de torra, desde que já tenha 7 dias de descanso. Toque em Acabou quando o café terminar: ele sai das sugestões.</p>
@@ -702,6 +703,9 @@ function renderPotes(){
     h.push(`<div class="pote" data-pc="${i}"><div class="ph"><b>Pote ${i+1}</b></div><select class="txt" data-pote="${i}" aria-label="Café do pote ${i+1}">${ops}</select>${v?`<p class="pi">${info}</p>`:info}${acts}</div>`)}
   if(potSel>=POT.n)potSel=-1;
   let vaz=0;for(let i=0;i<POT.n;i++)if(!POT.p[i])vaz++;
+  {const L=[];for(let i=0;i<POT.n;i++){const v=POT.p[i];if(!v)continue;const k=CAF.find(c=>c.id===v),d=k?dias(k.data):null;L.push({i,nome:potNome(v),data:k&&k.data||"",d,g:POT.g[i]})}
+   L.sort((a,b)=>(a.data?0:1)-(b.data?0:1)||a.data.localeCompare(b.data)||a.i-b.i);
+   $("pOrdem").innerHTML=L.length?L.map((x,j)=>`<b>${j+1}º · Pote ${x.i+1}</b> · ${esc(x.nome)} · ${x.data?`torra ${dataBR(x.data)} (${x.d} dia${x.d===1?"":"s"})`:"sem data de torra"}${x.g!=null?` · ${f(Math.max(0,x.g))} g`:""}`).join("<br>"):"Nenhum pote com café."}
   $("pLog").innerHTML=POT.log.length?POT.log.map(esc).join("<br>"):"Nada registrado ainda.";const hs=POT.h[0];$("pHist").innerHTML=hs?`Último teste: ${esc(hs.nome)} acabou em ${dataBR(hs.data)} com saldo previsto de ${f(hs.prev,1)} g (${hs.n} preparos). ${Math.abs(hs.prev)<=5?"Contagem bateu.":hs.prev>0?"O app achava que ainda tinha café: as doses reais foram maiores, ou houve uso fora do app.":"O app achava que já tinha acabado: as doses reais foram menores que as da receita."}`:"";
   $("poteSel").innerHTML=`<option value="-1">Escolha um pote (${vaz} vazio${vaz===1?"":"s"} de ${POT.n})</option>`+Array.from({length:POT.n},(_,i)=>{const v=POT.p[i]||"";return `<option value="${i}">Pote ${i+1} · ${v?esc(potNome(v))+(POT.g[i]!=null?" · "+f(Math.max(0,POT.g[i]))+" g":""):"Vazio"}</option>`}).join("");
   $("poteSel").value=String(potSel);
