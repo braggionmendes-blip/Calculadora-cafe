@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teste da balança</title>
+<style>
+:root{--bg:#f6f3ef;--fg:#1d1a17;--muted:#6e665e;--card:#fff;--line:#e2dbd2;--accent:#b8642f;--ok:#2f7d4f;--err:#b3261e}
+@media (prefers-color-scheme:dark){:root{--bg:#141210;--fg:#f2ede7;--muted:#a59b90;--card:#1f1c19;--line:#34302b;--accent:#e09a6a;--ok:#6cc08b;--err:#ff8a80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,sans-serif;padding:20px 16px 40px;max-width:520px;margin:auto}
+h1{font-size:1.4rem;margin:0 0 4px}
+p.sub{color:var(--muted);margin:0 0 18px;font-size:.92rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.peso{font:700 4rem/1 ui-monospace,Menlo,monospace;text-align:center;margin:10px 0 4px}
+.peso small{font-size:1.4rem;color:var(--muted);margin-left:4px}
+.st{text-align:center;color:var(--muted);font-size:.9rem;min-height:1.3em}
+.st.ok{color:var(--ok)}.st.err{color:var(--err)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+button{flex:1;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:600 1rem system-ui;cursor:pointer}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+button:disabled{opacity:.45}
+.info{font-size:.88rem;color:var(--muted);display:grid;gap:4px}
+#log{font:.72rem/1.4 ui-monospace,Menlo,monospace;color:var(--muted);white-space:pre-wrap;word-break:break-all;max-height:180px;overflow:auto;margin:0}
+</style>
+</head>
+<body>
+<h1>Teste da balança</h1>
+<p class="sub">Página separada da calculadora: não lê nem grava cafés, potes ou receitas. Abra no Bluefy, com a Timemore Dot ligada e desconectada do app oficial.</p>
+
+<div class="card">
+  <div class="peso" id="peso">--<small>g</small></div>
+  <div class="st" id="st">Desconectada</div>
+</div>
+
+<div class="card row">
+  <button class="pri" id="conectar" type="button">Conectar</button>
+  <button id="tara" type="button" disabled>Tara</button>
+  <button id="sair" type="button" disabled>Desconectar</button>
+</div>
+
+<div class="card info">
+  <div>Bateria: <b id="bat">--</b></div>
+  <div>Leituras recebidas: <b id="n">0</b></div>
+  <div>Aparelho: <b id="nome">--</b></div>
+</div>
+
+<div class="card">
+  <div class="info" style="margin-bottom:6px">Últimas mensagens da balança (para eu analisar se algo der errado)</div>
+  <pre id="log"></pre>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const SVC=0xfff0, NOTIF=0xfff1, CMD=0xfff2;
+let dev=null, cmd=null, nLeit=0;
+const logs=[];
+function log(t){logs.unshift(t);logs.length=Math.min(logs.length,25);$("log").textContent=logs.join("\n")}
+function status(t,c){$("st").textContent=t;$("st").className="st"+(c?" "+c:"")}
+const hex=a=>[...a].map(b=>b.toString(16).padStart(2,"0")).join(" ");
+
+// Quadro de comando: A5 5A, opcode, id, tamanho (2 bytes), dados, CRC-16/MODBUS (2 bytes, mais significativo primeiro)
+function crc16(d){let c=0xffff;for(const b of d){c^=b;for(let j=0;j<8;j++)c=(c&1)?(c>>>1)^0xa001:c>>>1}return c}
+function quadro(op,id,dados=[]){const p=[0xa5,0x5a,op,id,(dados.length>>8)&255,dados.length&255,...dados];const c=crc16(p);return new Uint8Array([...p,(c>>8)&255,c&255])}
+async function envia(op,id,dados){if(!cmd)return;const q=quadro(op,id,dados);log("→ "+hex(q));
+  try{if(cmd.writeValueWithoutResponse)await cmd.writeValueWithoutResponse(q);else await cmd.writeValue(q)}catch(e){log("falha ao enviar: "+e.message)}}
+
+function recebe(ev){const v=ev.target.value,r=new Uint8Array(v.buffer,v.byteOffset||0,v.byteLength);log("← "+hex(r));
+  let o=0;while(o<=r.length-8){if(r[o]!==0xa5||r[o+1]!==0x5a){o++;continue}
+    const op=r[o+2],id=r[o+3],len=(r[o+4]<<8)|r[o+5];if(len>r.length-(o+6))break;const d=r.slice(o+6,o+6+len);
+    if(op===1||op===2){
+      if(id===1&&d.length>=4){const raw=(d[0]<<24)|(d[1]<<16)|(d[2]<<8)|d[3];const g=raw/10;
+        $("peso").innerHTML=g.toFixed(1).replace(".",",")+"<small>g</small>";$("n").textContent=++nLeit;status("Conectada e lendo o peso","ok")}
+      if(id===5&&d.length>=2)$("bat").textContent=d[1]+"%"}
+    o+=Math.max(8,6+len+2)}}
+
+async function conectar(){
+  if(!navigator.bluetooth){status("Este navegador não tem Bluetooth. Abra esta página no Bluefy.","err");return}
+  try{status("Escolha a balança na lista…");
+    dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SVC]});
+    $("nome").textContent=dev.name||"(sem nome)";dev.addEventListener("gattserverdisconnected",()=>{status("A balança desconectou","err");botoes(false)});
+    status("Conectando…");const srv=await dev.gatt.connect();const s=await srv.getPrimaryService(SVC);
+    const nt=await s.getCharacteristic(NOTIF);cmd=await s.getCharacteristic(CMD);
+    nt.addEventListener("characteristicvaluechanged",recebe);await nt.startNotifications();
+    botoes(true);status("Conectada. Coloque algo na balança.","ok");
+    await new Promise(r=>setTimeout(r,500));await envia(3,6,[0]);       // unidade em gramas
+    await new Promise(r=>setTimeout(r,200));await envia(3,8,[1,0]);     // modo padrão
+  }catch(e){status("Não conectou: "+e.message,"err");log("erro: "+e.message);botoes(false)}}
+function botoes(on){$("tara").disabled=!on;$("sair").disabled=!on;$("conectar").disabled=on}
+$("conectar").onclick=conectar;
+$("tara").onclick=()=>envia(3,0x0d,[]);
+$("sair").onclick=()=>{try{dev&&dev.gatt.disconnect()}catch(e){}status("Desconectada");botoes(false)};
+</script>
+</body>
+</html>
