@@ -72,6 +72,13 @@ h2{font-size:1.05rem;margin:4px 0 0}
 .sh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .steps li.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
 .steps li.ok{opacity:.5}
+.bchip{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:99px;background:color-mix(in srgb,#2f9e5b 18%,transparent);color:#2f9e5b;font:600 .88rem var(--mono);font-variant-numeric:tabular-nums}
+.bchip i{width:8px;height:8px;border-radius:50%;background:#2f9e5b}
+.blive{margin-top:6px}.blive .bw{font:700 1.9rem var(--mono);font-variant-numeric:tabular-nums}.blive .bw small{font-size:1rem;color:var(--muted)}
+.blive .bar{height:9px;border-radius:9px;background:var(--line);overflow:hidden;margin-top:6px}.blive .bar i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.blive.okk .bar i{background:#2f9e5b}.blive.ovr .bar i{background:#d9534f}.blive .bf{font-size:.84rem;color:var(--muted);margin-top:2px}
+.bprev{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:78px 1fr;gap:12px;align-items:baseline}
+@media (max-width:460px){.bprev{grid-template-columns:64px 1fr}}
 .tmr{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 24px rgba(0,0,0,.12);
   padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .tmr .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center}
@@ -158,7 +165,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 69 · 10/11/2026 · peso do pote na linha dos botões, sem texto extra</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 70 · 10/11/2026 · integração com a balança Timemore Dot (no Bluefy)</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -349,7 +356,9 @@ select.txt{appearance:auto}
     </div>
     <div class="facts" id="facts"></div>
     <p class="aviso" id="novoAviso" hidden></p>
-    <div class="sh"><h2>Passo a passo</h2><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="unk" for="tBipe"><input type="checkbox" id="tBipe"> Com bipe</label><button class="btn pri" id="tStart" type="button">Iniciar temporizador</button></div></div>
+    <div class="sh"><h2>Passo a passo</h2><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="unk" for="tBipe"><input type="checkbox" id="tBipe"> Com bipe</label><button class="btn" id="bConn" type="button" hidden>Conectar balança</button><span class="bchip" id="bOn" hidden><i></i><span id="bW">0,0 g</span></span><button class="btn" id="bTara" type="button" hidden>Tara</button><button class="btn pri" id="tStart" type="button">Iniciar temporizador</button></div></div>
+    <p class="cres" id="bArm" hidden style="margin:-4px 0 0"></p>
+    <div class="bprev" id="bPrev" hidden></div>
     <ol class="steps" id="steps"></ol>
     <p class="tip" id="tip"></p>
     <p class="tip">Ajuste fino: saiu ácido ou aguado, moa mais fino; saiu amargo ou adstringente, moa mais grosso. Mude uma coisa por vez. Moagem: K7, R3, R3 Pro e Oster partem das indicações dos manuais de cada fabricante, com interpolação nos métodos que o manual não cita. Os do Mongdio partem do seu teste (Melitta no 20) e da escala do anel; os do iCoffee são provisórios, proporcionais aos 30 ajustes.</p>
@@ -566,8 +575,9 @@ if(!Array.isArray(CAF)){CAF=[{...CAFE0,id:"c-tucano",nome:"Black Tucano Fruity"}
   const o=san(st.cafe);if(o&&o.nome.trim()&&!CAF.some(c=>c.nome===o.nome))CAF.push({...o,id:"c-"+Date.now().toString(36)})}
 CAF=CAF.map(san).filter(Boolean);
 // Potes: o armazenamento é a fonte da verdade. Toda alteração relê antes de gravar, para que uma janela antiga do app nunca sobrescreva o saldo atual.
-let POT={n:5,p:[],g:[],u:[],h:[],log:[]};
-function loadPot(){try{const x=JSON.parse(localStorage.getItem("calcPotes")||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[]}}catch(e){}}
+let POT={n:5,p:[],g:[],u:[],h:[],log:[],t:[]};
+const BAL={on:false,dev:null,cmd:null,w:null,arm:false,alvoCafe:0,cap:false,pre:null};
+function loadPot(){try{const x=JSON.parse(localStorage.getItem("calcPotes")||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
 loadPot();
 const logPot=(ev,i)=>{const d=new Date(),p2=n=>String(n).padStart(2,"0");POT.log.unshift(`${p2(d.getDate())}/${p2(d.getMonth()+1)} ${p2(d.getHours())}:${p2(d.getMinutes())} · Pote ${i+1} · ${ev}`);POT.log=POT.log.slice(0,40)};
 const savePot=()=>{try{localStorage.setItem("calcPotes",JSON.stringify(POT))}catch(e){}};
@@ -704,7 +714,7 @@ function renderPotes(){
       const pgIn=`<input class="txt" id="pg${i}" data-pg="${i}" type="number" inputmode="decimal" min="0" step="1" style="width:62px;padding:7px 6px;flex:none" placeholder="peso" aria-label="Café no pote (g)" value="${gs!=null?Math.round(gs*10)/10:""}"><span style="font-size:.86rem;margin-left:-2px">g</span>`;info=gs==null?`</p><p class="pi">Pese só o café no pote (zere a balança com o pote vazio) e informe o peso ao lado de "Usar no preparo".`:gs<dose?`</p><p class="pi"><b>Menos de uma dose no pote</b>`:"";
       if(k&&!(v===st.csel&&!(NOVO&&!NOVO.met)&&!abrirMet&&!recPend)){const rk=rankMetodos(k),it=(r,j)=>{const mm=M.find(x=>x.id===r.id),on=st.csel===v&&G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="pi" style="color:var(--fg)"><b>${j+1}. ${esc(mm.n)}</b> · ${r.nota}%<br><span style="color:var(--muted)">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-pind="${i}:${j}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
         info+=`</p><div style="margin-top:4px;padding:10px 12px;border-radius:10px;background:var(--soft);display:grid;gap:8px"><span class="lbl" style="margin:0">Métodos para este café, do mais ao menos indicado</span>${rk.slice(0,5).map(it).join("")}<details><summary style="font-size:.84rem;cursor:pointer">Ver os demais métodos</summary><div style="display:grid;gap:8px;margin-top:8px">${rk.slice(5).map((r,j)=>it(r,j+5)).join("")}</div></details></div><p class="pi" hidden>`}
-      acts=`<div class="acts" style="align-items:center;flex-wrap:nowrap">${pgIn}<button class="btn" type="button" data-pusar="${i}" aria-pressed="${v===st.csel}">${v===st.csel?"Em uso no preparo":"Usar no preparo"}</button><button class="btn" type="button" data-pfim="${i}">${potArm===i?"Confirmar: acabou":"Acabou"}</button></div>`}
+      acts=`<div class="acts" style="align-items:center;flex-wrap:nowrap">${pgIn}${BAL.on?`<button class="btn" type="button" data-ppes="${i}" aria-label="Pesar o pote na balança" title="${POT.t&&POT.t[i]!=null?"Pesar o pote cheio":"Guardar a tara do pote vazio"}">⚖︎</button>`:""}<button class="btn" type="button" data-pusar="${i}" aria-pressed="${v===st.csel}">${v===st.csel?"Em uso no preparo":"Usar no preparo"}</button><button class="btn" type="button" data-pfim="${i}">${potArm===i?"Confirmar: acabou":"Acabou"}</button></div>`}
     else{const sg=fila[si++];
       if(sg){const d=dias(sg.data),nx=fila.slice(si,si+2).map(x=>x.nome);
         const pq=d==null||d<0?"sem data de torra; os cafés com data já estão nos potes":d<7?`torrado há ${d} dia${d===1?"":"s"}, ainda em descanso, mas é o próximo da fila`:`torrado em ${dataBR(sg.data)}, há ${d} dias: o mais antigo pronto para consumo`;
@@ -839,6 +849,7 @@ function render(){
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
   if(T.run&&T.steps)steps=T.steps; else CUR=steps;
   $("steps").innerHTML=steps.map((s,i)=>`<li data-i="${i}"><span class="t">${s[0]}</span><span class="x">${s[1]}</span></li>`).join("");
+  try{BAL.alvoCafe=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;BAL.cap=!!m.cap;balTela()}catch(e){}
   if(T.run)tick(true);
   $("tip").textContent=m.tip;
   renderCafe();
@@ -913,6 +924,7 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
   $("tNow").textContent=atual?atual.txt:"Prepare-se";
   $("tNxt").innerHTML=prox?`Próximo em <b>${tm(Math.ceil(prox.t-e))}</b>: ${esc(prox.txt)}`:"Último passo. Toque em Encerrar quando terminar.";
   document.querySelectorAll("#steps li").forEach(li=>{const i=+li.dataset.i;li.classList.toggle("on",!!atual&&i===atual.i);li.classList.toggle("ok",!!atual&&pts.some(p=>p.i===i&&p.t<atual.t))});
+  try{balTela()}catch(e){}
   if(sohTela)return;
   for(const p of pts){
     const sonoro=!T.au&&st.bipe!==false;
@@ -956,6 +968,47 @@ setBipe(st.bipe!==false);
 $("tBipe").addEventListener("change",e=>setBipe(e.target.checked));
 $("tSom").onclick=()=>setBipe(st.bipe===false);
 $("tStart").onclick=iniciar;
+// ===== Balança Timemore Dot (Bluetooth, só em navegadores com Web Bluetooth, como o Bluefy) =====
+{const U=x=>"0000"+x+"-0000-1000-8000-00805f9b34fb";BAL.S=U("fff0");BAL.N=U("fff1");BAL.C=U("fff2")}
+function balQuadro(op,id,d=[]){const p=[0xa5,0x5a,op,id,(d.length>>8)&255,d.length&255,...d];let c=0xffff;for(const b of p){c^=b;for(let j=0;j<8;j++)c=(c&1)?(c>>>1)^0xa001:c>>>1}return new Uint8Array([...p,(c>>8)&255,c&255])}
+async function balEnvia(op,id,d){if(!BAL.cmd)return;const q=balQuadro(op,id,d);try{BAL.cmd.writeValueWithoutResponse?await BAL.cmd.writeValueWithoutResponse(q):await BAL.cmd.writeValue(q)}catch(e){}}
+function balRecebe(ev){const v=ev.target.value,r=new Uint8Array(v.buffer,v.byteOffset||0,v.byteLength);let o=0;
+  while(o<=r.length-8){if(r[o]!==0xa5||r[o+1]!==0x5a){o++;continue}const op=r[o+2],id=r[o+3],len=(r[o+4]<<8)|r[o+5];if(len>r.length-(o+6))break;const d=r.slice(o+6,o+6+len);
+    if((op===1||op===2)&&id===1&&d.length>=4){BAL.w=((d[0]<<24)|(d[1]<<16)|(d[2]<<8)|d[3])/10;balPeso()}
+    o+=Math.max(8,6+len+2)}}
+function balPeso(){const w=BAL.w;$("bW").textContent=f(w,1)+" g";
+  if(BAL.arm&&!T.run&&w>2){BAL.arm=false;if(!novoFalta().length){iniciar();toast("Primeiro despejo detectado: temporizador iniciado")}}
+  balTela()}
+// Peso acumulado esperado em cada etapa com despejo (lê os textos dos passos)
+function balAlvos(steps){let prev=0;return steps.map(x=>{if(!/\d+:\d\d/.test(x[0]))return null;const t=x[1];
+  const a=t.match(/(?:balança em|balança marcar|até a balança marcar|complete até|Complete até|até)\s*(\d+(?:,\d+)?)\s*g/);
+  const b=!a&&/(despej|Despej|Pré-infusão|Molhe|molhe)/.test(t)&&t.match(/(\d+(?:,\d+)?)\s*g/);
+  const cum=a?+a[1].replace(",","."):b?prev+ +b[1].replace(",","."):null;if(cum==null||cum<=prev)return null;prev=cum;return cum})}
+function balBox(w,alvo,dec){const pct=Math.max(0,Math.min(100,w/alvo*100)),falta=alvo-w,ok=falta<=(dec?0.05:1),ovr=w>alvo+(dec?0.5:5);
+  return `<div class="blive${ovr?" ovr":ok?" okk":""}"><div class="bw">${f(w,dec)}<small> / ${f(alvo,dec)} g</small></div><div class="bar"><i style="width:${pct}%"></i></div><div class="bf">${ovr?`Passou ${f(w-alvo,dec)} g`:ok?"No alvo":`Falta${falta>=2?"m":""} ${f(falta,dec)} g`}</div></div>`}
+function balTela(){const on=BAL.on;$("bConn").hidden=on||!navigator.bluetooth||BAL.cap;$("bOn").hidden=!on;$("bTara").hidden=!on;
+  $("bArm").hidden=!(on&&BAL.arm&&!T.run);$("bArm").textContent="Início automático armado: o temporizador começa quando o primeiro despejo passar de 2 g.";
+  document.querySelectorAll("#steps .blive").forEach(x=>x.remove());
+  if(!on||BAL.w==null){$("bPrev").hidden=true;return}
+  if(!T.run){const show=!BAL.arm&&BAL.alvoCafe>0&&!BAL.cap;$("bPrev").hidden=!show;if(show)$("bPrev").innerHTML=`<span class="t" style="font:600 1rem var(--mono);color:var(--accent)">Moer</span><span>Pese <b>${f(BAL.alvoCafe,1)} g</b> de café${balBox(BAL.w,BAL.alvoCafe,1)}</span>`;return}
+  $("bPrev").hidden=true;const li=document.querySelector("#steps li.on");if(!li)return;const al=balAlvos(T.steps||CUR)[+li.dataset.i];if(al==null)return;
+  li.querySelector(".x").insertAdjacentHTML("beforeend",balBox(BAL.w,al,0))}
+async function balConectar(){if(!navigator.bluetooth)return;
+  try{const dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:"dot"},{namePrefix:"Dot"},{namePrefix:"DOT"},{namePrefix:"TES"},{namePrefix:"TIMEMORE"},{namePrefix:"Timemore"},{services:[BAL.S]}],optionalServices:[BAL.S]});
+    const srv=await dev.gatt.connect(),sv=await srv.getPrimaryService(BAL.S),nt=await sv.getCharacteristic(BAL.N);BAL.cmd=await sv.getCharacteristic(BAL.C);
+    nt.addEventListener("characteristicvaluechanged",balRecebe);await nt.startNotifications();BAL.dev=dev;BAL.on=true;BAL.w=0;
+    dev.addEventListener("gattserverdisconnected",()=>{BAL.on=false;BAL.cmd=null;BAL.arm=false;BAL.w=null;toast("A balança desconectou");render()});
+    toast("Balança conectada");render();setTimeout(()=>balEnvia(3,6,[0]),500);setTimeout(()=>balEnvia(3,8,[1,0]),700)}
+  catch(e){if(!(e&&e.name==="NotFoundError"))toast("Não conectou a balança: "+((e&&(e.message||e.name))||"tente de novo"))}}
+$("bConn").onclick=balConectar;
+$("bTara").onclick=()=>{try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();T.ac.resume()}catch(e){}
+  const antes=BAL.w;balEnvia(3,0x0d,[]);BAL.w=0;
+  // Arma o início automático só quando a tara é feita com o coador montado (peso alto na balança), não ao pesar o café numa xícara
+  BAL.arm=!T.run&&antes!=null&&antes>=100&&!novoFalta().length;balPeso()};
+$("potes").addEventListener("click",e=>{const b=e.target.closest("[data-ppes]");if(!b||!BAL.on||BAL.w==null)return;const i=+b.dataset.ppes;loadPot();POT.t=POT.t||[];
+  if(POT.t[i]==null){POT.t[i]=Math.round(BAL.w*10)/10;savePot();toast(`Tara do Pote ${i+1} guardada (${f(POT.t[i],1)} g). Agora coloque o pote com café e toque ⚖︎ de novo`);renderPotes();return}
+  const g=Math.max(0,Math.round((BAL.w-POT.t[i])*10)/10);POT.g[i]=g;logPot(`peso pela balança: ${f(g,1)} g`,i);savePot();toast(`Pote ${i+1}: ${f(g,1)} g de café`);renderPotes()});
+
 $("penModo").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.pen.modo=b.dataset.v;render()});
 $("penTenho").addEventListener("input",e=>{const v=e.target.value===""?null:Number(e.target.value);st.pen.tenho=v>0?v:null;render()});
 $("penPerda").addEventListener("input",e=>{const v=e.target.value===""?null:Number(e.target.value);st.pen.perda=v>0&&v<=40?v:null;render()});
@@ -1043,7 +1096,7 @@ const importar=txt=>{try{$("bkTxt").blur()}catch(e){}const toast=t=>{$("bkMsg").
     const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?(x.cafe.po?{desc:true,po:true}:{desc:true}):san(x.cafe)):undefined;
     const fbi=x.fb&&typeof x.fb==="object"?{nota:(Number.isFinite(+x.fb.nota)&&x.fb.nota!==null&&+x.fb.nota>=0&&+x.fb.nota<=10)?Math.round(+x.fb.nota):null,txt:String(x.fb.txt||"").slice(0,400),data:String(x.fb.data||"").slice(0,10)}:undefined;
     REC.push({k46:x.k46&&typeof x.k46==="object"?{s:K46S[x.k46.s]?x.k46.s:"eq",c:K46C[x.k46.c]?x.k46.c:"normal"}:undefined,sd:x.sd&&x.sd.on?{on:true,t200:Number(x.sd.t200)||null}:undefined,acc:["star","lotos"].includes(x.acc)?x.acc:undefined,pen:x.pen&&typeof x.pen==="object"?{on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null}:undefined,fb:fbi,nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
-  if(d&&d.potes&&Array.isArray(d.potes.p)&&!POT.p.some(Boolean)){localStorage.setItem("calcPotes",JSON.stringify(d.potes));loadPot();savePot()}
+  if(d&&d.potes&&Array.isArray(d.potes.p)&&(!POT.p.some(Boolean)||confirm("Substituir os potes pelos do backup?"))){localStorage.setItem("calcPotes",JSON.stringify(d.potes));loadPot();savePot()}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
   saveRec();render();toast(n||nc||nu?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`+(nu?`; ${nu} café${nu===1?"":"s"} atualizado${nu===1?"":"s"}`:""):"Nada novo: tudo já estava salvo")};
 $("bkImport").onclick=()=>{try{importar($("bkTxt").value)}catch(e){$("bkMsg").textContent="Erro ao importar: "+(e&&e.message||e)}};
