@@ -173,7 +173,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 80 · 11/11/2026 · Encerrar volta a parar o temporizador com a balança conectada</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 81 · 11/11/2026 · início automático funciona mesmo quando a balança só envia o peso ao mudar</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -1016,6 +1016,7 @@ function balPeso(){const w=BAL.w,now=Date.now();$("bW").textContent=f(w,1)+" g";
     // Bipe ao atingir cada peso da receita: alerta para olhar o fluxo e não a balança
     for(const a of al)if(!BAL.bip.has(a)&&ag>=a-0.5){BAL.bip.add(a);if(st.bipe!==false){som(1500,.09,.35);setTimeout(()=>som(1500,.09,.35),140)}vibra(80)}}
   balTela()}
+setInterval(()=>{try{if(BAL.on&&!T.run&&BAL.w!=null){const now=Date.now(),u=BAL.hist[BAL.hist.length-1];if(!u||now-u.t>=350){balDetecta(BAL.w,now);balTela()}}else if(BAL.on&&!T.run&&BAL.fim)balTela()}catch(e){}},400);
 // Início automático: espera a balança ficar estável, detecta o peso subindo e só confirma quando subir mais do que o café da receita poderia pesar.
 // Assim pesar o café nunca dispara o temporizador; o tempo conta desde o começo do despejo.
 function balPronto(){return BAL.on&&!T.run&&!(BAL.fim&&Date.now()-BAL.fim<60000)&&!novoFalta().length&&!BAL.cap&&!BAL.semAuto}
@@ -1048,7 +1049,8 @@ function balAlvos(steps){let prev=0;return steps.map(x=>{if(!/\d+:\d\d/.test(x[0
 function balBox(w,alvo,dec,fx){const pct=Math.max(0,Math.min(100,w/alvo*100)),falta=alvo-w,ok=falta<=(dec?0.05:1),ovr=w>alvo+(dec?0.5:5);
   return `<div class="blive${ovr?" ovr":ok?" okk":""}"><div class="bw">${f(w,dec)}<small> / ${f(alvo,dec)} g</small></div><div class="bar"><i style="width:${pct}%"></i></div><div class="bf">${ovr?`Passou ${f(w-alvo,dec)} g`:ok?"No alvo":`Falta${falta>=2?"m":""} ${f(falta,dec)} g`}${fx!=null?`<span style="float:right">Fluxo <b style="color:#6aa9d6;font-family:var(--mono)">${f(fx,1)} g/s</b></span>`:""}</div></div>`}
 function balTela(){const on=BAL.on;$("bConn").hidden=on||!temBLE()||BAL.cap;$("bOn").hidden=!on;$("bTara").hidden=!on;
-  $("bArm").hidden=!balPronto();$("bArm").textContent="Início automático: o temporizador começa sozinho quando você despejar a água. Não precisa zerar a balança.";
+  {const esp=BAL.on&&!T.run&&BAL.fim&&Date.now()-BAL.fim<60000,pr=balPronto();$("bArm").hidden=!(pr||esp);
+   $("bArm").textContent=esp?`Início automático volta em ${Math.ceil((60000-(Date.now()-BAL.fim))/1000)} s (pausa depois de encerrar).`:BAL.cand?"Despejo percebido: confirmando…":BAL.est==null?"Início automático: aguardando o peso parar na balança…":"Início automático pronto: comece a despejar a água. Não precisa zerar a balança."}
   document.querySelectorAll("#steps .blive").forEach(x=>x.remove());
   if(!on||BAL.w==null){$("bPrev").hidden=true;return}
   if(!T.run){const show=BAL.alvoCafe>0&&!BAL.cap;$("bPrev").hidden=!show;if(show)$("bPrev").innerHTML=`<span class="t" style="font:600 1rem var(--mono);color:var(--accent)">Moer</span><span>Pese <b>${f(BAL.alvoCafe,1)} g</b> de café${balBox(BAL.w,BAL.alvoCafe,1)}</span>`;return}
