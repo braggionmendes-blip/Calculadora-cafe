@@ -173,8 +173,9 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 75 · 11/11/2026 · pergunta o nome ao abrir pela primeira vez</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 76 · 11/11/2026 · balança: água sem o peso do café, início automático pelo despejo, bipe em cada peso; avaliação pendente</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
+    <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
   <div class="ola" id="nomeDlg" hidden role="dialog" aria-modal="true" aria-labelledby="nomeT"><div class="cx"><div style="font-size:2.4rem;line-height:1">☕</div><p id="nomeT">Olá cafezeiro, me diga como devo lhe chamar para iniciarmos nosso cafezão.</p><input class="txt" id="nomeIn" type="text" maxlength="30" autocomplete="given-name" placeholder="Seu nome ou apelido" style="text-align:center;font-size:1.05rem"><button class="btn pri" id="nomeOk" type="button" style="padding:12px;font-size:1rem">Vamos lá</button></div></div>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá <span class="nomeU">Jeff</span>! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div><button class="lnk" id="olaNome" type="button" style="font-size:.86rem;justify-self:center;margin-top:-6px">Não é você? Trocar o nome</button></div></div>
@@ -601,7 +602,7 @@ let usoPote=-1;
 let AVAL=[];try{const x=JSON.parse(localStorage.getItem("calcAval")||"[]");if(Array.isArray(x))AVAL=x}catch(e){}
 const saveAval=()=>{try{localStorage.setItem("calcAval",JSON.stringify(AVAL))}catch(e){}};
 let POT={n:5,p:[],g:[],u:[],h:[],log:[],t:[]};
-const BAL={on:false,dev:null,cmd:null,w:null,arm:false,alvoCafe:0,cap:false,pre:null};
+const BAL={on:false,dev:null,cmd:null,w:null,alvoCafe:0,cap:false,semAuto:false,base:0,autoBase:false,hist:[],est:null,cand:null,bip:new Set()};
 function loadPot(){try{const x=JSON.parse(localStorage.getItem("calcPotes")||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
 loadPot();
 const logPot=(ev,i)=>{const d=new Date(),p2=n=>String(n).padStart(2,"0");POT.log.unshift(`${p2(d.getDate())}/${p2(d.getMonth()+1)} ${p2(d.getHours())}:${p2(d.getMinutes())} · Pote ${i+1} · ${ev}`);POT.log=POT.log.slice(0,40)};
@@ -874,7 +875,7 @@ function render(){
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
   if(T.run&&T.steps)steps=T.steps; else CUR=steps;
   $("steps").innerHTML=steps.map((s,i)=>`<li data-i="${i}"><span class="t">${s[0]}</span><span class="x">${s[1]}</span></li>`).join("");
-  try{BAL.xic=m.dose?0:Math.round(b/5)*5;BAL.alvoCafe=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;BAL.cap=!!m.cap;balTela()}catch(e){}
+  try{BAL.semAuto=!!(m.tank||m.dose);BAL.xic=m.dose?0:Math.round(b/5)*5;BAL.alvoCafe=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;BAL.cap=!!m.cap;balTela()}catch(e){}
   if(T.run)tick(true);
   $("tip").textContent=m.tip;
   renderCafe();
@@ -970,13 +971,15 @@ function descontaPote(){try{if(cur().cap)return;loadPot();
   const m=cur(),c=calc(m).c,pn=peneira(m,c),g=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;
   POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};const dn=new Date(),p2=n=>String(n).padStart(2,"0");POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini,last:`${p2(dn.getDate())}/${p2(dn.getMonth()+1)} ${p2(dn.getHours())}:${p2(dn.getMinutes())}`};logPot(`preparo −${f(g,1)} g → ${f(POT.g[i],1)} g`,i);savePot();ultDesc={i,t:Date.now()};
   toast(`Descontei ${f(g,1)} g do Pote ${i+1}: restam ${f(Math.max(0,POT.g[i]),1)} g`+(POT.g[i]<c?". Está acabando":""));renderPotes()}catch(e){toast("Erro ao descontar do pote: "+(e&&e.message||e))}}
-async function iniciar(){if(novoFalta().length)return;descontaPote();
+async function iniciar(off){off=typeof off==="number"&&off>0?off:0;if(novoFalta().length)return;descontaPote();
+  if(BAL.on&&BAL.w!=null&&!BAL.autoBase)BAL.base=Math.abs(BAL.w)<0.5?0:BAL.w;BAL.autoBase=false;BAL.bip=new Set();BAL.cand=null;
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
   try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src)}}catch(e){}
   T.au=null;
-  Object.assign(T,{run:true,pausa:false,t0:Date.now(),acum:0,auFim:false,feitos:new Set(),avisos:new Set(),pts:pontosAgora(),steps:CUR.slice()});
-  try{const pts=T.pts;if(pts.some(p=>p.t>0)){const au=$("tAudio");au.src=faixa(pts);au.currentTime=0;au.muted=st.bipe===false;const pr=au.play();T.au=au;
-    if(pr&&pr.catch)pr.catch(()=>{T.acum=0;T.t0=Date.now();T.au=null});
+  Object.assign(T,{run:true,pausa:false,t0:Date.now(),acum:off,auFim:false,feitos:new Set(),avisos:new Set(),pts:pontosAgora(),steps:CUR.slice()});
+  for(const p of T.pts)if(p.t<off-1.5){T.feitos.add(p.key);[5,4,3,2,1].forEach(k=>T.avisos.add(p.key+"-"+k))}
+  try{const pts=T.pts;if(pts.some(p=>p.t>0)){const au=$("tAudio");au.src=faixa(pts);au.currentTime=off;au.muted=st.bipe===false;const pr=au.play();T.au=au;
+    if(pr&&pr.catch)pr.catch(()=>{T.acum=off;T.t0=Date.now();T.au=null});
     au.onended=()=>{if(T.au!==au)return;T.acum=au.duration;T.t0=Date.now();T.auFim=true};
     if("mediaSession" in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:"Temporizador do café",artist:cur().n});
       navigator.mediaSession.setActionHandler("pause",()=>$("tPause").click());navigator.mediaSession.setActionHandler("play",()=>$("tPause").click())}}}catch(e){T.au=null}
@@ -1001,11 +1004,23 @@ function balRecebe(ev){const v=ev.target.value,r=new Uint8Array(v.buffer,v.byteO
   while(o<=r.length-8){if(r[o]!==0xa5||r[o+1]!==0x5a){o++;continue}const op=r[o+2],id=r[o+3],len=(r[o+4]<<8)|r[o+5];if(len>r.length-(o+6))break;const d=r.slice(o+6,o+6+len);
     if((op===1||op===2)&&id===1&&d.length>=4){BAL.w=((d[0]<<24)|(d[1]<<16)|(d[2]<<8)|d[3])/10;balPeso()}
     o+=Math.max(8,6+len+2)}}
-function balPeso(){const w=BAL.w;$("bW").textContent=f(w,1)+" g";
-  // Depois da tara a balança ainda manda o peso antigo por um instante: só conta o despejo depois de ver o zero
-  if(BAL.arm&&!T.run&&!BAL.zero&&Math.abs(w)<1)BAL.zero=true;
-  if(BAL.arm&&!T.run&&BAL.zero&&w>2){BAL.arm=false;if(!novoFalta().length){iniciar();toast("Primeiro despejo detectado: temporizador iniciado")}}
+function balPeso(){const w=BAL.w,now=Date.now();$("bW").textContent=f(w,1)+" g";
+  if(!T.run){balDetecta(w,now)}
+  else{const ag=w-BAL.base,al=balAlvos(T.steps||CUR).filter(x=>x!=null);
+    // Bipe ao atingir cada peso da receita: alerta para olhar o fluxo e não a balança
+    for(const a of al)if(!BAL.bip.has(a)&&ag>=a-0.5){BAL.bip.add(a);if(st.bipe!==false){som(1500,.09,.35);setTimeout(()=>som(1500,.09,.35),140)}vibra(80)}}
   balTela()}
+// Início automático: espera a balança ficar estável, detecta o peso subindo e só confirma quando subir mais do que o café da receita poderia pesar.
+// Assim pesar o café nunca dispara o temporizador; o tempo conta desde o começo do despejo.
+function balPronto(){return BAL.on&&!T.run&&!novoFalta().length&&!BAL.cap&&!BAL.semAuto}
+function balDetecta(w,now){BAL.hist.push({t:now,w});BAL.hist=BAL.hist.filter(x=>now-x.t<=2500);
+  const h=BAL.hist.filter(x=>now-x.t<=1500),estavel=h.length>=4&&now-BAL.hist[0].t>=1500&&Math.max(...h.map(x=>x.w))-Math.min(...h.map(x=>x.w))<0.4;
+  // Peso parado (ex.: terminou de colocar o café): vira a nova base e descarta a subida anterior
+  if(estavel){BAL.est=w;BAL.cand=null}
+  if(!BAL.cand){if(BAL.est!=null&&w>BAL.est+3&&balPronto())BAL.cand={t:now,base:BAL.est};return}
+  const c=BAL.cand,sobe=w-c.base;
+  if(sobe<1||now-c.t>25000||!balPronto()){BAL.cand=null;return}
+  if(sobe>=Math.max(BAL.alvoCafe+5,20)){BAL.cand=null;BAL.base=c.base;BAL.autoBase=true;const off=Math.max(0,(now-c.t)/1000);iniciar(off);toast("Despejo detectado: temporizador iniciado")}}
 // Peso acumulado esperado em cada etapa com despejo (lê os textos dos passos)
 function balAlvos(steps){let prev=0;return steps.map(x=>{if(!/\d+:\d\d/.test(x[0]))return null;const t=x[1];
   const a=t.match(/(?:balança em|balança marcar|até a balança marcar|complete até|Complete até|até)\s*(\d+(?:,\d+)?)\s*g/);
@@ -1014,24 +1029,27 @@ function balAlvos(steps){let prev=0;return steps.map(x=>{if(!/\d+:\d\d/.test(x[0
 function balBox(w,alvo,dec){const pct=Math.max(0,Math.min(100,w/alvo*100)),falta=alvo-w,ok=falta<=(dec?0.05:1),ovr=w>alvo+(dec?0.5:5);
   return `<div class="blive${ovr?" ovr":ok?" okk":""}"><div class="bw">${f(w,dec)}<small> / ${f(alvo,dec)} g</small></div><div class="bar"><i style="width:${pct}%"></i></div><div class="bf">${ovr?`Passou ${f(w-alvo,dec)} g`:ok?"No alvo":`Falta${falta>=2?"m":""} ${f(falta,dec)} g`}</div></div>`}
 function balTela(){const on=BAL.on;$("bConn").hidden=on||!navigator.bluetooth||BAL.cap;$("bOn").hidden=!on;$("bTara").hidden=!on;
-  $("bArm").hidden=!(on&&BAL.arm&&!T.run);$("bArm").textContent="Início automático armado: o temporizador começa quando o primeiro despejo passar de 2 g.";
+  $("bArm").hidden=!balPronto();$("bArm").textContent="Início automático: o temporizador começa sozinho quando você despejar a água. Não precisa zerar a balança.";
   document.querySelectorAll("#steps .blive").forEach(x=>x.remove());
   if(!on||BAL.w==null){$("bPrev").hidden=true;return}
-  if(!T.run){const show=!BAL.arm&&BAL.alvoCafe>0&&!BAL.cap;$("bPrev").hidden=!show;if(show)$("bPrev").innerHTML=`<span class="t" style="font:600 1rem var(--mono);color:var(--accent)">Moer</span><span>Pese <b>${f(BAL.alvoCafe,1)} g</b> de café${balBox(BAL.w,BAL.alvoCafe,1)}</span>`;return}
-  $("bPrev").hidden=true;const li=document.querySelector("#steps li.on");if(!li)return;const sts=T.steps||CUR,al=balAlvos(sts)[+li.dataset.i];if(al==null){if(/^Fim do preparo/.test(sts[+li.dataset.i][1])){const tot=balAlvos(sts).filter(x=>x!=null).pop();li.querySelector(".x").insertAdjacentHTML("beforeend",`<div class="blive"><div class="bw">${f(BAL.w,0)}<small> g na balança</small></div>${tot?`<div class="bf">Despejado ${f(tot)} g${BAL.xic?` · na xícara ≈ ${f(BAL.xic)} ml quando terminar de pingar`:""}</div>`:""}</div>`)}return}
-  li.querySelector(".x").insertAdjacentHTML("beforeend",balBox(BAL.w,al,0))}
+  if(!T.run){const show=BAL.alvoCafe>0&&!BAL.cap;$("bPrev").hidden=!show;if(show)$("bPrev").innerHTML=`<span class="t" style="font:600 1rem var(--mono);color:var(--accent)">Moer</span><span>Pese <b>${f(BAL.alvoCafe,1)} g</b> de café${balBox(BAL.w,BAL.alvoCafe,1)}</span>`;return}
+  $("bPrev").hidden=true;const ag=BAL.w-BAL.base,li=document.querySelector("#steps li.on");if(!li)return;const sts=T.steps||CUR,al=balAlvos(sts)[+li.dataset.i];if(al==null){if(/^Fim do preparo/.test(sts[+li.dataset.i][1])){const tot=balAlvos(sts).filter(x=>x!=null).pop();li.querySelector(".x").insertAdjacentHTML("beforeend",`<div class="blive"><div class="bw">${f(ag,0)}<small> g de água na balança</small></div>${tot?`<div class="bf">Despejado ${f(tot)} g${BAL.xic?` · na xícara ≈ ${f(BAL.xic)} ml quando terminar de pingar`:""}</div>`:""}</div>`)}return}
+  li.querySelector(".x").insertAdjacentHTML("beforeend",balBox(ag,al,0))}
 async function balConectar(){if(!navigator.bluetooth)return;
   try{const dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:"dot"},{namePrefix:"Dot"},{namePrefix:"DOT"},{namePrefix:"TES"},{namePrefix:"TIMEMORE"},{namePrefix:"Timemore"},{services:[BAL.S]}],optionalServices:[BAL.S]});
     const srv=await dev.gatt.connect(),sv=await srv.getPrimaryService(BAL.S),nt=await sv.getCharacteristic(BAL.N);BAL.cmd=await sv.getCharacteristic(BAL.C);
     nt.addEventListener("characteristicvaluechanged",balRecebe);await nt.startNotifications();BAL.dev=dev;BAL.on=true;BAL.w=0;
-    dev.addEventListener("gattserverdisconnected",()=>{BAL.on=false;BAL.cmd=null;BAL.arm=false;BAL.w=null;toast("A balança desconectou");render()});
+    dev.addEventListener("gattserverdisconnected",()=>{BAL.on=false;BAL.cmd=null;BAL.cand=null;BAL.w=null;toast("A balança desconectou");render()});
     toast("Balança conectada");render();setTimeout(()=>balEnvia(3,6,[0]),500);setTimeout(()=>balEnvia(3,8,[1,0]),700)}
   catch(e){if(!(e&&e.name==="NotFoundError"))toast("Não conectou a balança: "+((e&&(e.message||e.name))||"tente de novo"))}}
-$("bConn").onclick=balConectar;
+// O toque em Conectar libera o som: assim os bipes tocam mesmo quando o temporizador inicia sozinho
+$("bConn").onclick=()=>{try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();T.ac.resume()}catch(e){}
+  try{const au=$("tAudio"),d=new Uint8Array(44+800);d.fill(128,44);const v=new DataView(d.buffer),w=(o,t)=>{for(let i=0;i<t.length;i++)d[o+i]=t.charCodeAt(i)};w(0,"RIFF");v.setUint32(4,836,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,800,true);
+    if(!au.src){au.src=URL.createObjectURL(new Blob([d],{type:"audio/wav"}));const pr=au.play();if(pr&&pr.then)pr.then(()=>au.pause()).catch(()=>{})}}catch(e){}
+  balConectar()};
 $("bTara").onclick=()=>{try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();T.ac.resume()}catch(e){}
-  const antes=BAL.w;balEnvia(3,0x0d,[]);
-  // Arma o início automático só quando a tara é feita com o coador montado (peso alto na balança), não ao pesar o café numa xícara
-  BAL.arm=!T.run&&antes!=null&&antes>=100&&!novoFalta().length;BAL.zero=false;balPeso()};
+  // Tara no meio do preparo não perde a água já despejada
+  if(T.run&&BAL.w!=null)BAL.base-=BAL.w;BAL.hist=[];BAL.est=null;BAL.cand=null;balEnvia(3,0x0d,[]);balTela()};
 $("potes").addEventListener("click",e=>{const b=e.target.closest("[data-ppes]");if(!b||!BAL.on||BAL.w==null)return;const i=+b.dataset.ppes;loadPot();POT.t=POT.t||[];
   if(POT.t[i]==null){POT.t[i]=Math.round(BAL.w*10)/10;savePot();toast(`Tara do Pote ${i+1} guardada (${f(POT.t[i],1)} g). Agora coloque o pote com café e toque ⚖︎ de novo`);renderPotes();return}
   const g=Math.max(0,Math.round((BAL.w-POT.t[i])*10)/10);POT.g[i]=g;logPot(`peso pela balança: ${f(g,1)} g`,i);savePot();toast(`Pote ${i+1}: ${f(g,1)} g de café`);renderPotes()});
@@ -1052,6 +1070,7 @@ const salvaNome=()=>{const v=$("nomeIn").value.trim().replace(/\s+/g," ").slice(
 $("nomeOk").onclick=salvaNome;$("nomeIn").addEventListener("keydown",e=>{if(e.key==="Enter")salvaNome()});
 $("olaNome").onclick=pedirNome;
 nomeTela();if(st.nome)$("ola").hidden=false;else pedirNome();
+try{avPendTela()}catch(e){}
 
 // ===== Ao encerrar: mensagem e avaliação do café =====
 const AVC=[["aroma","Aroma"],["acidez","Acidez"],["docura","Doçura"],["corpo","Corpo"],["amargor","Amargor"],["retro","Retrogosto"]];
@@ -1067,13 +1086,21 @@ function abrirAproveite(){const m=cur(),{c,a}=calc(m),nome=ISD(st.csel)?(st.csel
   avCtx={caf:st.csel,nome,met,c:Math.round(c*10)/10,a:Math.round(a)};
   $("aprSub").textContent=m.cap?`${nome} · ${met}`:`${nome} · ${met} · ${f(c,1)} g : ${f(a)} g`;$("apr").hidden=false}
 $("tStop").onclick=()=>{const rodou=T.run;encerrar();if(rodou)abrirAproveite()};
-$("aprNao").onclick=()=>{$("apr").hidden=true};
-$("aprAv").onclick=()=>{$("apr").hidden=true;avN={};$("avObs").value="";$("avSub").textContent=avCtx?`${avCtx.nome} · ${avCtx.met}`:"";avTela();$("av").hidden=false};
+const avPendente=()=>{if(!avCtx||avCtx.pid)return;const dn=new Date(),p2=n=>String(n).padStart(2,"0");const id="a-"+Date.now().toString(36);
+  AVAL.push({id,pend:true,d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,h:`${p2(dn.getHours())}:${p2(dn.getMinutes())}`,caf:avCtx.caf,nome:avCtx.nome,met:avCtx.met,c:avCtx.c,a:avCtx.a});avCtx.pid=id;saveAval();avPendTela()};
+function avPendTela(){const L=AVAL.filter(x=>x.pend).slice(-3).reverse();$("avPend").hidden=!L.length;
+  $("avPend").innerHTML=L.map(x=>`<div style="display:flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px"><span style="flex:1;font-size:.88rem;line-height:1.35">Avaliar depois: <b>${esc(x.nome||"Café")}</b><br><span style="color:var(--muted)">${esc(x.met||"")} · ${dataBR(x.d).slice(0,5)}${x.h?" "+x.h:""}</span></span><button class="btn pri" type="button" data-avp="${x.id}" style="padding:7px 10px">Avaliar</button><button class="lnk" type="button" data-avx="${x.id}" aria-label="Descartar">✕</button></div>`).join("")}
+$("avPend").addEventListener("click",e=>{const a=e.target.closest("[data-avp]"),x=e.target.closest("[data-avx]");
+  if(x){AVAL=AVAL.filter(v=>v.id!==x.dataset.avx);saveAval();avPendTela();return}
+  if(a){const v=AVAL.find(v=>v.id===a.dataset.avp);if(!v)return;avCtx={caf:v.caf,nome:v.nome,met:v.met,c:v.c,a:v.a,pid:v.id};avN={};$("avObs").value="";$("avSub").textContent=`${v.nome||"Café"} · ${v.met||""} · ${dataBR(v.d)}`;avTela();$("av").hidden=false}});
+$("aprNao").onclick=()=>{$("apr").hidden=true;avPendente()};
+$("aprAv").onclick=()=>{$("apr").hidden=true;if(avCtx)avCtx.pid=null;avN={};$("avObs").value="";$("avSub").textContent=avCtx?`${avCtx.nome} · ${avCtx.met}`:"";avTela();$("av").hidden=false};
 $("avRows").addEventListener("click",e=>{const b=e.target.closest("[data-av]");if(!b)return;const k=b.dataset.av,v=+b.dataset.v;avN[k]=avN[k]===v?v-1||null:v;avTela()});
-$("avCanc").onclick=()=>{$("av").hidden=true};
+$("avCanc").onclick=()=>{$("av").hidden=true;avPendente()};
 $("avSalvar").onclick=()=>{if(!AVC.some(([k])=>avN[k])){toast("Dê nota a pelo menos uma característica");return}const md=avMedia(avN),dn=new Date(),p2=n=>String(n).padStart(2,"0");
-  AVAL.push({id:"a-"+Date.now().toString(36),d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,caf:avCtx&&avCtx.caf,nome:avCtx&&avCtx.nome,met:avCtx&&avCtx.met,c:avCtx&&avCtx.c,a:avCtx&&avCtx.a,n:{...avN},geral:md==null?null:Math.round(md*10)/10,obs:$("avObs").value.trim().slice(0,300)});
-  saveAval();$("av").hidden=true;toast(md==null?"Avaliação salva":`Avaliação salva: nota geral ${f(md,1)}`);render()};
+  const reg={n:{...avN},geral:md==null?null:Math.round(md*10)/10,obs:$("avObs").value.trim().slice(0,300)},pv=avCtx&&avCtx.pid&&AVAL.find(v=>v.id===avCtx.pid);
+  if(pv){Object.assign(pv,reg);delete pv.pend}else AVAL.push({id:"a-"+Date.now().toString(36),d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,caf:avCtx&&avCtx.caf,nome:avCtx&&avCtx.nome,met:avCtx&&avCtx.met,c:avCtx&&avCtx.c,a:avCtx&&avCtx.a,...reg});
+  saveAval();avPendTela();$("av").hidden=true;toast(md==null?"Avaliação salva":`Avaliação salva: nota geral ${f(md,1)}`);render()};
 
 $("tPause").onclick=()=>{if(!T.run)return;const tocando=T.au&&!T.auFim;
   if(T.pausa){T.pausa=false;T.t0=Date.now();$("tPause").textContent="Pausar";if(tocando)try{T.au.play()}catch(e){}}
