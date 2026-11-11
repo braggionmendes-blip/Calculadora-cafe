@@ -173,7 +173,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 76 · 11/11/2026 · balança: água sem o peso do café, início automático pelo despejo, bipe em cada peso; avaliação pendente</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 77 · 11/11/2026 · resultado do desconto do pote fica visível no temporizador</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -417,6 +417,7 @@ select.txt{appearance:auto}
     <div class="clk" id="tClk">0:00</div>
     <div class="now" id="tNow"></div>
     <div class="nxt" id="tNxt"></div>
+    <div class="nxt" id="tPote" style="opacity:.85;font-size:.82rem"></div>
     <div class="bt"><button class="btn" id="tSom" type="button">Com bipe</button><button class="btn" id="tPause" type="button">Pausar</button><button class="btn" id="tStop" type="button">Encerrar</button></div>
   </div>
 </div>
@@ -962,16 +963,17 @@ let tInt=null;
 // Desconta a dose do pote que contém o café selecionado; reinício em até 10 min conta como o mesmo preparo
 let ultDesc=null;
 // Nunca falha em silêncio: se não descontar, avisa o motivo
+const potMsg=t=>{toast(t);try{$("tPote").textContent=t}catch(e){}};
 function descontaPote(){try{if(cur().cap)return;loadPot();
   const idx=POT.p.slice(0,POT.n).map((v,j)=>v&&v===st.csel?j:-1).filter(j=>j>=0);
-  if(!idx.length){toast("Atenção: este café não está em nenhum pote, nada foi descontado");return}
+  if(!idx.length){potMsg("Atenção: este café não está em nenhum pote, nada foi descontado");return}
   const i=idx.find(j=>POT.g[j]!=null)??-1;
-  if(i<0){toast(`Atenção: o Pote ${idx[0]+1} está sem peso informado, nada foi descontado. Informe o peso no pote`);logPot("preparo não descontado: pote sem peso",idx[0]);savePot();return}
-  if(ultDesc&&ultDesc.i===i&&Date.now()-ultDesc.t<6e5){toast(`Mesmo preparo (reinício em menos de 10 min): não descontei de novo do Pote ${i+1}`);return}
+  if(i<0){potMsg(`Atenção: o Pote ${idx[0]+1} está sem peso informado, nada foi descontado. Informe o peso no pote`);logPot("preparo não descontado: pote sem peso",idx[0]);savePot();return}
+  if(ultDesc&&ultDesc.i===i&&Date.now()-ultDesc.t<6e5){potMsg(`Mesmo preparo (reinício em menos de 10 min): não descontei de novo do Pote ${i+1}`);return}
   const m=cur(),c=calc(m).c,pn=peneira(m,c),g=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;
   POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};const dn=new Date(),p2=n=>String(n).padStart(2,"0");POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini,last:`${p2(dn.getDate())}/${p2(dn.getMonth()+1)} ${p2(dn.getHours())}:${p2(dn.getMinutes())}`};logPot(`preparo −${f(g,1)} g → ${f(POT.g[i],1)} g`,i);savePot();ultDesc={i,t:Date.now()};
-  toast(`Descontei ${f(g,1)} g do Pote ${i+1}: restam ${f(Math.max(0,POT.g[i]),1)} g`+(POT.g[i]<c?". Está acabando":""));renderPotes()}catch(e){toast("Erro ao descontar do pote: "+(e&&e.message||e))}}
-async function iniciar(off){off=typeof off==="number"&&off>0?off:0;if(novoFalta().length)return;descontaPote();
+  potMsg(`Descontei ${f(g,1)} g do Pote ${i+1}: restam ${f(Math.max(0,POT.g[i]),1)} g`+(POT.g[i]<c?". Está acabando":""));renderPotes()}catch(e){potMsg("Erro ao descontar do pote: "+(e&&e.message||e))}}
+async function iniciar(off){off=typeof off==="number"&&off>0?off:0;if(novoFalta().length)return;$("tPote").textContent="";descontaPote();
   if(BAL.on&&BAL.w!=null&&!BAL.autoBase)BAL.base=Math.abs(BAL.w)<0.5?0:BAL.w;BAL.autoBase=false;BAL.bip=new Set();BAL.cand=null;
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
   try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src)}}catch(e){}
@@ -1020,7 +1022,7 @@ function balDetecta(w,now){BAL.hist.push({t:now,w});BAL.hist=BAL.hist.filter(x=>
   if(!BAL.cand){if(BAL.est!=null&&w>BAL.est+3&&balPronto())BAL.cand={t:now,base:BAL.est};return}
   const c=BAL.cand,sobe=w-c.base;
   if(sobe<1||now-c.t>25000||!balPronto()){BAL.cand=null;return}
-  if(sobe>=Math.max(BAL.alvoCafe+5,20)){BAL.cand=null;BAL.base=c.base;BAL.autoBase=true;const off=Math.max(0,(now-c.t)/1000);iniciar(off);toast("Despejo detectado: temporizador iniciado")}}
+  if(sobe>=Math.max(BAL.alvoCafe+5,20)){BAL.cand=null;BAL.base=c.base;BAL.autoBase=true;const off=Math.max(0,(now-c.t)/1000);toast("Despejo detectado: temporizador iniciado");iniciar(off)}}
 // Peso acumulado esperado em cada etapa com despejo (lê os textos dos passos)
 function balAlvos(steps){let prev=0;return steps.map(x=>{if(!/\d+:\d\d/.test(x[0]))return null;const t=x[1];
   const a=t.match(/(?:balança em|balança marcar|até a balança marcar|complete até|Complete até|até)\s*(\d+(?:,\d+)?)\s*g/);
