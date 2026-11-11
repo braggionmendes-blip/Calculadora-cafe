@@ -157,7 +157,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 60 · 10/11/2026 · métodos sugeridos do pote recolhem após escolher o método</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 61 · 10/11/2026 · pote escolhido mostra só o essencial</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -225,7 +225,7 @@ select.txt{appearance:auto}
       <div id="pOrdemBox" style="margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--soft)"><span class="lbl" style="margin-bottom:6px">Ordem de consumo dos potes (torra mais antiga primeiro)</span><div id="pOrdem" class="cres" style="color:var(--fg);font-size:.88rem;line-height:1.6"></div></div>
       <p class="cres" id="pHist" style="margin-top:8px;font-size:.84rem"></p>
       <details style="margin-top:6px"><summary style="font-size:.84rem;cursor:pointer">Registro dos potes</summary><div id="pLog" class="cres" style="font-size:.8rem;line-height:1.5;margin-top:6px"></div></details>
-      <p class="cres" style="margin-top:8px;font-size:.82rem">Pote vazio recebe a sugestão do café mais antigo pela data de torra, desde que já tenha 7 dias de descanso. Toque em Acabou quando o café terminar: ele sai das sugestões.</p>
+      <p class="cres" id="pDica" style="margin-top:8px;font-size:.82rem">Pote vazio recebe a sugestão do café mais antigo pela data de torra, desde que já tenha 7 dias de descanso. Toque em Acabou quando o café terminar: ele sai das sugestões.</p>
     </div>
   </section>
   <section class="panel" aria-label="Escolhas">
@@ -690,11 +690,8 @@ function renderPotes(){
     const ops=`<option value="">Vazio</option><option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option><optgroup label="Meus cafés">${CAF.filter(c=>!c.fim||c.id===v).map(c=>`<option value="${esc(c.id)}">${esc(c.nome)}</option>`).join("")}</optgroup>`;
     let info="",acts="";
     if(v){const k=CAF.find(c=>c.id===v),d=k?dias(k.data):null;
-      info=k?(k.data?`Torrado em ${dataBR(k.data)} · ${d} dia${d===1?"":"s"}`+(d>60?" · consuma logo":d<7?" · ainda em descanso":""):"Sem data de torra"):"";
       const gs=POT.g[i],u=POT.u[i]||{n:0,g:0,ini:null},dose=calc(cur()).c;
-      info+=`</p><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><label for="pg${i}" style="font-size:.86rem">Café no pote</label><input class="txt" id="pg${i}" data-pg="${i}" type="number" inputmode="decimal" min="0" step="1" style="width:110px" placeholder="peso (g)" value="${gs!=null?Math.round(gs*10)/10:""}"><span style="font-size:.86rem">g</span></div><p class="pi">`+
-        (gs==null?"Pese só o café (zere a balança com o pote vazio) e informe acima. A cada temporizador iniciado com este café, o app desconta a dose.":
-        `${u.ini!=null?`Início ${f(u.ini)} g · `:""}${u.n} preparo${u.n===1?"":"s"}${u.last?" · último em "+u.last:""} · ${f(u.g,1)} g descontados`+(gs<dose?` · <b>menos de uma dose</b>`:` · dá para ≈ ${Math.floor(gs/dose)} preparo${Math.floor(gs/dose)===1?"":"s"} como o atual`));
+      info="";if(gs==null)info=`</p><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><label for="pg${i}" style="font-size:.86rem">Café no pote</label><input class="txt" id="pg${i}" data-pg="${i}" type="number" inputmode="decimal" min="0" step="1" style="width:110px" placeholder="peso (g)" value="${gs!=null?Math.round(gs*10)/10:""}"><span style="font-size:.86rem">g</span></div><p class="pi">Pese só o café (zere a balança com o pote vazio) e informe acima. A cada temporizador iniciado com este café, o app desconta a dose.`;
       if(k&&!(v===st.csel&&!(NOVO&&!NOVO.met)&&!abrirMet)){const rk=rankMetodos(k),it=(r,j)=>{const mm=M.find(x=>x.id===r.id),on=st.csel===v&&G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="pi" style="color:var(--fg)"><b>${j+1}. ${esc(mm.n)}</b> · ${r.nota}%<br><span style="color:var(--muted)">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-pind="${i}:${j}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
         info+=`</p><div style="margin-top:4px;padding:10px 12px;border-radius:10px;background:var(--soft);display:grid;gap:8px"><span class="lbl" style="margin:0">Métodos para este café, do mais ao menos indicado</span>${rk.slice(0,5).map(it).join("")}<details><summary style="font-size:.84rem;cursor:pointer">Ver os demais métodos</summary><div style="display:grid;gap:8px;margin-top:8px">${rk.slice(5).map((r,j)=>it(r,j+5)).join("")}</div></details></div><p class="pi" hidden>`}
       acts=`<div class="acts"><button class="btn" type="button" data-pusar="${i}" aria-pressed="${v===st.csel}">${v===st.csel?"Em uso no preparo":"Usar no preparo"}</button><button class="btn" type="button" data-pfim="${i}">${potArm===i?"Confirmar: acabou":"Acabou"}</button></div>`}
@@ -704,7 +701,7 @@ function renderPotes(){
         info=`<p class="sug"><b>Sugestão: ${esc(sg.nome)}</b><br>${pq}.${nx.length?`<br>Depois: ${nx.map(esc).join(", ")}`:""}</p>`;
         acts=`<div class="acts"><button class="btn pri" type="button" data-ppor="${i}" data-id="${esc(sg.id)}">Colocar este café</button></div>`}
       else info=`<p class="pi">Nenhum café disponível para sugerir.</p>`}
-    h.push(`<div class="pote" data-pc="${i}"><div class="ph"><b>Pote ${i+1}</b></div><select class="txt" data-pote="${i}" aria-label="Café do pote ${i+1}">${ops}</select>${v?`<p class="pi">${info}</p>`:info}${acts}</div>`)}
+    h.push(v?`<div class="pote" data-pc="${i}">${info.replace(/<\/p><div/g,"<div")}${acts}</div>`:`<div class="pote" data-pc="${i}"><div class="ph"><b>Pote ${i+1}</b></div><select class="txt" data-pote="${i}" aria-label="Café do pote ${i+1}">${ops}</select>${info}${acts}</div>`)}
   if(potSel>=POT.n)potSel=-1;
   let vaz=0;for(let i=0;i<POT.n;i++)if(!POT.p[i])vaz++;
   {const L=[];for(let i=0;i<POT.n;i++){const v=POT.p[i];if(!v)continue;const k=CAF.find(c=>c.id===v),d=k?dias(k.data):null;L.push({i,nome:potNome(v),data:k&&k.data||"",d,g:POT.g[i]})}
@@ -715,6 +712,7 @@ function renderPotes(){
   $("poteSel").value=String(potSel);
   $("potes").innerHTML=potSel>=0?h[potSel]:"";
   $("pOrdemBox").hidden=potSel>=0;$("cafePanel").hidden=potSel>=0;
+  {const on=potSel>=0;$("pN").parentElement.hidden=on;$("pHist").hidden=on;$("pLog").closest("details").hidden=on;$("pDica").hidden=on}
   const el=document.querySelector(`[data-pote="${potSel}"]`);if(el)el.value=POT.p[potSel]||"";
 }
 // Ranking de métodos pelo perfil do café. Cada método tem notas de clareza, corpo, tolerância a café menos fresco (imersão), doçura e espresso;
