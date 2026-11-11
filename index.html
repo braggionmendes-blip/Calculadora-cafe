@@ -157,7 +157,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 66 · 10/11/2026 · peneira também nas receitas 4:6, Switch, Veroo, Joinout e prensa de viagem</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 67 · 10/11/2026 · card da água mostra o café pronto na xícara</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -832,7 +832,7 @@ function render(){
   const TT=aj.notas.length?"Ajustado pelo café: "+aj.notas.join("; "):"";
   const dd=!ISD(st.csel)?dias(st.cafe.data):null;
   const DT=dd==null||dd<0?"":dd<=3?`Torrado há ${dd} dia${dd===1?"":"s"}: muito fresco`:dd<=30?`Torrado há ${dd} dias: ponto ideal`:dd<=60?`Torrado há ${dd} dias: ainda bom; se faltar sabor, moa um pouco mais fino`:`Torrado há ${dd} dias: aromas já mais fracos`;
-  $("facts").innerHTML=(aj.dose.nota?`<span class="fact">${aj.dose.nota}</span>`:"")+(DT?`<span class="fact">${DT}</span>`:"")+(TT?`<span class="fact">${TT}</span>`:"")+(m.dose?"":`<span class="fact">Na xícara <b>≈ ${f(Math.round(b/5)*5)} ml</b> (o pó retém ${f(retOf(m),1)} g de água por g)</span>`)+`<span class="fact">Tempo <b>${fim}</b></span>`+
+  $("facts").innerHTML=(aj.dose.nota?`<span class="fact">${aj.dose.nota}</span>`:"")+(DT?`<span class="fact">${DT}</span>`:"")+(TT?`<span class="fact">${TT}</span>`:"")+""+`<span class="fact">Tempo <b>${fim}</b></span>`+
     (st.moe==="oster"?`<span class="fact">Oster: posição 1 = bolinha mais fina (lado Espresso), 18 = mais grossa (Prensa)</span><span class="fact">Pese o café; o seletor de xícaras é só um timer</span>`:"")+
     (st.moe==="mongdio"?`<span class="fact">Mongdio: abra o cadeado, gire o anel até o número e trave de novo</span><span class="fact">Referência testada: Melitta no 20</span>`:"")+
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
@@ -845,7 +845,7 @@ function render(){
   {const pv=pn.on&&!pn.bloq&&pn.moer&&!m.cap,pc=x=>f(Math.round(x*1000)/10,1).replace(/,0$/,"");
    $("lCafe").textContent=pv?"Café · moer":"Café";$("oCafe").innerHTML=f(pv?pn.moer:c,1)+"<small>g</small>";
    $("oCafeN").textContent=pv?`fica ${f(c,1)} g no coador`:"";
-   $("oAguaN").textContent=pv&&!m.dose&&!m.tank?`1:${rfmt(m,r)} sobre os ${f(c,1)} g peneirados`:"";
+   $("oAguaN").textContent=!m.dose&&!m.tank?`≈ ${f(Math.round(b/5)*5)} ml na xícara`:"";
    const F=!!st.ajF;$("ajQtd").hidden=F;$("ajPronto").hidden=F;$("ajResumo").hidden=!F;$("ajPen").hidden=F||!!m.cap||!precOf(m);
    if(F){["ajPen","ajRat","ajMoa","aBox","sdBox"].forEach(k=>$(k).hidden=true);
     const mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`),ac=accOf(m),pr=[];
