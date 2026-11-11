@@ -107,6 +107,8 @@ body.timing{padding-bottom:170px}
 .ola .cx .acts{display:flex;gap:10px}.ola .cx .acts .btn{flex:1;padding:12px;font-size:1rem}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .aviso{margin:0;padding:10px 12px;border-radius:10px;background:var(--heat);color:var(--heat-fg);font-size:.9rem;font-weight:600}
+.chipRow{display:flex;justify-content:space-between;align-items:center;gap:10px}.chipRow[hidden]{display:none}
+.lnk{background:none;border:0;color:var(--accent);font:600 .95rem var(--display,inherit);cursor:pointer;padding:6px 2px}
 .btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .saverow{display:flex;gap:8px}
 .saverow input{flex:1;min-width:0;font:500 1rem var(--display);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
@@ -155,12 +157,12 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 57 · 10/11/2026 · ordem de consumo dos potes</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 58 · 10/11/2026 · tela enxuta: pote, método e moedor recolhem após a escolha</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
 
-  <section class="panel" aria-label="Café">
+  <section class="panel" aria-label="Café" id="cafePanel">
     <div>
       <label class="lbl" for="cSel">Café</label>
       <select class="txt" id="cSel"></select>
@@ -229,8 +231,9 @@ select.txt{appearance:auto}
   <section class="panel" aria-label="Escolhas">
     <div>
       <span class="lbl" id="lMet">Método</span>
+      <div class="chipRow" id="metChip" hidden><button class="btn" type="button" aria-pressed="true" id="metChipBtn"></button><button class="lnk" type="button" id="metTrocar">Trocar</button></div>
       <div class="seg" id="metodos" role="group" aria-labelledby="lMet"></div>
-      <div id="varBox" hidden style="margin-top:10px"><label class="lbl" for="recVar">Receita deste método</label><select class="txt" id="recVar"></select>
+      <div id="varBox" hidden style="margin-top:10px"><label class="lbl" for="recVar" id="lRecVar">Receita deste método</label><select class="txt" id="recVar"></select>
         <div id="k46Box" hidden style="margin-top:10px">
           <div><span class="lbl">4:6 · sabor (2 primeiros despejos)</span><div class="seg" id="k46s"><button type="button" data-v="acido">Mais ácido</button><button type="button" data-v="eq">Equilibrado</button><button type="button" data-v="doce">Mais doce</button></div></div>
           <div style="margin-top:8px"><span class="lbl">4:6 · intensidade (despejos finais)</span><div class="seg" id="k46c"><button type="button" data-v="suave">Mais suave</button><button type="button" data-v="normal">Normal</button><button type="button" data-v="forte">Mais forte</button></div></div>
@@ -238,6 +241,7 @@ select.txt{appearance:auto}
     </div>
     <div>
       <span class="lbl" id="lMoe">Moedor</span>
+      <div class="chipRow" id="moeChip" hidden><button class="btn" type="button" aria-pressed="true" id="moeChipBtn"></button><button class="lnk" type="button" id="moeTrocar">Trocar</button></div>
       <div id="moedores" role="group" aria-labelledby="lMoe" style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px">
         <div class="seg"><span class="grp">Manuais</span>
           <button type="button" data-v="k7">KINGrinder K7</button>
@@ -546,7 +550,7 @@ const san=(x)=>{if(!x||typeof x!=="object"||x.desc)return null;const o={id:typeo
     if(old)v=(v>=1&&v<=5)?v*2:null;o[id]=(Number.isFinite(v)&&v>=0&&v<=10)?Math.round(v):null}return o};
 const ISD=v=>v==="desc"||v==="descpo";
 // Novo preparo: método, moedor e café precisam ser escolhidos antes de liberar o temporizador
-let NOVO=null;const novoFalta=()=>NOVO?[!NOVO.met&&"o método",!NOVO.moe&&"o moedor",!NOVO.caf&&"o café no pote (Usar no preparo)"].filter(Boolean):[];
+let NOVO=null,abrirMet=false,abrirMoe=false,abrirRec=false;const novoFalta=()=>NOVO?[!NOVO.met&&"o método",!NOVO.moe&&"o moedor",!NOVO.caf&&"o café no pote (Usar no preparo)"].filter(Boolean):[];
 const marca=k=>{if(NOVO){NOVO[k]=true;if(!novoFalta().length)NOVO=null}};
 let CAF=null;try{CAF=JSON.parse(localStorage.getItem("calcCafes")||"null")}catch(e){}
 if(!Array.isArray(CAF)){CAF=[{...CAFE0,id:"c-tucano",nome:"Black Tucano Fruity"}];
@@ -710,6 +714,7 @@ function renderPotes(){
   $("poteSel").innerHTML=`<option value="-1">Escolha um pote (${vaz} vazio${vaz===1?"":"s"} de ${POT.n})</option>`+Array.from({length:POT.n},(_,i)=>{const v=POT.p[i]||"";return `<option value="${i}">Pote ${i+1} · ${v?esc(potNome(v))+(POT.g[i]!=null?" · "+f(Math.max(0,POT.g[i]))+" g":""):"Vazio"}</option>`}).join("");
   $("poteSel").value=String(potSel);
   $("potes").innerHTML=potSel>=0?h[potSel]:"";
+  $("pOrdemBox").hidden=potSel>=0;$("cafePanel").hidden=potSel>=0;
   const el=document.querySelector(`[data-pote="${potSel}"]`);if(el)el.value=POT.p[potSel]||"";
 }
 // Ranking de métodos pelo perfil do café. Cada método tem notas de clareza, corpo, tolerância a café menos fresco (imersão), doçura e espresso;
@@ -764,6 +769,12 @@ function render(){
   {const vs=M.filter(x=>G(x)===G(m));$("varBox").hidden=vs.length<2;
    if(vs.length>1){const h=vs.map(x=>`<option value="${x.id}">${vn(x)}</option>`).join("");if($("recVar").dataset.h!==h){$("recVar").innerHTML=h;$("recVar").dataset.h=h}$("recVar").value=m.id}}
   document.querySelectorAll("#moedores button").forEach(b=>b.setAttribute("aria-pressed",!(NOVO&&!NOVO.moe)&&b.dataset.v===st.moe));
+  // Recolhe método e moedor já escolhidos; "Trocar" reabre
+  {const fm=!(NOVO&&!NOVO.met)&&!abrirMet,vs=M.filter(x=>G(x)===G(m)).length>1,bt=document.querySelector(`#metodos button[data-v="${G(m)}"]`);
+   $("metChip").hidden=!fm;$("metodos").hidden=fm;$("lRecVar").hidden=fm&&!abrirRec;$("recVar").hidden=fm&&!abrirRec;
+   if(fm)$("metChipBtn").textContent=(bt?bt.textContent:m.n)+(vs?" · "+vn(m):"");
+   const fo=!(NOVO&&!NOVO.moe)&&!abrirMoe,mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`);
+   $("moeChip").hidden=!fo;$("moedores").hidden=fo;if(fo)$("moeChipBtn").textContent=mb?mb.textContent:st.moe}
   const bs=baseOf(m);
   $("base").hidden=!!m.dose;
   document.querySelectorAll("#base button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===bs));
@@ -828,11 +839,13 @@ function render(){
   renderSaved();
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}
 }
-$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=l&&M.some(x=>x.id===l&&G(x)===g)?l:g;render()});
+$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=l&&M.some(x=>x.id===l&&G(x)===g)?l:g;abrirMet=false;abrirRec=M.filter(x=>G(x)===g).length>1;render()});
 $("k46s").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),s:b.dataset.v};render()});
 $("k46c").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),c:b.dataset.v};render()});
-$("recVar").addEventListener("change",e=>{marca("met");st.met=e.target.value;st.gsel={...(st.gsel||{}),[G(cur())]:st.met};render()});
-$("moedores").addEventListener("click",e=>{const b=e.target.closest("button");if(b){marca("moe");st.moe=b.dataset.v;render()}});
+$("recVar").addEventListener("change",e=>{marca("met");abrirMet=false;abrirRec=false;st.met=e.target.value;st.gsel={...(st.gsel||{}),[G(cur())]:st.met};render()});
+$("moedores").addEventListener("click",e=>{const b=e.target.closest("button");if(b){marca("moe");st.moe=b.dataset.v;abrirMoe=false;abrirMet=false;abrirRec=false;render()}});
+$("metTrocar").onclick=$("metChipBtn").onclick=()=>{abrirMet=true;render()};
+$("moeTrocar").onclick=$("moeChipBtn").onclick=()=>{abrirMoe=true;render()};
 $("qtd").addEventListener("input",e=>{const m=cur(),v=Number(e.target.value)||0,bs=baseOf(m);if(!m.dose&&bs==="cafe")st.c[m.id]=v;else if(!m.dose&&bs==="xicara")st.x[m.id]=v;else st.q[m.id]=v;render()});
 $("base").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const m=cur(),k=calc(m);
   if(b.dataset.v==="cafe"){st.c[m.id]=Math.round(k.c*10)/10}else if(b.dataset.v==="xicara"){st.x[m.id]=Math.round(k.b/5)*5}else{st.q[m.id]=Math.round(k.a)}
@@ -926,7 +939,7 @@ $("penModo").addEventListener("click",e=>{const b=e.target.closest("button");if(
 $("penTenho").addEventListener("input",e=>{const v=e.target.value===""?null:Number(e.target.value);st.pen.tenho=v>0?v:null;render()});
 $("penPerda").addEventListener("input",e=>{const v=e.target.value===""?null:Number(e.target.value);st.pen.perda=v>0&&v<=40?v:null;render()});
 $("cIndBox").addEventListener("click",e=>{const b=e.target.closest("[data-ind]");if(!b)return;const r=rankMetodos(st.cafe)[+b.dataset.ind];if(!r)return;marca("met");st.met=r.id;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:r.id};render()});
-const novoPreparo=()=>{if(T.run)try{encerrar()}catch(e){}NOVO={met:false,moe:false,caf:false};potSel=-1;window.scrollTo({top:0,behavior:"smooth"});render()};
+const novoPreparo=()=>{if(T.run)try{encerrar()}catch(e){}NOVO={met:false,moe:false,caf:false};abrirMet=false;abrirMoe=false;abrirRec=false;potSel=-1;window.scrollTo({top:0,behavior:"smooth"});render()};
 $("novoCafe").onclick=novoPreparo;
 $("olaSim").onclick=()=>{$("ola").hidden=true;novoPreparo()};
 $("olaNao").onclick=()=>{$("ola").hidden=true};
@@ -954,7 +967,7 @@ $("potes").addEventListener("input",e=>{const el=e.target.closest("[data-pg]");i
   const o=$("poteSel").options[i+1];if(o)o.textContent=`Pote ${i+1} · ${potNome(POT.p[i])}${v!=null?" · "+f(v)+" g":""}`});
 $("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pg]");if(el){loadPot();logPot("peso informado: "+(POT.g[+el.dataset.pg]??"vazio")+" g",+el.dataset.pg);savePot();setTimeout(renderPotes,0)}});
 $("potes").addEventListener("click",e=>{const pi=e.target.closest("[data-pind]");if(pi){const[i,j]=pi.dataset.pind.split(":").map(Number);const v=POT.p[i],k=CAF.find(c=>c.id===v);if(!k)return;const r=rankMetodos(k)[j];if(!r)return;
-    marca("caf");marca("met");st.csel=v;cEdit=false;cDelArm=false;st.cafe={...k};st.met=r.id;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:r.id};render();toast("Café do pote e método selecionados");return}
+    marca("caf");marca("met");st.csel=v;cEdit=false;cDelArm=false;st.cafe={...k};st.met=r.id;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:r.id};abrirMet=false;render();toast("Café do pote e método selecionados");return}
   const u=e.target.closest("[data-pusar]"),fm=e.target.closest("[data-pfim]"),po=e.target.closest("[data-ppor]");
   if(po||fm)loadPot();
   if(po){logPot("recebeu "+potNome(po.dataset.id),+po.dataset.ppor);POT.g[+po.dataset.ppor]=null;POT.u[+po.dataset.ppor]=null;POT.p[+po.dataset.ppor]=po.dataset.id;savePot();potArm=-1;render();return}
