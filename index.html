@@ -173,17 +173,18 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 74 · 11/11/2026 · Fim do preparo com peso, mensagem ao encerrar e avaliação do café</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 75 · 11/11/2026 · pergunta o nome ao abrir pela primeira vez</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
-  <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
+  <div class="ola" id="nomeDlg" hidden role="dialog" aria-modal="true" aria-labelledby="nomeT"><div class="cx"><div style="font-size:2.4rem;line-height:1">☕</div><p id="nomeT">Olá cafezeiro, me diga como devo lhe chamar para iniciarmos nosso cafezão.</p><input class="txt" id="nomeIn" type="text" maxlength="30" autocomplete="given-name" placeholder="Seu nome ou apelido" style="text-align:center;font-size:1.05rem"><button class="btn pri" id="nomeOk" type="button" style="padding:12px;font-size:1rem">Vamos lá</button></div></div>
+  <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá <span class="nomeU">Jeff</span>! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div><button class="lnk" id="olaNome" type="button" style="font-size:.86rem;justify-self:center;margin-top:-6px">Não é você? Trocar o nome</button></div></div>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <radialGradient id="bg" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#a8683b"/><stop offset=".45" stop-color="#7a4422"/><stop offset="1" stop-color="#3a1f10"/></radialGradient>
 <radialGradient id="bgo" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#4a4440"/><stop offset="1" stop-color="#26221f"/></radialGradient>
 <linearGradient id="cr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1f0f06"/><stop offset="1" stop-color="#5a3018"/></linearGradient>
 <symbol id="grao" viewBox="0 0 30 30"><g transform="rotate(-35 15 15)"><ellipse cx="15" cy="15" rx="9.2" ry="12.6" fill="var(--b,url(#bg))"/><ellipse cx="12.2" cy="9.5" rx="3" ry="4.6" fill="#fff" opacity=".13"/><path d="M15.6 3.2c-2.8 3.4-3.1 6.6-.6 10.2s2.3 7.6-.8 13.4" fill="none" stroke="var(--k,url(#cr))" stroke-width="2.3" stroke-linecap="round"/><path d="M17.1 4.5c-1.9 3-1.9 5.6.2 8.8" fill="none" stroke="#c98a5a" stroke-width=".8" opacity="var(--h,.55)" stroke-linecap="round"/><ellipse cx="15" cy="15" rx="9.2" ry="12.6" fill="none" stroke="#1b0d05" stroke-width=".7" opacity=".6"/></g></symbol></defs></svg>
-  <div class="ola" id="apr" hidden role="dialog" aria-modal="true" aria-labelledby="aprT"><div class="cx"><div style="font-size:2.4rem;line-height:1">☕</div><p id="aprT">Aproveite seu café, Jeff!</p><p class="sub2" id="aprSub"></p><button class="btn pri" id="aprAv" type="button" style="padding:12px;font-size:1rem">Avaliar o café</button><button class="btn" id="aprNao" type="button" style="padding:12px;font-size:1rem">Agora não</button></div></div>
+  <div class="ola" id="apr" hidden role="dialog" aria-modal="true" aria-labelledby="aprT"><div class="cx"><div style="font-size:2.4rem;line-height:1">☕</div><p id="aprT">Aproveite seu café, <span class="nomeU">Jeff</span>!</p><p class="sub2" id="aprSub"></p><button class="btn pri" id="aprAv" type="button" style="padding:12px;font-size:1rem">Avaliar o café</button><button class="btn" id="aprNao" type="button" style="padding:12px;font-size:1rem">Agora não</button></div></div>
   <div class="ola av" id="av" hidden role="dialog" aria-modal="true" aria-labelledby="avT"><div class="cx"><p id="avT">Como ficou o café?</p><p class="sub2" id="avSub" style="margin-top:-6px"></p><div id="avRows" style="display:grid;gap:6px"></div>
     <div class="rw" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Nota geral</b><br><span id="avMed" style="font-size:.78rem;color:var(--muted)">média: --</span></span><span class="gr ro" id="avGeral"></span></div>
     <textarea id="avObs" maxlength="300" placeholder="Observação (opcional): ex.: frutado, um pouco ralo"></textarea>
@@ -1045,7 +1046,12 @@ $("ajPronto").onclick=()=>{st.ajF=true;render();document.querySelector('section[
 $("ajAjustar").onclick=()=>{st.ajF=false;render();$("ajQtd").scrollIntoView({behavior:"smooth",block:"start"})};
 $("olaSim").onclick=()=>{$("ola").hidden=true;novoPreparo()};
 $("olaNao").onclick=()=>{$("ola").hidden=true};
-$("ola").hidden=false;
+const nomeTela=()=>document.querySelectorAll(".nomeU").forEach(x=>x.textContent=st.nome||"cafezeiro");
+const pedirNome=()=>{$("ola").hidden=true;$("nomeIn").value=st.nome||"";$("nomeDlg").hidden=false;setTimeout(()=>{try{$("nomeIn").focus()}catch(e){}},50)};
+const salvaNome=()=>{const v=$("nomeIn").value.trim().replace(/\s+/g," ").slice(0,30);if(!v){$("nomeIn").focus();return}st.nome=v;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}nomeTela();$("nomeDlg").hidden=true;$("ola").hidden=false};
+$("nomeOk").onclick=salvaNome;$("nomeIn").addEventListener("keydown",e=>{if(e.key==="Enter")salvaNome()});
+$("olaNome").onclick=pedirNome;
+nomeTela();if(st.nome)$("ola").hidden=false;else pedirNome();
 
 // ===== Ao encerrar: mensagem e avaliação do café =====
 const AVC=[["aroma","Aroma"],["acidez","Acidez"],["docura","Doçura"],["corpo","Corpo"],["amargor","Amargor"],["retro","Retrogosto"]];
