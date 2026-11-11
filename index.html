@@ -176,7 +176,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 82 · 11/11/2026 · temporizador com anel e texto na largura toda; tara da balança percebida</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 83 · 11/11/2026 · avaliação mostra os dados e o gráfico do preparo; botão "Este é o café moído no método"</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -189,7 +189,7 @@ select.txt{appearance:auto}
 <linearGradient id="cr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1f0f06"/><stop offset="1" stop-color="#5a3018"/></linearGradient>
 <symbol id="grao" viewBox="0 0 30 30"><g transform="rotate(-35 15 15)"><ellipse cx="15" cy="15" rx="9.2" ry="12.6" fill="var(--b,url(#bg))"/><ellipse cx="12.2" cy="9.5" rx="3" ry="4.6" fill="#fff" opacity=".13"/><path d="M15.6 3.2c-2.8 3.4-3.1 6.6-.6 10.2s2.3 7.6-.8 13.4" fill="none" stroke="var(--k,url(#cr))" stroke-width="2.3" stroke-linecap="round"/><path d="M17.1 4.5c-1.9 3-1.9 5.6.2 8.8" fill="none" stroke="#c98a5a" stroke-width=".8" opacity="var(--h,.55)" stroke-linecap="round"/><ellipse cx="15" cy="15" rx="9.2" ry="12.6" fill="none" stroke="#1b0d05" stroke-width=".7" opacity=".6"/></g></symbol></defs></svg>
   <div class="ola" id="apr" hidden role="dialog" aria-modal="true" aria-labelledby="aprT"><div class="cx"><div style="font-size:2.4rem;line-height:1">☕</div><p id="aprT">Aproveite seu café, <span class="nomeU">Jeff</span>!</p><p class="sub2" id="aprSub"></p><div id="aprG" hidden style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px"></div><div id="aprKV" class="cres" hidden style="margin:0;text-align:center"></div><button class="btn pri" id="aprAv" type="button" style="padding:12px;font-size:1rem">Avaliar o café</button><button class="btn" id="aprNao" type="button" style="padding:12px;font-size:1rem">Agora não</button></div></div>
-  <div class="ola av" id="av" hidden role="dialog" aria-modal="true" aria-labelledby="avT"><div class="cx"><p id="avT">Como ficou o café?</p><p class="sub2" id="avSub" style="margin-top:-6px"></p><div id="avRows" style="display:grid;gap:6px"></div>
+  <div class="ola av" id="av" hidden role="dialog" aria-modal="true" aria-labelledby="avT"><div class="cx"><p id="avT">Como ficou o café?</p><p class="sub2" id="avSub" style="margin-top:-6px"></p><div id="avDados" class="cres" style="margin:0;font-size:.84rem;line-height:1.5;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px"></div><div id="avG" hidden style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px"></div><div id="avRows" style="display:grid;gap:6px"></div>
     <div class="rw" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Nota geral</b><br><span id="avMed" style="font-size:.78rem;color:var(--muted)">média: --</span></span><span class="gr ro" id="avGeral"></span></div>
     <textarea id="avObs" maxlength="300" placeholder="Observação (opcional): ex.: frutado, um pouco ralo"></textarea>
     <div style="display:flex;gap:8px"><button class="btn" id="avCanc" type="button" style="flex:1;padding:12px">Cancelar</button><button class="btn pri" id="avSalvar" type="button" style="flex:2;padding:12px">Salvar avaliação</button></div>
@@ -1002,7 +1002,7 @@ async function iniciar(off){off=typeof off==="number"&&off>0?off:0;if(novoFalta(
   $("tmr").hidden=false;document.body.classList.add("timing");$("tPause").textContent="Pausar";$("tStart").hidden=true;
   clearInterval(tInt);tInt=setInterval(()=>tick(false),200);tick(false);
   document.querySelector("#steps").scrollIntoView({behavior:"smooth",block:"start"})}
-function encerrar(){try{BAL.hist=[];BAL.est=null;BAL.cand=null;BAL.fim=Date.now()}catch(e){}T.pts=null;T.steps=null;setTimeout(render,0);try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src);$("tAudio").removeAttribute("src")}}catch(e){}T.au=null;T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").hidden=false;$("tStart").textContent="Iniciar temporizador";
+function encerrar(){try{BAL.hist=[];BAL.est=null;BAL.cand=null;BAL.fim=Date.now();BAL.cafeOk=null}catch(e){}T.pts=null;T.steps=null;setTimeout(render,0);try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src);$("tAudio").removeAttribute("src")}}catch(e){}T.au=null;T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").hidden=false;$("tStart").textContent="Iniciar temporizador";
   try{T.wl&&T.wl.release()}catch(e){}T.wl=null;document.querySelectorAll("#steps li").forEach(li=>li.classList.remove("on","ok"))}
 const setBipe=v=>{st.bipe=v;$("tBipe").checked=v;$("tSom").textContent=v?"Com bipe":"Sem bipe";if(T.au)T.au.muted=!v;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}};
 setBipe(st.bipe!==false);
@@ -1032,11 +1032,14 @@ function balPronto(){return BAL.on&&!T.run&&!(BAL.fim&&Date.now()-BAL.fim<60000)
 function balDetecta(w,now){BAL.hist.push({t:now,w});BAL.hist=BAL.hist.filter(x=>now-x.t<=2500);
   const h=BAL.hist.filter(x=>now-x.t<=1500),estavel=h.length>=4&&now-BAL.hist[0].t>=1500&&Math.max(...h.map(x=>x.w))-Math.min(...h.map(x=>x.w))<0.4;
   // Peso parado (ex.: terminou de colocar o café): vira a nova base e descarta a subida anterior
-  if(estavel){BAL.est=w;BAL.cand=null}
+  if(estavel&&!(BAL.cafeOk!=null&&Math.abs(w-BAL.cafeOk)<0.6)){BAL.est=w;BAL.cand=null}else if(estavel)BAL.cand=null
   if(!BAL.cand){if(BAL.est!=null&&w>BAL.est+3&&balPronto())BAL.cand={t:now,base:BAL.est};return}
   const c=BAL.cand,sobe=w-c.base;
   if(sobe<1||now-c.t>25000||!balPronto()){BAL.cand=null;return}
-  if(sobe>=Math.max(BAL.alvoCafe+5,20)){BAL.cand=null;BAL.base=c.base;BAL.autoBase=true;const off=Math.max(0,(now-c.t)/1000);toast("Despejo detectado: temporizador iniciado");iniciar(off)}}
+  // Só é despejo se houver fluxo de verdade: no último 1 s o peso ficou acima da base e subiu sem recuar (≥ 1,5 g).
+  // Mexer o café (WDT), nivelar a cama ou apoiar a mão dá um pico parado, sem fluxo, e não inicia o temporizador.
+  const j1=BAL.hist.filter(x=>now-x.t<=1000),fluxoOk=j1.length>=3&&Math.min(...j1.map(x=>x.w))>=c.base+3&&w-j1[0].w>=1.5&&j1.every((x,i)=>i===0||x.w>=j1[i-1].w-0.5);
+  if(sobe>=Math.max(BAL.alvoCafe+5,20)&&fluxoOk){BAL.cand=null;BAL.base=c.base;BAL.autoBase=true;const off=Math.max(0,(now-c.t)/1000);toast("Despejo detectado: temporizador iniciado");iniciar(off)}}
 
 // Fluxo: g/s pela variação do peso nos últimos 2 s
 function balFluxo(){const r=BAL.rec;if(r.length<3)return null;const t1=r[r.length-1][0];let j=r.length-1;while(j>0&&t1-r[j-1][0]<=2)j--;const a=r[j],b=r[r.length-1];const dt=b[0]-a[0];return dt>=0.8?Math.max(0,(b[1]-a[1])/dt):null}
@@ -1062,7 +1065,7 @@ function balTela(){const on=BAL.on;$("bConn").hidden=on||!temBLE()||BAL.cap;$("b
    $("bArm").textContent=esp?`Início automático volta em ${Math.ceil((60000-(Date.now()-BAL.fim))/1000)} s (pausa depois de encerrar).`:BAL.cand?"Despejo percebido: confirmando…":BAL.est==null?"Início automático: aguardando o peso parar na balança…":`Início automático pronto: comece a despejar a água. ${Math.abs(BAL.est)<0.5?"Balança zerada (0,0 g).":`Na balança agora: ${f(BAL.est,1)} g. Esse peso não entra na conta da água.`}`}
   document.querySelectorAll("#steps .blive").forEach(x=>x.remove());
   if(!on||BAL.w==null){$("bPrev").hidden=true;return}
-  if(!T.run){const show=BAL.alvoCafe>0&&!BAL.cap;$("bPrev").hidden=!show;if(show)$("bPrev").innerHTML=`<span class="t" style="font:600 1rem var(--mono);color:var(--accent)">Moer</span><span>Pese <b>${f(BAL.alvoCafe,1)} g</b> de café${balBox(BAL.w,BAL.alvoCafe,1)}</span>`;return}
+  if(!T.run){const show=BAL.alvoCafe>0&&!BAL.cap;$("bPrev").hidden=!show;if(show)$("bPrev").innerHTML=`<span class="t" style="font:600 1rem var(--mono);color:var(--accent)">Café</span><span>Pese <b>${f(BAL.alvoCafe,1)} g</b> de café moído${BAL.cafeOk!=null?`<div class="blive okk"><div class="bw">${f(BAL.cafeOk,1)}<small> g no método ✓</small></div><div class="bf">Confirmado. Faça o WDT e nivele a cama com calma: o temporizador só inicia quando perceber o fluxo de água, e esse peso não entra na água.</div></div><button class="lnk" type="button" id="bCafeX" style="margin-top:4px">Pesar de novo</button>`:`${balBox(BAL.w,BAL.alvoCafe,1)}<button class="btn pri" type="button" id="bCafe" style="margin-top:8px;width:100%;padding:10px">Este é o café moído no método</button>`}</span>`;return}
   $("bPrev").hidden=true;const ag=BAL.w-BAL.base,li=document.querySelector("#steps li.on");if(!li)return;const sts=T.steps||CUR,al=balAlvos(sts)[+li.dataset.i];if(al==null){if(/^Fim do preparo/.test(sts[+li.dataset.i][1])){const tot=balAlvos(sts).filter(x=>x!=null).pop();li.querySelector(".x").insertAdjacentHTML("beforeend",`<div class="blive"><div class="bw">${f(ag,0)}<small> g de água na balança</small></div>${tot?`<div class="bf">Despejado ${f(tot)} g${BAL.xic?` · na xícara ≈ ${f(BAL.xic)} ml quando terminar de pingar`:""}</div>`:""}</div>`)}return}
   li.querySelector(".x").insertAdjacentHTML("beforeend",balBox(ag,al,0,balFluxo()))}
 // No app nativo (Capacitor) o Bluetooth vem do plugin BluetoothLe; no navegador, do Web Bluetooth
@@ -1087,6 +1090,8 @@ async function balConectar(){const P=BLEN();if(P)return balConectarNativo(P);if(
     toast("Balança conectada");render();setTimeout(()=>balEnvia(3,6,[0]),500);setTimeout(()=>balEnvia(3,8,[1,0]),700)}
   catch(e){if(!(e&&e.name==="NotFoundError"))toast("Não conectou a balança: "+((e&&(e.message||e.name))||"tente de novo"))}}
 // O toque em Conectar libera o som: assim os bipes tocam mesmo quando o temporizador inicia sozinho
+document.addEventListener("click",e=>{if(e.target.closest("#bCafe")&&BAL.on&&BAL.w!=null){BAL.cafeOk=BAL.w;BAL.cafeMed=BAL.w;BAL.est=BAL.w;BAL.cand=null;BAL.hist=[];BAL.fim=0;vibra(40);balTela()}
+  else if(e.target.closest("#bCafeX")){BAL.cafeOk=null;BAL.cafeMed=null;balTela()}});
 $("bConn").onclick=()=>{try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();T.ac.resume()}catch(e){}
   try{const au=$("tAudio"),d=new Uint8Array(44+800);d.fill(128,44);const v=new DataView(d.buffer),w=(o,t)=>{for(let i=0;i<t.length;i++)d[o+i]=t.charCodeAt(i)};w(0,"RIFF");v.setUint32(4,836,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,800,true);
     if(!au.src){au.src=URL.createObjectURL(new Blob([d],{type:"audio/wav"}));const pr=au.play();if(pr&&pr.then)pr.then(()=>au.pause()).catch(()=>{})}}catch(e){}
@@ -1102,7 +1107,7 @@ $("penModo").addEventListener("click",e=>{const b=e.target.closest("button");if(
 $("penTenho").addEventListener("input",e=>{const v=e.target.value===""?null:Number(e.target.value);st.pen.tenho=v>0?v:null;render()});
 $("penPerda").addEventListener("input",e=>{const v=e.target.value===""?null:Number(e.target.value);st.pen.perda=v>0&&v<=40?v:null;render()});
 $("cIndBox").addEventListener("click",e=>{const b=e.target.closest("[data-ind]");if(!b)return;const r=rankMetodos(st.cafe)[+b.dataset.ind];if(!r)return;marca("met");st.met=r.id;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:r.id};render()});
-const novoPreparo=()=>{if(T.run)try{encerrar()}catch(e){}st.ajF=false;NOVO={met:false,moe:false,caf:false};abrirMet=false;abrirMoe=false;abrirRec=false;recPend=false;potSel=-1;usoPote=-1;window.scrollTo({top:0,behavior:"smooth"});render()};
+const novoPreparo=()=>{if(T.run)try{encerrar()}catch(e){}try{BAL.fim=0;BAL.cafeOk=null;BAL.cafeMed=null}catch(e){}st.ajF=false;NOVO={met:false,moe:false,caf:false};abrirMet=false;abrirMoe=false;abrirRec=false;recPend=false;potSel=-1;usoPote=-1;window.scrollTo({top:0,behavior:"smooth"});render()};
 $("novoCafe").onclick=novoPreparo;
 $("ajPronto").onclick=()=>{st.ajF=true;render();document.querySelector('section[aria-label="Resultado"]').scrollIntoView({behavior:"smooth",block:"start"})};
 $("ajAjustar").onclick=()=>{st.ajF=false;render();$("ajQtd").scrollIntoView({behavior:"smooth",block:"start"})};
@@ -1121,39 +1126,45 @@ const AVC=[["aroma","Aroma"],["acidez","Acidez"],["docura","Doçura"],["corpo","
 let avN={},avCtx=null;
 const graos=(v,cl,ro)=>[1,2,3,4,5].map(i=>`<button type="button" ${ro?"tabindex=-1 disabled":""} data-av="${cl}" data-v="${i}" aria-label="${i} de 5"><svg class="${i<=v?"":"of"}"><use href="#grao"/></svg></button>`).join("");
 function avMedia(n){const v=[n.aroma,n.acidez,n.docura,n.amargor!=null?6-n.amargor:null,n.retro].filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null}
+
+function avDadosTela(){const x=avCtx||{},rs=resumoG(x.g);$("avDados").innerHTML=(x.dados?esc(x.dados):"")+(rs?`<br>Tempo ${tm(rs.tt)} · água na balança ${f(rs.tot)} g${rs.fm?` · fluxo médio ${f(rs.fm,1)} g/s`:""}`:"");$("avDados").hidden=!x.dados&&!rs;
+  $("avG").hidden=!rs;$("avG").innerHTML=rs?grafico(x.g,x.al):""}
 function avTela(){$("avRows").innerHTML=AVC.map(([k,l])=>`<div class="rw"><span>${l}</span><span class="gr">${graos(avN[k]||0,k)}</span></div>`).join("");
   const md=avMedia(avN);$("avMed").textContent="média: "+(md==null?"--":f(md,1));$("avGeral").innerHTML=graos(md==null?0:Math.round(md),"g",true)}
 function avResumo(id){const L=AVAL.filter(x=>x.caf===id&&x.geral!=null);if(!L.length)return"";const u=L[L.length-1],md=L.reduce((a,b)=>a+b.geral,0)/L.length;
   return ` · Avaliação: última ${f(u.geral,1)} (${dataBR(u.d)}, ${u.met})`+(L.length>1?` · média ${f(md,1)} em ${L.length} preparos`:"")}
 function abrirAproveite(){const m=cur(),{c,a}=calc(m),nome=ISD(st.csel)?(st.csel==="descpo"?"Café em pó":"Café em grãos"):(st.cafe&&st.cafe.nome)||"Café";
   const vs=M.filter(x=>G(x)===G(m)).length>1,bt=document.querySelector(`#metodos button[data-v="${G(m)}"]`),met=(bt?bt.textContent:m.n)+(vs?" · "+vn(m):"");
-  avCtx={caf:st.csel,nome,met,c:Math.round(c*10)/10,a:Math.round(a)};
+  const pn0=(()=>{try{return peneira(m,c)}catch(e){return{}}})(),rr=calc(m).r;
+  const dados=[m.cap?"":`Café ${f(c,1)} g`+(pn0.on&&!pn0.bloq&&pn0.moer?` (moído ${f(pn0.moer,1)} g, peneira)`:""),BAL.cafeMed!=null?`pesado na balança ${f(BAL.cafeMed,1)} g`:"",m.cap?"":`água ${f(a)} g`,m.cap?"":`1:${rfmt(m,rr)}`,
+    (()=>{const mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`);return m.cap?"":`${mb?mb.textContent:st.moe} ${$("oMoag").textContent}`})(),$("oTemp").textContent?`água a ${$("oTemp").textContent}`:""].filter(Boolean).join(" · ");
+  avCtx={caf:st.csel,nome,met,c:Math.round(c*10)/10,a:Math.round(a),dados};
   $("aprSub").textContent=m.cap?`${nome} · ${met}`:`${nome} · ${met} · ${f(c,1)} g : ${f(a)} g`;
   const g=BAL.rec.length?balSerie():null,rs=resumoG(g),al=balAlvos(T.lastSteps||CUR).filter(x=>x!=null);avCtx.g=rs?g:null;avCtx.al=rs?al:null;
   $("aprG").hidden=!rs;$("aprKV").hidden=!rs;if(rs){$("aprG").innerHTML=grafico(g,al);$("aprKV").innerHTML=`Tempo total <b>${tm(rs.tt)}</b> · Água <b>${f(rs.tot)} g</b>${rs.fm?` · Fluxo médio <b>${f(rs.fm,1)} g/s</b>`:""}`}
   $("apr").hidden=false}
 $("tStop").onclick=()=>{const rodou=T.run;T.lastSteps=T.steps;encerrar();if(rodou)abrirAproveite()};
 const avPendente=()=>{if(!avCtx||avCtx.pid)return;const dn=new Date(),p2=n=>String(n).padStart(2,"0");const id="a-"+Date.now().toString(36);
-  AVAL.push({id,pend:true,d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,h:`${p2(dn.getHours())}:${p2(dn.getMinutes())}`,caf:avCtx.caf,nome:avCtx.nome,met:avCtx.met,c:avCtx.c,a:avCtx.a,g:avCtx.g||null,al:avCtx.al||null});avCtx.pid=id;saveAval();avPendTela()};
+  AVAL.push({id,pend:true,d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,h:`${p2(dn.getHours())}:${p2(dn.getMinutes())}`,caf:avCtx.caf,nome:avCtx.nome,met:avCtx.met,c:avCtx.c,a:avCtx.a,g:avCtx.g||null,al:avCtx.al||null,dados:avCtx.dados||""});avCtx.pid=id;saveAval();avPendTela()};
 function avPendTela(){const L=AVAL.filter(x=>x.pend).slice(-3).reverse();$("avPend").hidden=!L.length;
   $("avPend").innerHTML=L.map(x=>`<div style="display:flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px"><span style="flex:1;font-size:.88rem;line-height:1.35">Avaliar depois: <b>${esc(x.nome||"Café")}</b><br><span style="color:var(--muted)">${esc(x.met||"")} · ${dataBR(x.d).slice(0,5)}${x.h?" "+x.h:""}</span></span><button class="btn pri" type="button" data-avp="${x.id}" style="padding:7px 10px">Avaliar</button><button class="lnk" type="button" data-avx="${x.id}" aria-label="Descartar">✕</button></div>`).join("")}
 $("avPend").addEventListener("click",e=>{const a=e.target.closest("[data-avp]"),x=e.target.closest("[data-avx]");
   if(x){AVAL=AVAL.filter(v=>v.id!==x.dataset.avx);saveAval();avPendTela();return}
-  if(a){const v=AVAL.find(v=>v.id===a.dataset.avp);if(!v)return;avCtx={caf:v.caf,nome:v.nome,met:v.met,c:v.c,a:v.a,g:v.g,al:v.al,pid:v.id};avN={};$("avObs").value="";$("avSub").textContent=`${v.nome||"Café"} · ${v.met||""} · ${dataBR(v.d)}`;avTela();$("av").hidden=false}});
+  if(a){const v=AVAL.find(v=>v.id===a.dataset.avp);if(!v)return;avCtx={caf:v.caf,nome:v.nome,met:v.met,c:v.c,a:v.a,g:v.g,al:v.al,dados:v.dados,pid:v.id};avDadosTela();avN={};$("avObs").value="";$("avSub").textContent=`${v.nome||"Café"} · ${v.met||""} · ${dataBR(v.d)}`;avTela();$("av").hidden=false}});
 $("aprNao").onclick=()=>{$("apr").hidden=true;avPendente()};
 $("avVer").onclick=()=>{const L=AVAL.filter(x=>x.caf===st.csel&&x.geral!=null).slice().reverse();$("avHT").textContent="Avaliações: "+(L[0]&&L[0].nome||"café");
   $("avHL").innerHTML=L.map(x=>{const rs=resumoG(x.g),nn=x.n||{};return `<div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:6px">
    <div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:.95rem">${dataBR(x.d).slice(0,5)} · ${esc(x.met||"")}</b><b style="color:var(--accent)">${f(x.geral,1)}</b></div>
    ${rs?grafico(x.g,x.al):""}
-   <div class="cres" style="margin:0;font-size:.82rem">${AVC.filter(([k])=>nn[k]).map(([k,l])=>`${l} ${nn[k]}`).join(" · ")}${x.obs?`<br>${esc(x.obs)}`:""}${rs?`<br>${tm(rs.tt)} · ${f(rs.tot)} g${rs.fm?` · fluxo médio ${f(rs.fm,1)} g/s`:""}`:""}</div></div>`}).join("")||'<p class="cres">Nenhuma avaliação ainda.</p>';$("avHist").hidden=false};
+   <div class="cres" style="margin:0;font-size:.82rem">${x.dados?esc(x.dados)+"<br>":""}${AVC.filter(([k])=>nn[k]).map(([k,l])=>`${l} ${nn[k]}`).join(" · ")}${x.obs?`<br>${esc(x.obs)}`:""}${rs?`<br>${tm(rs.tt)} · ${f(rs.tot)} g${rs.fm?` · fluxo médio ${f(rs.fm,1)} g/s`:""}`:""}</div></div>`}).join("")||'<p class="cres">Nenhuma avaliação ainda.</p>';$("avHist").hidden=false};
 $("avHF").onclick=()=>{$("avHist").hidden=true};
 
-$("aprAv").onclick=()=>{$("apr").hidden=true;if(avCtx)avCtx.pid=null;avN={};$("avObs").value="";$("avSub").textContent=avCtx?`${avCtx.nome} · ${avCtx.met}`:"";avTela();$("av").hidden=false};
+$("aprAv").onclick=()=>{$("apr").hidden=true;if(avCtx)avCtx.pid=null;avDadosTela();avN={};$("avObs").value="";$("avSub").textContent=avCtx?`${avCtx.nome} · ${avCtx.met}`:"";avTela();$("av").hidden=false};
 $("avRows").addEventListener("click",e=>{const b=e.target.closest("[data-av]");if(!b)return;const k=b.dataset.av,v=+b.dataset.v;avN[k]=avN[k]===v?v-1||null:v;avTela()});
 $("avCanc").onclick=()=>{$("av").hidden=true;avPendente()};
 $("avSalvar").onclick=()=>{if(!AVC.some(([k])=>avN[k])){toast("Dê nota a pelo menos uma característica");return}const md=avMedia(avN),dn=new Date(),p2=n=>String(n).padStart(2,"0");
   const reg={n:{...avN},geral:md==null?null:Math.round(md*10)/10,obs:$("avObs").value.trim().slice(0,300)},pv=avCtx&&avCtx.pid&&AVAL.find(v=>v.id===avCtx.pid);
-  if(pv){Object.assign(pv,reg);delete pv.pend}else AVAL.push({id:"a-"+Date.now().toString(36),d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,caf:avCtx&&avCtx.caf,nome:avCtx&&avCtx.nome,met:avCtx&&avCtx.met,c:avCtx&&avCtx.c,a:avCtx&&avCtx.a,g:avCtx&&avCtx.g||null,al:avCtx&&avCtx.al||null,...reg});
+  if(pv){Object.assign(pv,reg);delete pv.pend}else AVAL.push({id:"a-"+Date.now().toString(36),d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,caf:avCtx&&avCtx.caf,nome:avCtx&&avCtx.nome,met:avCtx&&avCtx.met,c:avCtx&&avCtx.c,a:avCtx&&avCtx.a,g:avCtx&&avCtx.g||null,al:avCtx&&avCtx.al||null,dados:avCtx&&avCtx.dados||"",...reg});
   saveAval();avPendTela();$("av").hidden=true;toast(md==null?"Avaliação salva":`Avaliação salva: nota geral ${f(md,1)}`);render()};
 
 $("tPause").onclick=()=>{if(!T.run)return;const tocando=T.au&&!T.auFim;
