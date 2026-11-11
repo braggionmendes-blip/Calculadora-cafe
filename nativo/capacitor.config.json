@@ -1,0 +1,16 @@
+{
+  "appId": "io.github.braggionmendesblip.calculadoracafe",
+  "appName": "Calculadora de Café",
+  "webDir": "www",
+  "android": { "allowMixedContent": false },
+  "plugins": {
+    "BluetoothLe": {
+      "displayStrings": {
+        "scanning": "Procurando a balança…",
+        "cancel": "Cancelar",
+        "availableDevices": "Balanças encontradas",
+        "noDeviceFound": "Nenhuma balança encontrada"
+      }
+    }
+  }
+}

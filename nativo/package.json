@@ -1,0 +1,17 @@
+{
+  "name": "calculadora-cafe-nativo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "App nativo (Android e iOS) da Calculadora de Café, montado com Capacitor a partir do index.html do repositório",
+  "scripts": {
+    "web": "node copia-web.js",
+    "sync": "node copia-web.js && npx cap sync"
+  },
+  "dependencies": {
+    "@capacitor-community/bluetooth-le": "^7.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  }
+}

@@ -173,7 +173,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 78 · 11/11/2026 · fluxo ao vivo, gráfico do preparo e temporizador só libera com o café do pote em uso</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 79 · 11/11/2026 · preparo para o app nativo (Bluetooth pelo Capacitor)</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -1047,14 +1047,28 @@ function balAlvos(steps){let prev=0;return steps.map(x=>{if(!/\d+:\d\d/.test(x[0
   const cum=a?+a[1].replace(",","."):b?prev+ +b[1].replace(",","."):null;if(cum==null||cum<=prev)return null;prev=cum;return cum})}
 function balBox(w,alvo,dec,fx){const pct=Math.max(0,Math.min(100,w/alvo*100)),falta=alvo-w,ok=falta<=(dec?0.05:1),ovr=w>alvo+(dec?0.5:5);
   return `<div class="blive${ovr?" ovr":ok?" okk":""}"><div class="bw">${f(w,dec)}<small> / ${f(alvo,dec)} g</small></div><div class="bar"><i style="width:${pct}%"></i></div><div class="bf">${ovr?`Passou ${f(w-alvo,dec)} g`:ok?"No alvo":`Falta${falta>=2?"m":""} ${f(falta,dec)} g`}${fx!=null?`<span style="float:right">Fluxo <b style="color:#6aa9d6;font-family:var(--mono)">${f(fx,1)} g/s</b></span>`:""}</div></div>`}
-function balTela(){const on=BAL.on;$("bConn").hidden=on||!navigator.bluetooth||BAL.cap;$("bOn").hidden=!on;$("bTara").hidden=!on;
+function balTela(){const on=BAL.on;$("bConn").hidden=on||!temBLE()||BAL.cap;$("bOn").hidden=!on;$("bTara").hidden=!on;
   $("bArm").hidden=!balPronto();$("bArm").textContent="Início automático: o temporizador começa sozinho quando você despejar a água. Não precisa zerar a balança.";
   document.querySelectorAll("#steps .blive").forEach(x=>x.remove());
   if(!on||BAL.w==null){$("bPrev").hidden=true;return}
   if(!T.run){const show=BAL.alvoCafe>0&&!BAL.cap;$("bPrev").hidden=!show;if(show)$("bPrev").innerHTML=`<span class="t" style="font:600 1rem var(--mono);color:var(--accent)">Moer</span><span>Pese <b>${f(BAL.alvoCafe,1)} g</b> de café${balBox(BAL.w,BAL.alvoCafe,1)}</span>`;return}
   $("bPrev").hidden=true;const ag=BAL.w-BAL.base,li=document.querySelector("#steps li.on");if(!li)return;const sts=T.steps||CUR,al=balAlvos(sts)[+li.dataset.i];if(al==null){if(/^Fim do preparo/.test(sts[+li.dataset.i][1])){const tot=balAlvos(sts).filter(x=>x!=null).pop();li.querySelector(".x").insertAdjacentHTML("beforeend",`<div class="blive"><div class="bw">${f(ag,0)}<small> g de água na balança</small></div>${tot?`<div class="bf">Despejado ${f(tot)} g${BAL.xic?` · na xícara ≈ ${f(BAL.xic)} ml quando terminar de pingar`:""}</div>`:""}</div>`)}return}
   li.querySelector(".x").insertAdjacentHTML("beforeend",balBox(ag,al,0,balFluxo()))}
-async function balConectar(){if(!navigator.bluetooth)return;
+// No app nativo (Capacitor) o Bluetooth vem do plugin BluetoothLe; no navegador, do Web Bluetooth
+const BLEN=()=>{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.BluetoothLe||null};
+const temBLE=()=>!!(navigator.bluetooth||BLEN());
+const hexB=h=>{const t=String(h||"").replace(/[^0-9a-f]/gi,"");const o=new Uint8Array(t.length>>1);for(let i=0;i<o.length;i++)o[i]=parseInt(t.substr(i*2,2),16);return o};
+const bHex=a=>[...a].map(b=>b.toString(16).padStart(2,"0")).join(" ");
+async function balConectarNativo(P){
+  try{await P.initialize({androidNeverForLocation:true});const d=await P.requestDevice({optionalServices:[BAL.S]}),id=d.deviceId;
+    await P.addListener("disconnected|"+id,()=>{BAL.on=false;BAL.cmd=null;BAL.cand=null;BAL.w=null;toast("A balança desconectou");render()});
+    await P.connect({deviceId:id});
+    await P.addListener(`notification|${id}|${BAL.S}|${BAL.N}`,ev=>{const b=hexB(ev&&ev.value);balRecebe({target:{value:new DataView(b.buffer)}})});
+    await P.startNotifications({deviceId:id,service:BAL.S,characteristic:BAL.N});
+    BAL.cmd={writeValueWithoutResponse:q=>P.writeWithoutResponse({deviceId:id,service:BAL.S,characteristic:BAL.C,value:bHex(q)})};
+    BAL.dev={id};BAL.on=true;BAL.w=0;toast("Balança conectada");render();setTimeout(()=>balEnvia(3,6,[0]),500);setTimeout(()=>balEnvia(3,8,[1,0]),700)}
+  catch(e){const m=(e&&(e.message||e.errorMessage))||"";if(!/cancel/i.test(m))toast("Não conectou a balança: "+(m||"tente de novo"))}}
+async function balConectar(){const P=BLEN();if(P)return balConectarNativo(P);if(!navigator.bluetooth)return;
   try{const dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:"dot"},{namePrefix:"Dot"},{namePrefix:"DOT"},{namePrefix:"TES"},{namePrefix:"TIMEMORE"},{namePrefix:"Timemore"},{services:[BAL.S]}],optionalServices:[BAL.S]});
     const srv=await dev.gatt.connect(),sv=await srv.getPrimaryService(BAL.S),nt=await sv.getCharacteristic(BAL.N);BAL.cmd=await sv.getCharacteristic(BAL.C);
     nt.addEventListener("characteristicvaluechanged",balRecebe);await nt.startNotifications();BAL.dev=dev;BAL.on=true;BAL.w=0;
@@ -1231,7 +1245,7 @@ $("menos").onclick=()=>bump(-1); $("mais").onclick=()=>bump(1);
 $("ratio").addEventListener("input",e=>{st.r[cur().id]=Number(e.target.value);render()});
 $("padrao").onclick=()=>{delete st.r[cur().id];render()};
 render();
-if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+if('serviceWorker' in navigator&&!window.Capacitor){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
 
 </body>
