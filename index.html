@@ -165,7 +165,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 71 · 10/11/2026 · importação mostra os potes e permite substituí-los</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 72 · 10/11/2026 · início automático só depois que a balança zera</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -978,7 +978,9 @@ function balRecebe(ev){const v=ev.target.value,r=new Uint8Array(v.buffer,v.byteO
     if((op===1||op===2)&&id===1&&d.length>=4){BAL.w=((d[0]<<24)|(d[1]<<16)|(d[2]<<8)|d[3])/10;balPeso()}
     o+=Math.max(8,6+len+2)}}
 function balPeso(){const w=BAL.w;$("bW").textContent=f(w,1)+" g";
-  if(BAL.arm&&!T.run&&w>2){BAL.arm=false;if(!novoFalta().length){iniciar();toast("Primeiro despejo detectado: temporizador iniciado")}}
+  // Depois da tara a balança ainda manda o peso antigo por um instante: só conta o despejo depois de ver o zero
+  if(BAL.arm&&!T.run&&!BAL.zero&&Math.abs(w)<1)BAL.zero=true;
+  if(BAL.arm&&!T.run&&BAL.zero&&w>2){BAL.arm=false;if(!novoFalta().length){iniciar();toast("Primeiro despejo detectado: temporizador iniciado")}}
   balTela()}
 // Peso acumulado esperado em cada etapa com despejo (lê os textos dos passos)
 function balAlvos(steps){let prev=0;return steps.map(x=>{if(!/\d+:\d\d/.test(x[0]))return null;const t=x[1];
@@ -1003,9 +1005,9 @@ async function balConectar(){if(!navigator.bluetooth)return;
   catch(e){if(!(e&&e.name==="NotFoundError"))toast("Não conectou a balança: "+((e&&(e.message||e.name))||"tente de novo"))}}
 $("bConn").onclick=balConectar;
 $("bTara").onclick=()=>{try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();T.ac.resume()}catch(e){}
-  const antes=BAL.w;balEnvia(3,0x0d,[]);BAL.w=0;
+  const antes=BAL.w;balEnvia(3,0x0d,[]);
   // Arma o início automático só quando a tara é feita com o coador montado (peso alto na balança), não ao pesar o café numa xícara
-  BAL.arm=!T.run&&antes!=null&&antes>=100&&!novoFalta().length;balPeso()};
+  BAL.arm=!T.run&&antes!=null&&antes>=100&&!novoFalta().length;BAL.zero=false;balPeso()};
 $("potes").addEventListener("click",e=>{const b=e.target.closest("[data-ppes]");if(!b||!BAL.on||BAL.w==null)return;const i=+b.dataset.ppes;loadPot();POT.t=POT.t||[];
   if(POT.t[i]==null){POT.t[i]=Math.round(BAL.w*10)/10;savePot();toast(`Tara do Pote ${i+1} guardada (${f(POT.t[i],1)} g). Agora coloque o pote com café e toque ⚖︎ de novo`);renderPotes();return}
   const g=Math.max(0,Math.round((BAL.w-POT.t[i])*10)/10);POT.g[i]=g;logPot(`peso pela balança: ${f(g,1)} g`,i);savePot();toast(`Pote ${i+1}: ${f(g,1)} g de café`);renderPotes()});
