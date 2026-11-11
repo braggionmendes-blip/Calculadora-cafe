@@ -165,7 +165,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 70 · 10/11/2026 · integração com a balança Timemore Dot (no Bluefy)</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 71 · 10/11/2026 · importação mostra os potes e permite substituí-los</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -382,6 +382,7 @@ select.txt{appearance:auto}
         <span class="btn filebtn">Importar arquivo<input id="bkFile" type="file" accept=".json,.txt,application/json,text/plain" aria-label="Importar arquivo de backup"></span>
       </div>
       <p class="toast" id="bkMsg" role="status" style="margin:2px 0 6px"></p>
+      <button class="btn pri" id="bkPotes" type="button" hidden style="margin-bottom:6px">Substituir os potes pelos do backup</button>
       <label class="lbl" for="bkTxt" style="margin-top:4px">Texto do backup</label>
       <textarea id="bkTxt" spellcheck="false" placeholder="Toque em Copiar backup, ou cole aqui um backup e toque em Importar do texto"></textarea>
       <p>Para guardar: toque em Copiar backup e cole no app Notas, num e-mail ou no WhatsApp. Para recuperar em outro aparelho: cole o texto aqui e toque em Importar do texto. O backup inclui as receitas e os cafés cadastrados. A importação soma ao que já existe, sem apagar nada.</p>
@@ -1096,9 +1097,11 @@ const importar=txt=>{try{$("bkTxt").blur()}catch(e){}const toast=t=>{$("bkMsg").
     const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?(x.cafe.po?{desc:true,po:true}:{desc:true}):san(x.cafe)):undefined;
     const fbi=x.fb&&typeof x.fb==="object"?{nota:(Number.isFinite(+x.fb.nota)&&x.fb.nota!==null&&+x.fb.nota>=0&&+x.fb.nota<=10)?Math.round(+x.fb.nota):null,txt:String(x.fb.txt||"").slice(0,400),data:String(x.fb.data||"").slice(0,10)}:undefined;
     REC.push({k46:x.k46&&typeof x.k46==="object"?{s:K46S[x.k46.s]?x.k46.s:"eq",c:K46C[x.k46.c]?x.k46.c:"normal"}:undefined,sd:x.sd&&x.sd.on?{on:true,t200:Number(x.sd.t200)||null}:undefined,acc:["star","lotos"].includes(x.acc)?x.acc:undefined,pen:x.pen&&typeof x.pen==="object"?{on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null}:undefined,fb:fbi,nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
-  if(d&&d.potes&&Array.isArray(d.potes.p)&&(!POT.p.some(Boolean)||confirm("Substituir os potes pelos do backup?"))){localStorage.setItem("calcPotes",JSON.stringify(d.potes));loadPot();savePot()}
+  let np=-1;BK_POT=null;$("bkPotes").hidden=true;if(d&&d.potes&&Array.isArray(d.potes.p)){const cheio=d.potes.p.filter(Boolean).length;if(!POT.p.some(Boolean)){localStorage.setItem("calcPotes",JSON.stringify(d.potes));loadPot();savePot();np=cheio}else if(cheio){BK_POT=d.potes;$("bkPotes").hidden=false;np=-2}}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
-  saveRec();render();toast(n||nc||nu?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`+(nu?`; ${nu} café${nu===1?"":"s"} atualizado${nu===1?"":"s"}`:""):"Nada novo: tudo já estava salvo")};
+  saveRec();render();toast((n||nc||nu?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`+(nu?`; ${nu} café${nu===1?"":"s"} atualizado${nu===1?"":"s"}`:""):"Nenhuma receita ou café novo")+(np>=0?`; ${np} pote${np===1?"":"s"} com café`:np===-2?". Este aparelho já tem potes: toque no botão abaixo para trocar pelos do backup":d&&d.potes?"":". Este backup não tem potes"))};
+let BK_POT=null;
+$("bkPotes").onclick=()=>{if(!BK_POT)return;localStorage.setItem("calcPotes",JSON.stringify(BK_POT));loadPot();savePot();const k=POT.p.filter(Boolean).length;BK_POT=null;$("bkPotes").hidden=true;potSel=-1;render();$("bkMsg").textContent=`Potes substituídos: ${k} com café`;window.toastG($("bkMsg").textContent)};
 $("bkImport").onclick=()=>{try{importar($("bkTxt").value)}catch(e){$("bkMsg").textContent="Erro ao importar: "+(e&&e.message||e)}};
 $("bkFile").addEventListener("change",e=>{const fl=e.target.files&&e.target.files[0];if(!fl)return;const rd=new FileReader();rd.onload=()=>{$("bkTxt").value=rd.result;try{importar(String(rd.result))}catch(err){$("bkMsg").textContent="Erro ao importar: "+(err&&err.message||err)}};rd.readAsText(fl);e.target.value=""});
 $("saved").addEventListener("input",e=>{if(e.target.id==="fbNota"){fbDraft.nota=+e.target.value;$("fbOut").textContent=fbDraft.nota;e.target.classList.remove("unset")}if(e.target.id==="fbTxt")fbDraft.txt=e.target.value});
