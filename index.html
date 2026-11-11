@@ -157,7 +157,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 62 · 10/11/2026 · método e tipo de preparo escolhidos pelo usuário antes de recolher</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 63 · 10/11/2026 · textos mais claros: moer → fica no coador, cliques, peneira</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -269,6 +269,12 @@ select.txt{appearance:auto}
         <span class="u">g</span>
         <button class="step" id="mais" type="button" aria-label="Aumentar">+</button>
       </div>
+      <div id="moerBox" hidden style="margin-top:10px;border:2px solid var(--accent);border-radius:14px;padding:10px 12px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center">
+        <div><div class="lbl" style="color:var(--accent);margin:0">Moer</div><div id="moerG" style="font:700 1.6rem var(--mono,ui-monospace)"></div></div>
+        <div style="color:var(--accent);font-size:1.3rem">→</div>
+        <div><div class="lbl" style="color:var(--accent);margin:0">Fica no coador</div><div id="coadG" style="font:700 1.6rem var(--mono,ui-monospace)"></div></div>
+      </div>
+      <p class="cres" id="moerNota" hidden style="margin-top:6px;font-size:.86rem"></p>
     </div>
     <div>
       <div class="ratio-head">
@@ -284,13 +290,13 @@ select.txt{appearance:auto}
       <div class="qty">
         <button class="step" id="gMenos" type="button" aria-label="Moagem mais fina">−</button>
         <input id="moag" type="number" inputmode="decimal" step="1">
-        <span class="u" id="gUnit">cl</span>
+        <span class="u" id="gUnit">cliques</span>
         <button class="step" id="gMais" type="button" aria-label="Moagem mais grossa">+</button>
       </div>
       <div class="hint"><span id="gSug"></span><button class="reset" id="gReset" type="button">Usar a sugerida</button></div>
     </div>
     <div id="aBox">
-      <label class="lbl" for="aSel">Acessório no fundo do coador</label>
+      <label class="lbl" for="aSel">Acessório no fundo do coador <span style="text-transform:none;font-weight:400">(ex.: Starflower, CFS, LOTOS)</span></label>
       <select class="txt" id="aSel">
         <option value="">Nenhum</option>
         <option value="star">LilyDrip Starflower (+ CFS)</option>
@@ -323,7 +329,7 @@ select.txt{appearance:auto}
           <input class="txt" id="pUm" type="number" inputmode="numeric" min="100" max="1000" step="10" placeholder="Não sei (considerar 300)">
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0"><label for="penPerda" style="font-size:.88rem">Perda medida na peneira</label><input class="txt" id="penPerda" type="number" inputmode="decimal" min="1" max="40" step="0.5" style="width:90px" placeholder="auto"><span style="font-size:.88rem">%</span></div>
-        <div style="margin:6px 0"><span class="lbl">O que você sabe</span><div class="seg" id="penModo"><button type="button" data-v="quero">Quanto quero no coador</button><button type="button" data-v="tenho">Quanto tenho para moer</button></div></div>
+        <div style="margin:6px 0"><span class="lbl">Calcular a partir de</span><div class="seg" id="penModo"><button type="button" data-v="quero">Café no coador</button><button type="button" data-v="tenho">Café que vou moer</button></div></div>
         <div id="penTenhoBox" hidden style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0"><label for="penTenho" style="font-size:.88rem">Café que vou moer</label><input class="txt" id="penTenho" type="number" inputmode="decimal" min="1" step="0.1" style="width:100px" placeholder="g"><span style="font-size:.88rem">g</span></div>
         <p class="cres" id="pInfo"></p>
       </div>
@@ -776,7 +782,7 @@ function render(){
   const bs=baseOf(m);
   $("base").hidden=!!m.dose;
   document.querySelectorAll("#base button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===bs));
-  $("lQtd").textContent=m.dose?"Dose de café":({cafe:"Café",xicara:"Café pronto na xícara (ml)"}[bs]||"Água total");
+  $("lQtd").textContent=m.dose?"Dose de café":({cafe:st.pen&&st.pen.on&&PREC[m.id]?"Café no coador":"Café",xicara:"Café pronto na xícara (ml)"}[bs]||"Água total");
   $("qtd").nextElementSibling.textContent=(!m.dose&&bs==="xicara")?"ml":"g";
   if(document.activeElement!==$("qtd")) $("qtd").value=m.dose?q:bs==="cafe"?Math.round(c*10)/10:bs==="xicara"?Math.round(b):q;
   $("qtd").step=(m.dose||bs==="cafe")?0.5:bs==="xicara"?5:m.qs;
@@ -788,10 +794,11 @@ function render(){
   $("oAgua").innerHTML=f(a,m.dose?1:0)+"<small>g</small>";
   const gr=m.g[st.moe], aj=ajuste(m), sv=Math.max(0,gr[2]+aj.off), gv=st.gr[gKey(m)]??sv, custom=st.gr[gKey(m)]!=null&&st.gr[gKey(m)]!==sv;
   const unit={oster:"Moagem · posição",mongdio:"Moagem · número do anel",icoffee:"Moagem · ajuste (de 30)"}[st.moe]||"Moagem · cliques";
+  $("padrao").hidden=st.r[m.id]==null||Number(st.r[m.id])===Number(m.r[2]);
   $("lMoag").textContent=unit; $("lMoagIn").textContent=unit;
-  $("gUnit").textContent=st.moe==="oster"?"pos":st.moe==="mongdio"?"nº":"cl";
+  $("gUnit").textContent=st.moe==="oster"?"posição":st.moe==="mongdio"?"nº":st.moe==="icoffee"?"ajuste":"cliques";
   if(document.activeElement!==$("moag")) $("moag").value=gv;
-  $("gSug").textContent=`Sugerida ${pfmt(sv)}${aj.off?` (base ${pfmt(gr[2])}, ajustada ${aj.src.join(", ")})`:""} · faixa ${pfmt(gr[0])} a ${pfmt(gr[1])}`;
+  $("gSug").innerHTML=`Sugerida ${pfmt(sv)} · faixa ${pfmt(gr[0])} a ${pfmt(gr[1])}`+(aj.off?` <details style="display:inline"><summary style="display:inline;color:var(--accent);cursor:pointer;font-weight:600">por quê?</summary><span style="display:block;margin-top:4px">Base ${pfmt(gr[2])}, ajustada ${esc(aj.src.join(", "))}.</span></details>`:"");
   $("gReset").hidden=!custom;
   $("oMoag").textContent=pfmt(gv);
   $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+pfmt(sv)+" · ":aj.off?`Ajustada ${aj.src.join(", ")} · base ${pfmt(gr[2])} · `:"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${pfmt(gr[0])} a ${pfmt(gr[1])} · ${m.cls}`);
@@ -807,9 +814,10 @@ function render(){
   if(document.activeElement!==$("sdT"))$("sdT").value=st.sd.t200||"";
   $("sdInfo").textContent=sdOn(m)?`Despeje cada etapa no SimpleDrip, não direto no café. ${st.sd.t200?"Tempo medido":"Tempo estimado (meça para mais precisão)"}: 200 ml em ${Number(st.sd.t200)||40} s. Os horários e os bipes já consideram esse escoamento; etapas acima de 240 g são feitas em duas vezes (capacidade de 250 ml).${["v60","origami"].includes(m.id)?" No V60-02 e no Origami a base dele é pequena: confira se fica firme antes de despejar.":""}`:"";
   if(pn.on&&!pn.bloq)steps=[["Peneirar",`Moa ${f(pn.moer,1)} g, ponha na peneira (${pn.um} µm), tampe e agite de um lado para o outro por ${pn.seg} s. Descarte o pó que passou (≈ ${f(pn.fino,1)} g) e use os ${f(c,1)} g que ficaram`],...steps];
-  $("pOn").checked=st.pen.on;$("pBox").hidden=!st.pen.on;$("pSel").value=st.pen.sel;$("pInoxBox").hidden=st.pen.sel!=="inox";
+  $("pOn").checked=st.pen.on;$("pBox").hidden=!st.pen.on;$("pSel").value=st.pen.sel;$("pInoxBox").hidden=st.pen.sel!=="inox"||Number(st.pen.perda)>0;
   if(document.activeElement!==$("pUm"))$("pUm").value=st.pen.um||"";
-  $("pInfo").textContent=!pn.on?"":pn.bloq?pn.msg:`Moa ${f(pn.moer,1)} g para sobrarem ${f(c,1)} g (perda ${pn.medida?"medida":"estimada"} de ${f(Math.round(pn.perda*1000)/10,1).replace(/,0$/,"")}%). Agite por ${pn.seg} s. ${pn.dica}.${aj.penOff?` Sem os finos o café escoa mais rápido: moagem ${pfmt(aj.penOff)}.`:""}`;
+  $("pInfo").textContent=!pn.on?"":pn.bloq?pn.msg:`Agite por ${pn.seg} s.${pn.medida?"":" "+pn.dica+"."}${aj.penOff?" Sem os finos o café escoa mais rápido: a moagem já foi ajustada.":""}`;
+  {const sh=pn.on&&!pn.bloq&&pn.moer;$("moerBox").hidden=!sh;$("moerNota").hidden=!sh;if(sh){$("moerG").textContent=f(pn.moer,1)+" g";$("coadG").textContent=f(c,1)+" g";$("moerNota").textContent=`A peneira tira ≈ ${f(pn.moer-c,1)} g de finos (perda ${pn.medida?"medida":"estimada"} de ${f(Math.round(pn.perda*1000)/10,1).replace(/,0$/,"")}%).`}}
   {const tm2=st.pen.modo==="tenho";document.querySelectorAll("#penModo button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===(tm2?"tenho":"quero"))));$("penTenhoBox").hidden=!tm2;
    if(document.activeElement!==$("penTenho"))$("penTenho").value=st.pen.tenho??"";
    if(pn.on&&!pn.bloq&&tm2){const t=Number(st.pen.tenho);if(t>0){const sob=t*(1-pn.perda),ag=sob*rOf(m);$("pInfo").textContent=`Moendo ${f(t,1)} g, sobram ${f(sob,1)} g depois de peneirar (perda ${pn.medida?"medida":"estimada"} de ${f(Math.round(pn.perda*1000)/10,1).replace(/,0$/,"")}%). Para manter a proporção 1:${f(rOf(m),1).replace(/,0$/,"")}, use ${f(Math.round(ag))} g de água. Agite por ${pn.seg} s.`}else $("pInfo").textContent="Informe quanto café você vai moer."}}
