@@ -81,15 +81,18 @@ h2{font-size:1.05rem;margin:4px 0 0}
 @media (max-width:460px){.bprev{grid-template-columns:64px 1fr}}
 .tmr{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 24px rgba(0,0,0,.12);
   padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-.tmr .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center}
-.tmr .clk{font:600 2.4rem var(--mono);font-variant-numeric:tabular-nums;grid-row:span 2;color:var(--accent)}
-.tmr .now{font-weight:600;font-size:.95rem;min-width:0}
-.tmr .nxt{color:var(--muted);font-size:.85rem;min-width:0}
+.tmr .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;align-items:center}
+.tmr .ring{position:relative;width:74px;height:74px}.tmr .ring svg{width:74px;height:74px;display:block}
+.tmr .ring circle{fill:none;stroke-width:6}.tmr .ring .rb{stroke:var(--line)}.tmr .ring .rf{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .4s linear}
+.tmr .clk{position:absolute;inset:0;display:grid;place-items:center;font:700 1.2rem var(--mono);font-variant-numeric:tabular-nums;color:var(--fg)}
+.tmr .et{display:grid;gap:2px;font-size:.88rem;color:var(--muted);min-width:0}.tmr .et b{font-family:var(--mono);color:var(--accent);font-size:1.05rem}
+.tmr .now{grid-column:1/-1;font-weight:700;font-size:1.06rem;line-height:1.35;min-width:0}
+.tmr .nxt{grid-column:1/-1;color:var(--muted);font-size:.86rem;line-height:1.35;min-width:0}
 .tmr .nxt b{font-family:var(--mono);color:var(--heat-fg)}
 .tmr .bt{grid-column:1/-1;display:flex;gap:8px;margin-top:6px}
 .tmr .bt .btn{flex:1}
 .tmr.alerta{background:var(--heat)}
-body.timing{padding-bottom:170px}
+body.timing{padding-bottom:250px}
 .mini{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .mini button{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 .85rem var(--display);cursor:pointer}
 .mini button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
@@ -173,7 +176,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 81 · 11/11/2026 · início automático funciona mesmo quando a balança só envia o peso ao mudar</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 82 · 11/11/2026 · temporizador com anel e texto na largura toda; tara da balança percebida</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -416,7 +419,8 @@ select.txt{appearance:auto}
 <audio id="tAudio" preload="auto" playsinline></audio>
 <div class="tmr" id="tmr" hidden role="timer" aria-live="polite">
   <div class="in">
-    <div class="clk" id="tClk">0:00</div>
+    <div class="ring"><svg viewBox="0 0 74 74" aria-hidden="true"><circle class="rb" cx="37" cy="37" r="32"/><circle class="rf" id="tRing" cx="37" cy="37" r="32" stroke-dasharray="201.06" stroke-dashoffset="201.06" transform="rotate(-90 37 37)"/></svg><div class="clk" id="tClk">0:00</div></div>
+    <div class="et" id="tEt"></div>
     <div class="now" id="tNow"></div>
     <div class="nxt" id="tNxt"></div>
     <div class="nxt" id="tPote" style="opacity:.85;font-size:.82rem"></div>
@@ -953,7 +957,10 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
   $("tClk").textContent=tm(Math.floor(e));
   let atual=null,prox=null;for(const p of pts){if(p.t<=e)atual=p;else{prox=p;break}}
   $("tNow").textContent=atual?atual.txt:"Prepare-se";
-  $("tNxt").innerHTML=prox?`Próximo em <b>${tm(Math.ceil(prox.t-e))}</b>: ${esc(prox.txt)}`:"Último passo. Toque em Encerrar quando terminar.";
+  $("tNxt").innerHTML=prox?`Depois: ${esc(prox.txt)}`:"Último passo. Toque em Encerrar quando terminar.";
+  {const ia=atual?pts.indexOf(atual):-1,t0=atual?atual.t:0,fr=prox?Math.min(1,Math.max(0,(e-t0)/Math.max(1,prox.t-t0))):1;
+   $("tRing").style.strokeDashoffset=(201.06*(1-fr)).toFixed(1);
+   $("tEt").innerHTML=`<span>Etapa ${ia+1} de ${pts.length}</span>`+(prox?`<span>Próxima em <b>${tm(Math.ceil(prox.t-e))}</b></span>`:`<span>Última etapa</span>`)}
   document.querySelectorAll("#steps li").forEach(li=>{const i=+li.dataset.i;li.classList.toggle("on",!!atual&&i===atual.i);li.classList.toggle("ok",!!atual&&pts.some(p=>p.i===i&&p.t<atual.t))});
   try{balTela()}catch(e){}
   if(sohTela)return;
@@ -1010,7 +1017,9 @@ function balRecebe(ev){const v=ev.target.value,r=new Uint8Array(v.buffer,v.byteO
   while(o<=r.length-8){if(r[o]!==0xa5||r[o+1]!==0x5a){o++;continue}const op=r[o+2],id=r[o+3],len=(r[o+4]<<8)|r[o+5];if(len>r.length-(o+6))break;const d=r.slice(o+6,o+6+len);
     if((op===1||op===2)&&id===1&&d.length>=4){BAL.w=((d[0]<<24)|(d[1]<<16)|(d[2]<<8)|d[3])/10;balPeso()}
     o+=Math.max(8,6+len+2)}}
-function balPeso(){const w=BAL.w,now=Date.now();$("bW").textContent=f(w,1)+" g";
+function balPeso(){const w=BAL.w,now=Date.now(),ant=BAL.ult;BAL.ult=w;$("bW").textContent=f(w,1)+" g";
+  // Tara apertada na própria balança durante o preparo: o peso cai de repente para zero. A água já despejada continua contando.
+  if(T.run&&ant!=null&&ant-BAL.base>3&&Math.abs(w)<0.3&&ant-w>3){BAL.base-=ant;toast("Tara da balança percebida: a água já despejada continua contando")}
   if(!T.run){balDetecta(w,now)}
   else{const ag=w-BAL.base,al=balAlvos(T.steps||CUR).filter(x=>x!=null);try{BAL.rec.push([decorrido(),ag])}catch(e){}
     // Bipe ao atingir cada peso da receita: alerta para olhar o fluxo e não a balança
@@ -1050,7 +1059,7 @@ function balBox(w,alvo,dec,fx){const pct=Math.max(0,Math.min(100,w/alvo*100)),fa
   return `<div class="blive${ovr?" ovr":ok?" okk":""}"><div class="bw">${f(w,dec)}<small> / ${f(alvo,dec)} g</small></div><div class="bar"><i style="width:${pct}%"></i></div><div class="bf">${ovr?`Passou ${f(w-alvo,dec)} g`:ok?"No alvo":`Falta${falta>=2?"m":""} ${f(falta,dec)} g`}${fx!=null?`<span style="float:right">Fluxo <b style="color:#6aa9d6;font-family:var(--mono)">${f(fx,1)} g/s</b></span>`:""}</div></div>`}
 function balTela(){const on=BAL.on;$("bConn").hidden=on||!temBLE()||BAL.cap;$("bOn").hidden=!on;$("bTara").hidden=!on;
   {const esp=BAL.on&&!T.run&&BAL.fim&&Date.now()-BAL.fim<60000,pr=balPronto();$("bArm").hidden=!(pr||esp);
-   $("bArm").textContent=esp?`Início automático volta em ${Math.ceil((60000-(Date.now()-BAL.fim))/1000)} s (pausa depois de encerrar).`:BAL.cand?"Despejo percebido: confirmando…":BAL.est==null?"Início automático: aguardando o peso parar na balança…":"Início automático pronto: comece a despejar a água. Não precisa zerar a balança."}
+   $("bArm").textContent=esp?`Início automático volta em ${Math.ceil((60000-(Date.now()-BAL.fim))/1000)} s (pausa depois de encerrar).`:BAL.cand?"Despejo percebido: confirmando…":BAL.est==null?"Início automático: aguardando o peso parar na balança…":`Início automático pronto: comece a despejar a água. ${Math.abs(BAL.est)<0.5?"Balança zerada (0,0 g).":`Na balança agora: ${f(BAL.est,1)} g. Esse peso não entra na conta da água.`}`}
   document.querySelectorAll("#steps .blive").forEach(x=>x.remove());
   if(!on||BAL.w==null){$("bPrev").hidden=true;return}
   if(!T.run){const show=BAL.alvoCafe>0&&!BAL.cap;$("bPrev").hidden=!show;if(show)$("bPrev").innerHTML=`<span class="t" style="font:600 1rem var(--mono);color:var(--accent)">Moer</span><span>Pese <b>${f(BAL.alvoCafe,1)} g</b> de café${balBox(BAL.w,BAL.alvoCafe,1)}</span>`;return}
