@@ -112,6 +112,13 @@ body.timing{padding-bottom:170px}
 .ola .cx{background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:22px 20px;max-width:360px;width:100%;display:grid;gap:16px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.25)}
 .ola .cx p{margin:0;font-size:1.15rem;font-weight:600;line-height:1.35}
 .ola .cx .acts{display:flex;gap:10px}.ola .cx .acts .btn{flex:1;padding:12px;font-size:1rem}
+.ola .cx .sub2{font-size:.88rem;color:var(--muted);font-weight:400;margin-top:-8px}
+.av .cx{text-align:left;gap:10px;max-height:92vh;overflow:auto}
+.av .rw{display:grid;grid-template-columns:100px 1fr;align-items:center;gap:6px}
+.av .gr{display:flex;gap:2px}.av .gr button{border:0;background:none;padding:2px;cursor:pointer;line-height:0}
+.av .gr svg{width:34px;height:34px}.av .gr .of{--b:url(#bgo);--k:#161311;--h:0;opacity:.75}
+.av .gr.ro button{cursor:default}
+.av textarea{width:100%;min-height:58px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);padding:10px;font:inherit;font-size:.92rem;resize:vertical}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .aviso{margin:0;padding:10px 12px;border-radius:10px;background:var(--heat);color:var(--heat-fg);font-size:.9rem;font-weight:600}
 .chipRow{display:flex;justify-content:space-between;align-items:center;gap:10px}.chipRow[hidden]{display:none}
@@ -166,10 +173,22 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 73 · 10/11/2026 · sem "Reiniciar temporizador" e botão "Usar no preparo" só destaca ao tocar</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 74 · 11/11/2026 · Fim do preparo com peso, mensagem ao encerrar e avaliação do café</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<radialGradient id="bg" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#a8683b"/><stop offset=".45" stop-color="#7a4422"/><stop offset="1" stop-color="#3a1f10"/></radialGradient>
+<radialGradient id="bgo" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#4a4440"/><stop offset="1" stop-color="#26221f"/></radialGradient>
+<linearGradient id="cr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1f0f06"/><stop offset="1" stop-color="#5a3018"/></linearGradient>
+<symbol id="grao" viewBox="0 0 30 30"><g transform="rotate(-35 15 15)"><ellipse cx="15" cy="15" rx="9.2" ry="12.6" fill="var(--b,url(#bg))"/><ellipse cx="12.2" cy="9.5" rx="3" ry="4.6" fill="#fff" opacity=".13"/><path d="M15.6 3.2c-2.8 3.4-3.1 6.6-.6 10.2s2.3 7.6-.8 13.4" fill="none" stroke="var(--k,url(#cr))" stroke-width="2.3" stroke-linecap="round"/><path d="M17.1 4.5c-1.9 3-1.9 5.6.2 8.8" fill="none" stroke="#c98a5a" stroke-width=".8" opacity="var(--h,.55)" stroke-linecap="round"/><ellipse cx="15" cy="15" rx="9.2" ry="12.6" fill="none" stroke="#1b0d05" stroke-width=".7" opacity=".6"/></g></symbol></defs></svg>
+  <div class="ola" id="apr" hidden role="dialog" aria-modal="true" aria-labelledby="aprT"><div class="cx"><div style="font-size:2.4rem;line-height:1">☕</div><p id="aprT">Aproveite seu café, Jeff!</p><p class="sub2" id="aprSub"></p><button class="btn pri" id="aprAv" type="button" style="padding:12px;font-size:1rem">Avaliar o café</button><button class="btn" id="aprNao" type="button" style="padding:12px;font-size:1rem">Agora não</button></div></div>
+  <div class="ola av" id="av" hidden role="dialog" aria-modal="true" aria-labelledby="avT"><div class="cx"><p id="avT">Como ficou o café?</p><p class="sub2" id="avSub" style="margin-top:-6px"></p><div id="avRows" style="display:grid;gap:6px"></div>
+    <div class="rw" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Nota geral</b><br><span id="avMed" style="font-size:.78rem;color:var(--muted)">média: --</span></span><span class="gr ro" id="avGeral"></span></div>
+    <textarea id="avObs" maxlength="300" placeholder="Observação (opcional): ex.: frutado, um pouco ralo"></textarea>
+    <div style="display:flex;gap:8px"><button class="btn" id="avCanc" type="button" style="flex:1;padding:12px">Cancelar</button><button class="btn pri" id="avSalvar" type="button" style="flex:2;padding:12px">Salvar avaliação</button></div>
+    <p class="cres" style="margin:0;font-size:.82rem">Toque no grão para dar a nota de 1 a 5. A nota geral é a média de Aroma, Acidez, Doçura, Amargor (menos amargo conta como melhor) e Retrogosto. O Corpo fica registrado, mas não entra na média.</p></div></div>
 
   <section class="panel" aria-label="Café" id="cafePanel">
     <div>
@@ -425,27 +444,27 @@ const M=[
   tip:"Temperatura mais baixa (85 °C) suaviza torras escuras; mais alta (92 °C) puxa doçura de torras claras."},
  {id:"switch",n:"Hario Switch",cls:"Média-fina a média",q:300,qs:10,r:[14,17,15,1],temp:"92 a 96 °C",tempo:"",
   g:{k7:[60,75,68],r3:[85,120,100],pro:[55,80,65],oster:[7,10,8],mongdio:[14,20,17],icoffee:[11,16,13]},
-  steps:(c,a)=>[["Preparo","Escalde o filtro com a válvula aberta e descarte a água"],["0:00",`Feche a válvula e despeje ${g(a)} de água sobre ${f(c,1)} g de café`],["0:30","Mexa de leve até molhar todo o pó"],["2:00","Abra a válvula"],["2:45–3:15","Fim do escoamento"]],
+  steps:(c,a)=>[["Preparo","Escalde o filtro com a válvula aberta e descarte a água"],["0:00",`Feche a válvula e despeje ${g(a)} de água sobre ${f(c,1)} g de café`],["0:30","Mexa de leve até molhar todo o pó"],["2:00","Abra a válvula"],["2:45–3:15","Fim do preparo"]],
   tip:"Imersão dá mais corpo e doçura. Para um café mais limpo e ácido, use a válvula sempre aberta, como um V60."},
  {id:"swAgua",grp:"switch",rn:"Água primeiro · @metodosecafes",n:"Switch · água primeiro",cls:"Média-fina",q:250,qs:10,r:[14,18,16.6,0.1],temp:"92 °C",tempo:"",
   g:{k7:[58,70,64],r3:[85,115,100],pro:[55,80,68],oster:[7,10,8],mongdio:[14,19,16],icoffee:[11,15,13]},
-  steps:(c,a)=>{const k=Math.sqrt(a/250);return[["Preparo","Escalde o filtro com a válvula aberta e descarte a água"],["Preparo",`Feche a válvula e despeje ${g(a)} de água a 92 °C`],["0:00",`Inicie o tempo e coloque os ${f(c,1)} g de café sobre a água`],["0:15","Mexa para quebrar a crosta e deixar tudo homogêneo"],["2:00","Abra a válvula"],[tm(170*k)+"–"+tm(190*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/250);return[["Preparo","Escalde o filtro com a válvula aberta e descarte a água"],["Preparo",`Feche a válvula e despeje ${g(a)} de água a 92 °C`],["0:00",`Inicie o tempo e coloque os ${f(c,1)} g de café sobre a água`],["0:15","Mexa para quebrar a crosta e deixar tudo homogêneo"],["2:00","Abra a válvula"],[tm(170*k)+"–"+tm(190*k),"Fim do preparo"]]},
   tip:"Receita @metodosecafes: 15 g para 250 ml a 92 °C (1:16,6). Água antes do café: todo o pó entra em contato com a água ao mesmo tempo, sem pré-infusão. Extração total de 2:50 a 3:10."},
  {id:"swTC",grp:"switch",rn:"Híbrido 60/150/300 · @testandocafes",n:"Switch · híbrido 60/150/300",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
   g:{k7:[65,80,72],r3:[95,125,110],pro:[65,95,80],oster:[9,11,10],mongdio:[17,22,19],icoffee:[13,17,15]},
-  steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água, feche a válvula e coloque o café"],["0:00",`Válvula fechada: 1º despejo de ${g(a/5)}`],["0:45",`2º despejo até ${g(a/2)} na balança (válvula fechada)`],["1:30","Abra a válvula"],["1:45",`Último despejo até ${g(a)}`],["3:00–3:30","Fim do escoamento (estimado)"]],
+  steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água, feche a válvula e coloque o café"],["0:00",`Válvula fechada: 1º despejo de ${g(a/5)}`],["0:45",`2º despejo até ${g(a/2)} na balança (válvula fechada)`],["1:30","Abra a válvula"],["1:45",`Último despejo até ${g(a)}`],["3:00–3:30","Fim do preparo (estimado)"]],
   tip:"Receita @testandocafes (V60 vs. Switch): 20 g para 300 ml (1:15), café Sertãozinho fermentado. Despejos em 60, 150 e 300 ml com a válvula fechada até 1:30. O vídeo não informa temperatura nem moagem: 93 °C e moagem média são ponto de partida. Resultado descrito: equilíbrio entre acidez e doçura, mais corpo e sabor intenso sem amargor ruim."},
  {id:"swU1",grp:"switch",rn:"Imersão + percolação · Unique Cafés",n:"Switch · imersão + percolação",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
   g:{k7:[65,80,72],r3:[95,125,110],pro:[65,95,80],oster:[9,11,10],mongdio:[17,22,19],icoffee:[13,17,15]},
-  steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água e coloque o café"],["0:00",`Válvula fechada: despeje ${g(a/3)} no centro, cobrindo todo o café`],["0:40",`Quebre o bloom com um movimento no centro e complete até ${g(a*2/3)} (válvula fechada)`],["1:30","Abra a válvula"],["1:50",`Despeje os ${g(a/3)} restantes devagar, em círculos, até ${g(a)}`],["3:50","Fim do escoamento"]],
+  steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água e coloque o café"],["0:00",`Válvula fechada: despeje ${g(a/3)} no centro, cobrindo todo o café`],["0:40",`Quebre o bloom com um movimento no centro e complete até ${g(a*2/3)} (válvula fechada)`],["1:30","Abra a válvula"],["1:50",`Despeje os ${g(a/3)} restantes devagar, em círculos, até ${g(a)}`],["3:50","Fim do preparo"]],
   tip:"Receita Unique Cafés (review do Hario Switch): 20 g para 300 g a 93 °C, moagem média. Resultado descrito: acidez presente com boa estrutura, doçura equilibrada e final de chocolate meio amargo."},
  {id:"swU2",grp:"switch",rn:"Percolação + imersão · Unique Cafés",n:"Switch · percolação + imersão",cls:"Média",q:300,qs:10,r:[14,17,15,0.5],temp:"93 °C",tempo:"",
   g:{k7:[65,80,72],r3:[95,125,110],pro:[65,95,80],oster:[9,11,10],mongdio:[17,22,19],icoffee:[13,17,15]},
-  steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água e coloque o café"],["0:00",`Válvula aberta: pré-infusão com ${g(a/6)}`],["0:35",`Despeje mais ${g(a/2)} (balança em ${g(a*2/3)}) e deixe filtrar com a válvula aberta`],["1:30",`Feche a válvula e complete até ${g(a)} em fluxo lento e circular`],["2:10","Abra a válvula para escoar"],["3:00","Fim do escoamento"]],
+  steps:(c,a)=>[["Preparo","Escalde o filtro e pré-aqueça o Switch; descarte a água e coloque o café"],["0:00",`Válvula aberta: pré-infusão com ${g(a/6)}`],["0:35",`Despeje mais ${g(a/2)} (balança em ${g(a*2/3)}) e deixe filtrar com a válvula aberta`],["1:30",`Feche a válvula e complete até ${g(a)} em fluxo lento e circular`],["2:10","Abra a válvula para escoar"],["3:00","Fim do preparo"]],
   tip:"Receita Unique Cafés (review do Hario Switch): 20 g para 300 g a 93 °C, moagem média. Resultado descrito: mais doçura, acidez cítrica elegante (tangerina, limão siciliano), corpo cremoso e final limpo, sem amargor."},
  {id:"b75",n:"Timemore B75 (1:15)",cls:"Média-fina a média",q:300,qs:10,r:[14,17,15,1],temp:"90 °C",tempo:"",
   g:{k7:[65,75,70],r3:[90,130,110],pro:[60,100,80],oster:[8,11,9],mongdio:[15,22,18],icoffee:[12,17,14]},
-  steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Escalde o filtro e descarte a água"],["0:00",`1º despejo: ${g(a*.2)} de água`],[tm(60*k),`2º despejo: complete até ${g(a*140/300)}`],[tm(100*k),`3º despejo: complete até ${g(a*220/300)}`],[tm(140*k),`4º despejo: complete até ${g(a)}`],[tm(195*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Escalde o filtro e descarte a água"],["0:00",`1º despejo: ${g(a*.2)} de água`],[tm(60*k),`2º despejo: complete até ${g(a*140/300)}`],[tm(100*k),`3º despejo: complete até ${g(a*220/300)}`],[tm(140*k),`4º despejo: complete até ${g(a)}`],[tm(195*k),"Fim do preparo"]]},
   tip:"Receita do vídeo (café Black Tucano Fruity): 20 g, 300 g de água a 90 °C, K6 em 100 cliques. No K7 isso equivale a cerca de 70 cliques. Quatro despejos de 60 / 80 / 80 / 80 g, a cada 40 s depois do primeiro minuto."},
  {id:"v60",n:"V60 / Kalita",cls:"Média",q:300,qs:10,r:[14,20,16,1],temp:"92 a 96 °C",tempo:"",three:true,
   g:{k7:[60,80,75],r3:[90,130,110],pro:[60,100,80],oster:[8,11,9],mongdio:[15,22,18],icoffee:[12,17,14]},
@@ -453,23 +472,23 @@ const M=[
    const s=[["Preparo","Escalde o filtro e descarte a água"]];
    ["Fase ácida","Fase doce","Corpo e amargor"].forEach((nm,i)=>{const v=a*p[i];acc+=v;
      s.push([tm([0,45,100][i]*k),`${i+1}º despejo: ${g(v)} (balança em ${g(i==2?a:acc)}). ${nm}`])});
-   s.push([tm(195*k)+"–"+tm(225*k),"Fim do escoamento"]);return s},
+   s.push([tm(195*k)+"–"+tm(225*k),"Fim do preparo"]);return s},
   tip:"Três despejos na divisão 20 / 35 / 45 %, adaptada do seu teste. Faça o próximo despejo quando a água anterior estiver quase escoada. Ácido: diminua o 1º despejo. Amargo: aumente."},
  {id:"fluire",n:"Fluire (Pressca)",cls:"Média",q:300,qs:10,r:[13,17,15,1],temp:"92 a 96 °C",tempo:"",
   g:{k7:[65,75,70],r3:[90,120,105],pro:[60,90,75],oster:[8,10,9],mongdio:[14,21,18],icoffee:[11,17,14]},
-  steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Escalde o filtro 02 e o decanter; descarte a água"],["0:00",`Pré-infusão: ${g(c*2)} de água e espere`],[tm(30*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(70*k),`Complete até ${g(a)}`],[tm(150*k)+"–"+tm(180*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Escalde o filtro 02 e o decanter; descarte a água"],["0:00",`Pré-infusão: ${g(c*2)} de água e espere`],[tm(30*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(70*k),`Complete até ${g(a)}`],[tm(150*k)+"–"+tm(180*k),"Fim do preparo"]]},
   tip:"O porta-filtro vazado escoa rápido. Se terminar antes do previsto, moa mais fino. A Pressca sugere 1:13 a 1:14 para um café mais encorpado."},
  {id:"origami",n:"Origami",cls:"Média",q:300,qs:10,r:[15,17,16,1],temp:"92 a 96 °C",tempo:"",
   g:{k7:[65,80,72],r3:[95,130,110],pro:[65,95,80],oster:[8,11,10],mongdio:[16,23,19],icoffee:[13,18,15]},
-  steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Escalde o filtro e descarte a água"],["0:00",`Pré-infusão: ${g(c*2)} de água e espere`],[tm(40*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(80*k),`Complete até ${g(a)}`],[tm(165*k)+"–"+tm(195*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Escalde o filtro e descarte a água"],["0:00",`Pré-infusão: ${g(c*2)} de água e espere`],[tm(40*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(80*k),`Complete até ${g(a)}`],[tm(165*k)+"–"+tm(195*k),"Fim do preparo"]]},
   tip:"Com filtro wave (fundo plano) o escoamento é mais regular. Com filtro cônico ele escoa mais rápido: moa 3 a 5 cliques mais fino."},
  {id:"melitta",n:"Melitta (filtro de papel)",cls:"Média",q:300,qs:10,r:[14,18,16,1],temp:"92 a 96 °C",tempo:"",
   g:{k7:[65,80,72],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[17,23,20],icoffee:[13,18,16]},
-  steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Dobre as costuras do filtro, escalde e descarte a água"],["0:00",`Pré-infusão: ${g(c*2)} de água e espere`],[tm(30*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(90*k),`Complete até ${g(a)}`],[tm(210*k)+"–"+tm(270*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Dobre as costuras do filtro, escalde e descarte a água"],["0:00",`Pré-infusão: ${g(c*2)} de água e espere`],[tm(30*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(90*k),`Complete até ${g(a)}`],[tm(210*k)+"–"+tm(270*k),"Fim do preparo"]]},
   tip:"O suporte Melitta escoa por furos pequenos, mais devagar que o V60. Se passar muito do tempo previsto, moa mais grosso. No Mongdio, o número 20 é a sua referência testada."},
  {id:"pano",n:"Coador de pano",cls:"Média",q:500,qs:50,r:[12,18,15,1],temp:"92 a 96 °C",tempo:"",
   g:{k7:[65,80,72],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[18,24,21],icoffee:[14,19,17]},
-  steps:(c,a)=>{const k=Math.sqrt(a/500);return[["Preparo","Escalde o pano com água quente, torça bem e encaixe no suporte"],["0:00",`Pré-infusão: molhe o pó com ${g(c*2)} de água e espere`],["0:30",`Despeje em espiral, do centro para fora, até a balança marcar ${g(a*.55)}`],[tm(90*k),`Complete até ${g(a)} sem deixar o nível passar da borda do pó`],[tm(210*k)+"–"+tm(270*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/500);return[["Preparo","Escalde o pano com água quente, torça bem e encaixe no suporte"],["0:00",`Pré-infusão: molhe o pó com ${g(c*2)} de água e espere`],["0:30",`Despeje em espiral, do centro para fora, até a balança marcar ${g(a*.55)}`],[tm(90*k),`Complete até ${g(a)} sem deixar o nível passar da borda do pó`],[tm(210*k)+"–"+tm(270*k),"Fim do preparo"]]},
   tip:"O pano retém mais óleos que o papel e dá mais corpo. Guarde-o úmido na geladeira, num pote fechado, e enxágue só com água, sem sabão."},
  {id:"coador",n:"Cafeteira elétrica",cls:"Média",q:500,qs:50,r:[14,18,16,1],temp:"Da própria cafeteira",tempo:"Ciclo da cafeteira",
   g:{k7:[65,80,70],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[18,24,21],icoffee:[14,19,17]},
@@ -485,7 +504,7 @@ const M=[
   tip:"Imersão perdoa variação de despejo; a moagem é o que mais muda o resultado."},
  {id:"chemex",n:"Chemex",cls:"Média-grossa",q:500,qs:50,r:[14,18,16,1],temp:"93 a 96 °C",tempo:"",
   g:{k7:[75,90,82],r3:[120,145,130],pro:[80,100,92],oster:[11,14,12],mongdio:[21,27,24],icoffee:[17,21,19]},
-  steps:(c,a)=>{const k=Math.sqrt(a/500);return[["Preparo","Escalde o filtro grosso e descarte a água"],["0:00",`Pré-infusão: ${g(c*2.5)} e espere`],[tm(45*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(90*k),`Complete até ${g(a)}`],[tm(240*k)+"–"+tm(270*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/500);return[["Preparo","Escalde o filtro grosso e descarte a água"],["0:00",`Pré-infusão: ${g(c*2.5)} e espere`],[tm(45*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(90*k),`Complete até ${g(a)}`],[tm(240*k)+"–"+tm(270*k),"Fim do preparo"]]},
   tip:"O filtro da Chemex é espesso e segura óleos; por isso a moagem é mais grossa que no V60."},
  {id:"prensa",n:"Prensa francesa",cls:"Grossa",q:320,qs:10,r:[12,18,15,1],temp:"93 a 96 °C",tempo:"4 min + descanso",
   g:{k7:[95,110,100],r3:[145,165,155],pro:[90,105,98],oster:[15,18,16],mongdio:[27,36,31],icoffee:[21,28,24]},
@@ -497,15 +516,15 @@ const M=[
   tip:"Proporções de 1:4 a 1:6 rendem concentrado: dilua 1:1 em água ou leite. De 1:8 a 1:12 já sai pronto para beber."},
  {id:"vV60",grp:"v60",rn:"Veroo · 50/150/240",n:"V60 · Veroo",cls:"Média-fina",q:240,qs:10,r:[14,18,16,0.5],temp:"93 °C",tempo:"2:30 a 3:00",
   g:{k7:[60,78,70],r3:[90,125,105],pro:[60,95,75],oster:[8,10,9],mongdio:[15,20,17],icoffee:[12,16,13]},
-  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Escalde o filtro e descarte a água"],["0:00",`Despeje até ${g(a*50/240)} em movimentos circulares suaves`],[tm(40*k),`Complete até ${g(a*150/240)}`],[tm(80*k),`Finalize até ${g(a)}, mantendo o fluxo constante`],[tm(150*k)+"–"+tm(180*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Escalde o filtro e descarte a água"],["0:00",`Despeje até ${g(a*50/240)} em movimentos circulares suaves`],[tm(40*k),`Complete até ${g(a*150/240)}`],[tm(80*k),`Finalize até ${g(a)}, mantendo o fluxo constante`],[tm(150*k)+"–"+tm(180*k),"Fim do preparo"]]},
   tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Original: 15 g para 240 g (1:16) a 93 °C. A divisão 21/42/37% põe mais água no meio do preparo, o que puxa doçura e segura o amargor."},
  {id:"vMel",grp:"melitta",rn:"Veroo · 50/140/240",n:"Melitta · Veroo",cls:"Média",q:240,qs:10,r:[14,18,16,0.5],temp:"92 °C",tempo:"2:30 a 3:00",
   g:{k7:[65,80,72],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[17,23,20],icoffee:[13,18,16]},
-  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Dobre as costuras do filtro, escalde e descarte a água"],["0:00",`Despeje até ${g(a*50/240)}`],[tm(40*k),`Complete até ${g(a*140/240)}`],[tm(80*k),`Finalize até ${g(a)}`],[tm(150*k)+"–"+tm(195*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Dobre as costuras do filtro, escalde e descarte a água"],["0:00",`Despeje até ${g(a*50/240)}`],[tm(40*k),`Complete até ${g(a*140/240)}`],[tm(80*k),`Finalize até ${g(a)}`],[tm(150*k)+"–"+tm(195*k),"Fim do preparo"]]},
   tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Original: 15 g para 240 g (1:16) a 92 °C. Despeje devagar, mantendo o nível da água estável. Os furos pequenos da Melitta tendem a levar o fim para perto de 3:00 ou um pouco além."},
  {id:"vKal",grp:"origami",rn:"Veroo · receita Kalita (fundo plano)",n:"Origami · Veroo (Kalita)",cls:"Média",q:240,qs:10,r:[14,18,16,0.5],temp:"93 °C",tempo:"2:30 a 3:00",
   g:{k7:[65,80,72],r3:[95,130,110],pro:[65,95,80],oster:[8,11,10],mongdio:[16,23,19],icoffee:[13,18,15]},
-  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Use filtro de fundo plano (tipo Wave), escalde e descarte a água"],["0:00",`Despeje até ${g(a*50/240)}`],[tm(40*k),`Complete até ${g(a*110/240)}`],[tm(70*k),`Complete até ${g(a*175/240)}`],[tm(100*k),`Finalize até ${g(a)}`],[tm(150*k)+"–"+tm(180*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Use filtro de fundo plano (tipo Wave), escalde e descarte a água"],["0:00",`Despeje até ${g(a*50/240)}`],[tm(40*k),`Complete até ${g(a*110/240)}`],[tm(70*k),`Complete até ${g(a*175/240)}`],[tm(100*k),`Finalize até ${g(a)}`],[tm(150*k)+"–"+tm(180*k),"Fim do preparo"]]},
   tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Feita para Kalita: 15 g para 240 g (1:16) a 93 °C. No Origami, use filtro de fundo plano. Faça despejos curtos e controlados, sem concentrar a água só no centro."},
  {id:"vAero",grp:"aeropress",rn:"Veroo · 16 g / 220 g",n:"AeroPress · Veroo",cls:"Média-fina",q:220,qs:10,r:[12,16,13.75,0.25],temp:"90 °C",tempo:"1:45",
   g:{k7:[55,70,60],r3:[70,90,80],pro:[40,70,55],oster:[5,9,7],mongdio:[11,18,14],icoffee:[9,14,11]},
@@ -527,13 +546,13 @@ const k46steps=(pre,extra)=>(c,a)=>{const o=st.k46||{},sb=K46S[o.s]?o.s:"eq",cp=
   const s=[["Preparo",pre]];let acc=0;
   const add=(t,v,txt)=>{acc+=v;s.push([tm(t*k),`${txt}: ${g(v)} (balança em ${g(acc)})`])};
   add(0,p1,"1º despejo");add(45,p2,"2º despejo");for(let j=0;j<n;j++)add(90+j*dt,q,`${j+3}º despejo`);
-  s.push([tm(195*k)+"–"+tm(225*k),extra||"Fim do escoamento; se ainda estiver pingando em "+tm(210*k)+", retire o coador"]);return s};
+  s.push([tm(195*k)+"–"+tm(225*k),extra||"Fim do preparo; se ainda estiver pingando em "+tm(210*k)+", retire o coador"]);return s};
 const k46base={cls:"Média-grossa",q:300,qs:10,r:[14,17,15,0.5],temp:"92 °C",tempo:"3:30",k46:true,
   g:{k7:[80,100,90],r3:[120,150,135],pro:[85,105,95],oster:[10,13,11],mongdio:[20,26,23],icoffee:[15,20,17]}};
 const K46TIP="Método 4:6 de Tetsu Kasuya. Os dois primeiros despejos (40% da água) definem o sabor: 1º maior puxa acidez, 1º menor puxa doçura. Os demais (60%) definem a intensidade: menos despejos deixam o café mais suave, mais despejos, mais forte. Despeje cada porção rápido, no centro, e espere a água baixar antes do próximo.";
 M.push(
  {...k46base,id:"k46v60",grp:"v60",rn:"Método 4:6 (Kasuya)",n:"V60 · 4:6",steps:k46steps("Escalde o filtro, descarte a água e nivele o café"),tip:K46TIP},
- {...k46base,id:"k46mel",grp:"melitta",rn:"Método 4:6 (Kasuya)",n:"Melitta · 4:6",tempo:"3:30 a 4:00",steps:k46steps("Dobre as costuras do filtro, escalde e descarte a água","Fim do escoamento; a Melitta escoa mais devagar: se passar muito de 4:00, moa mais grosso"),tip:K46TIP+" Na Melitta o escoamento é mais lento: espere o leito quase secar entre os despejos."},
+ {...k46base,id:"k46mel",grp:"melitta",rn:"Método 4:6 (Kasuya)",n:"Melitta · 4:6",tempo:"3:30 a 4:00",steps:k46steps("Dobre as costuras do filtro, escalde e descarte a água","Fim do preparo; a Melitta escoa mais devagar: se passar muito de 4:00, moa mais grosso"),tip:K46TIP+" Na Melitta o escoamento é mais lento: espere o leito quase secar entre os despejos."},
  {...k46base,id:"k46ori",grp:"origami",rn:"Método 4:6 (Kasuya)",n:"Origami · 4:6",steps:k46steps("Escalde o filtro e descarte a água"),tip:K46TIP},
  {...k46base,id:"k46b75",grp:"b75",rn:"Método 4:6 (Kasuya)",n:"B75 · 4:6",steps:k46steps("Escalde o filtro e descarte a água"),tip:K46TIP+" O B75 escoa rápido: se terminar antes de 3:00, moa 3 a 5 cliques mais fino."},
  {...k46base,id:"k46sw",grp:"switch",rn:"Método 4:6 (Kasuya)",n:"Switch · 4:6",steps:k46steps("Válvula aberta o tempo todo: escalde o filtro e descarte a água"),tip:K46TIP+" No Switch, mantenha a válvula aberta: o 4:6 é percolação pura."});
@@ -552,7 +571,7 @@ M.push(
   tip:"O reservatório tem 80 ml, então bebidas grandes da Dolce Gusto (cappuccino, latte, cápsulas de leite) não cabem numa extração só: use as cápsulas de café e complete com leite à parte."});
 M.push({id:"joinout",grp:"v60",rn:"Kit portátil Joinout (cone de silicone)",n:"Kit portátil Joinout",cls:"Média",q:240,qs:10,r:[14,18,16,0.5],temp:"93 a 96 °C",tempo:"2:30 a 3:00",
   g:{k7:[65,80,72],r3:[95,125,110],pro:[60,90,75],oster:[8,10,9],mongdio:[16,21,18],icoffee:[12,16,14]},
-  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Abra o cone de silicone, encaixe o filtro de papel 01 e escalde com água quente (o silicone esfria a água, pré-aqueça bem). Descarte a água da caneca"],["0:00",`Pré-infusão: ${g(a/6)}, molhando todo o pó`],[tm(40*k),`Complete até ${g(a*0.58)} em círculos lentos`],[tm(80*k),`Complete até ${g(a)}, sem passar da borda do cone`],[tm(150*k)+"–"+tm(180*k),"Fim do escoamento"]]},
+  steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Abra o cone de silicone, encaixe o filtro de papel 01 e escalde com água quente (o silicone esfria a água, pré-aqueça bem). Descarte a água da caneca"],["0:00",`Pré-infusão: ${g(a/6)}, molhando todo o pó`],[tm(40*k),`Complete até ${g(a*0.58)} em círculos lentos`],[tm(80*k),`Complete até ${g(a)}, sem passar da borda do cone`],[tm(150*k)+"–"+tm(180*k),"Fim do preparo"]]},
   tip:"Cone dobrável de silicone (Φ95 mm) com filtro de papel 01 e caneca de inox. A caneca de 77 mm comporta cerca de 300 ml: não passe de 250 g de água. O silicone perde calor; use água no topo da faixa (95–96 °C). Escoamento mais lento que a V60: se passar de 3:15, moa 3 cliques mais grosso."});
 const MOE={k7:"cliques",r3:"cliques",pro:"cliques"};
 const st={met:"v60",moe:"k7",q:{},r:{},c:{},x:{},base:{},gr:{}};
@@ -578,6 +597,8 @@ if(!Array.isArray(CAF)){CAF=[{...CAFE0,id:"c-tucano",nome:"Black Tucano Fruity"}
 CAF=CAF.map(san).filter(Boolean);
 // Potes: o armazenamento é a fonte da verdade. Toda alteração relê antes de gravar, para que uma janela antiga do app nunca sobrescreva o saldo atual.
 let usoPote=-1;
+let AVAL=[];try{const x=JSON.parse(localStorage.getItem("calcAval")||"[]");if(Array.isArray(x))AVAL=x}catch(e){}
+const saveAval=()=>{try{localStorage.setItem("calcAval",JSON.stringify(AVAL))}catch(e){}};
 let POT={n:5,p:[],g:[],u:[],h:[],log:[],t:[]};
 const BAL={on:false,dev:null,cmd:null,w:null,arm:false,alvoCafe:0,cap:false,pre:null};
 function loadPot(){try{const x=JSON.parse(localStorage.getItem("calcPotes")||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
@@ -766,7 +787,7 @@ function renderCafe(){
   {const noPote=POT.p.slice(0,POT.n).includes(st.csel);const rk=[];$("cIndBox").hidden=!rk.length;
    const item=(r,i)=>{const m=M.find(x=>x.id===r.id),on=G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="cres" style="color:var(--fg)"><b>${i+1}. ${esc(m.n)}</b> · ${r.nota}%<br><span style="color:var(--muted);font-size:.84rem">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-ind="${i}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
    $("cIndList").innerHTML=rk.slice(0,5).map(item).join("");$("cIndRest").innerHTML=rk.slice(5).map((r,i)=>item(r,i+5)).join("")}
-  $("cResumo").textContent=sel==="desc"?"Café em grãos sem dados. A receita fica registrada como café desconhecido.":sel==="descpo"?"Café já moído, sem dados. A moagem sugerida não se aplica: ajuste pela proporção e pelo tempo.":sel==="novo"?"Preencha os dados e toque em Cadastrar café. Só o nome é obrigatório.":cafeTxt(k)+(d!=null&&d>=0?` · ${d} dia${d===1?"":"s"} desde a torra`:"");
+  $("cResumo").textContent=sel==="desc"?"Café em grãos sem dados. A receita fica registrada como café desconhecido.":sel==="descpo"?"Café já moído, sem dados. A moagem sugerida não se aplica: ajuste pela proporção e pelo tempo.":sel==="novo"?"Preencha os dados e toque em Cadastrar café. Só o nome é obrigatório.":cafeTxt(k)+(d!=null&&d>=0?` · ${d} dia${d===1?"":"s"} desde a torra`:"")+avResumo(sel);
   $("cActs").hidden=!reg; $("cAutoBox").hidden=ISD(sel);$("cFim").hidden=!(reg&&k.fim); $("cAuto").checked=st.auto!==false; $("cEdit").textContent=cEdit?"Esconder dados":"Editar dados"; $("cDel").textContent=cDelArm?"Confirmar exclusão":"Excluir café";
   $("cFields").hidden=!(sel==="novo"||(reg&&cEdit));
   $("cSave").textContent=sel==="novo"?"Cadastrar café":"Salvar alterações";
@@ -852,7 +873,7 @@ function render(){
     (st.moe==="icoffee"?`<span class="fact">iCoffee: conte os cliques a partir do ponto mais fino (0)</span><span class="fact">Valores provisórios; calibre com um coado</span>`:"");
   if(T.run&&T.steps)steps=T.steps; else CUR=steps;
   $("steps").innerHTML=steps.map((s,i)=>`<li data-i="${i}"><span class="t">${s[0]}</span><span class="x">${s[1]}</span></li>`).join("");
-  try{BAL.alvoCafe=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;BAL.cap=!!m.cap;balTela()}catch(e){}
+  try{BAL.xic=m.dose?0:Math.round(b/5)*5;BAL.alvoCafe=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;BAL.cap=!!m.cap;balTela()}catch(e){}
   if(T.run)tick(true);
   $("tip").textContent=m.tip;
   renderCafe();
@@ -996,7 +1017,7 @@ function balTela(){const on=BAL.on;$("bConn").hidden=on||!navigator.bluetooth||B
   document.querySelectorAll("#steps .blive").forEach(x=>x.remove());
   if(!on||BAL.w==null){$("bPrev").hidden=true;return}
   if(!T.run){const show=!BAL.arm&&BAL.alvoCafe>0&&!BAL.cap;$("bPrev").hidden=!show;if(show)$("bPrev").innerHTML=`<span class="t" style="font:600 1rem var(--mono);color:var(--accent)">Moer</span><span>Pese <b>${f(BAL.alvoCafe,1)} g</b> de café${balBox(BAL.w,BAL.alvoCafe,1)}</span>`;return}
-  $("bPrev").hidden=true;const li=document.querySelector("#steps li.on");if(!li)return;const al=balAlvos(T.steps||CUR)[+li.dataset.i];if(al==null)return;
+  $("bPrev").hidden=true;const li=document.querySelector("#steps li.on");if(!li)return;const sts=T.steps||CUR,al=balAlvos(sts)[+li.dataset.i];if(al==null){if(/^Fim do preparo/.test(sts[+li.dataset.i][1])){const tot=balAlvos(sts).filter(x=>x!=null).pop();li.querySelector(".x").insertAdjacentHTML("beforeend",`<div class="blive"><div class="bw">${f(BAL.w,0)}<small> g na balança</small></div>${tot?`<div class="bf">Despejado ${f(tot)} g${BAL.xic?` · na xícara ≈ ${f(BAL.xic)} ml quando terminar de pingar`:""}</div>`:""}</div>`)}return}
   li.querySelector(".x").insertAdjacentHTML("beforeend",balBox(BAL.w,al,0))}
 async function balConectar(){if(!navigator.bluetooth)return;
   try{const dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:"dot"},{namePrefix:"Dot"},{namePrefix:"DOT"},{namePrefix:"TES"},{namePrefix:"TIMEMORE"},{namePrefix:"Timemore"},{services:[BAL.S]}],optionalServices:[BAL.S]});
@@ -1025,7 +1046,29 @@ $("ajAjustar").onclick=()=>{st.ajF=false;render();$("ajQtd").scrollIntoView({beh
 $("olaSim").onclick=()=>{$("ola").hidden=true;novoPreparo()};
 $("olaNao").onclick=()=>{$("ola").hidden=true};
 $("ola").hidden=false;
-$("tStop").onclick=encerrar;
+
+// ===== Ao encerrar: mensagem e avaliação do café =====
+const AVC=[["aroma","Aroma"],["acidez","Acidez"],["docura","Doçura"],["corpo","Corpo"],["amargor","Amargor"],["retro","Retrogosto"]];
+let avN={},avCtx=null;
+const graos=(v,cl,ro)=>[1,2,3,4,5].map(i=>`<button type="button" ${ro?"tabindex=-1 disabled":""} data-av="${cl}" data-v="${i}" aria-label="${i} de 5"><svg class="${i<=v?"":"of"}"><use href="#grao"/></svg></button>`).join("");
+function avMedia(n){const v=[n.aroma,n.acidez,n.docura,n.amargor!=null?6-n.amargor:null,n.retro].filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null}
+function avTela(){$("avRows").innerHTML=AVC.map(([k,l])=>`<div class="rw"><span>${l}</span><span class="gr">${graos(avN[k]||0,k)}</span></div>`).join("");
+  const md=avMedia(avN);$("avMed").textContent="média: "+(md==null?"--":f(md,1));$("avGeral").innerHTML=graos(md==null?0:Math.round(md),"g",true)}
+function avResumo(id){const L=AVAL.filter(x=>x.caf===id&&x.geral!=null);if(!L.length)return"";const u=L[L.length-1],md=L.reduce((a,b)=>a+b.geral,0)/L.length;
+  return ` · Avaliação: última ${f(u.geral,1)} (${dataBR(u.d)}, ${u.met})`+(L.length>1?` · média ${f(md,1)} em ${L.length} preparos`:"")}
+function abrirAproveite(){const m=cur(),{c,a}=calc(m),nome=ISD(st.csel)?(st.csel==="descpo"?"Café em pó":"Café em grãos"):(st.cafe&&st.cafe.nome)||"Café";
+  const vs=M.filter(x=>G(x)===G(m)).length>1,bt=document.querySelector(`#metodos button[data-v="${G(m)}"]`),met=(bt?bt.textContent:m.n)+(vs?" · "+vn(m):"");
+  avCtx={caf:st.csel,nome,met,c:Math.round(c*10)/10,a:Math.round(a)};
+  $("aprSub").textContent=m.cap?`${nome} · ${met}`:`${nome} · ${met} · ${f(c,1)} g : ${f(a)} g`;$("apr").hidden=false}
+$("tStop").onclick=()=>{const rodou=T.run;encerrar();if(rodou)abrirAproveite()};
+$("aprNao").onclick=()=>{$("apr").hidden=true};
+$("aprAv").onclick=()=>{$("apr").hidden=true;avN={};$("avObs").value="";$("avSub").textContent=avCtx?`${avCtx.nome} · ${avCtx.met}`:"";avTela();$("av").hidden=false};
+$("avRows").addEventListener("click",e=>{const b=e.target.closest("[data-av]");if(!b)return;const k=b.dataset.av,v=+b.dataset.v;avN[k]=avN[k]===v?v-1||null:v;avTela()});
+$("avCanc").onclick=()=>{$("av").hidden=true};
+$("avSalvar").onclick=()=>{if(!AVC.some(([k])=>avN[k])){toast("Dê nota a pelo menos uma característica");return}const md=avMedia(avN),dn=new Date(),p2=n=>String(n).padStart(2,"0");
+  AVAL.push({id:"a-"+Date.now().toString(36),d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,caf:avCtx&&avCtx.caf,nome:avCtx&&avCtx.nome,met:avCtx&&avCtx.met,c:avCtx&&avCtx.c,a:avCtx&&avCtx.a,n:{...avN},geral:md==null?null:Math.round(md*10)/10,obs:$("avObs").value.trim().slice(0,300)});
+  saveAval();$("av").hidden=true;toast(md==null?"Avaliação salva":`Avaliação salva: nota geral ${f(md,1)}`);render()};
+
 $("tPause").onclick=()=>{if(!T.run)return;const tocando=T.au&&!T.auFim;
   if(T.pausa){T.pausa=false;T.t0=Date.now();$("tPause").textContent="Pausar";if(tocando)try{T.au.play()}catch(e){}}
   else{if(tocando){try{T.au.pause()}catch(e){}}else T.acum=decorrido();T.pausa=true;$("tPause").textContent="Continuar"}tick(true)};
@@ -1081,7 +1124,7 @@ $("salvar").onclick=()=>{const m=cur(),k=calc(m),nome=$("nome").value.trim()||`$
   const snap=ISD(st.csel)?(st.csel==="descpo"?{desc:true,po:true}:{desc:true}):san({...st.cafe,tipo:st.cafe.tipo==="__outro"?"":st.cafe.tipo});
   REC.unshift({k46:m.k46?{s:(st.k46||{}).s||"eq",c:(st.k46||{}).c||"normal"}:undefined,sd:sdOn(m)?{on:true,t200:st.sd.t200}:undefined,acc:accOf(m)||undefined,pen:{...st.pen},nome,cafeId:(!ISD(st.csel)&&st.csel!=="novo")?st.csel:undefined,cafe:snap,met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
   saveRec();rsel=0;$("nome").value="";toast("Receita salva");render()};
-const bkData=()=>JSON.stringify({app:"calculadora-extracao",versao:1,data:new Date().toISOString().slice(0,10),receitas:REC,cafes:CAF,moagens:st.gr,potes:POT});
+const bkData=()=>JSON.stringify({app:"calculadora-extracao",versao:1,data:new Date().toISOString().slice(0,10),receitas:REC,cafes:CAF,moagens:st.gr,potes:POT,avaliacoes:AVAL});
 $("bkCopiar").onclick=()=>{const t=bkData();$("bkTxt").value=t;
   const sel=()=>{$("bkTxt").focus();$("bkTxt").select();toast("Selecionei o texto: toque em Copiar")};
   try{navigator.clipboard.writeText(t).then(()=>toast(`Backup copiado (${REC.length} receitas, ${CAF.length} cafés)`),sel)}catch(e){sel()}};
@@ -1102,6 +1145,7 @@ const importar=txt=>{try{$("bkTxt").blur()}catch(e){}const toast=t=>{$("bkMsg").
     const fbi=x.fb&&typeof x.fb==="object"?{nota:(Number.isFinite(+x.fb.nota)&&x.fb.nota!==null&&+x.fb.nota>=0&&+x.fb.nota<=10)?Math.round(+x.fb.nota):null,txt:String(x.fb.txt||"").slice(0,400),data:String(x.fb.data||"").slice(0,10)}:undefined;
     REC.push({k46:x.k46&&typeof x.k46==="object"?{s:K46S[x.k46.s]?x.k46.s:"eq",c:K46C[x.k46.c]?x.k46.c:"normal"}:undefined,sd:x.sd&&x.sd.on?{on:true,t200:Number(x.sd.t200)||null}:undefined,acc:["star","lotos"].includes(x.acc)?x.acc:undefined,pen:x.pen&&typeof x.pen==="object"?{on:!!x.pen.on,sel:["inox","300","400","500","600","850"].includes(x.pen.sel)?x.pen.sel:"inox",um:Number(x.pen.um)||null}:undefined,fb:fbi,nome:String(x.nome||"Receita").slice(0,60),cafeId:typeof x.cafeId==="string"?x.cafeId:undefined,cafe:kc,met:x.met,moe:x.moe,base:["cafe","xicara"].includes(x.base)?x.base:"agua",x:Number(x.x)||undefined,c:Number(x.c)||0,q:Number(x.q)||0,a:Number(x.a)||undefined,r:Number(x.r),gr:Number(x.gr)||0});tem.add(chave(x));n++}
   let np=-1;BK_POT=null;$("bkPotes").hidden=true;if(d&&d.potes&&Array.isArray(d.potes.p)){const cheio=d.potes.p.filter(Boolean).length;if(!POT.p.some(Boolean)){localStorage.setItem("calcPotes",JSON.stringify(d.potes));loadPot();savePot();np=cheio}else if(cheio){BK_POT=d.potes;$("bkPotes").hidden=false;np=-2}}
+  if(d&&Array.isArray(d.avaliacoes)){const ids=new Set(AVAL.map(x=>x.id));for(const x of d.avaliacoes)if(x&&x.id&&!ids.has(x.id))AVAL.push(x);saveAval()}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
   saveRec();render();toast((n||nc||nu?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`+(nu?`; ${nu} café${nu===1?"":"s"} atualizado${nu===1?"":"s"}`:""):"Nenhuma receita ou café novo")+(np>=0?`; ${np} pote${np===1?"":"s"} com café`:np===-2?". Este aparelho já tem potes: toque no botão abaixo para trocar pelos do backup":d&&d.potes?"":". Este backup não tem potes"))};
 let BK_POT=null;
