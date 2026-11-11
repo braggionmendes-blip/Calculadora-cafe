@@ -157,7 +157,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 65 · 10/11/2026 · peneirar só aparece nos métodos que pedem</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 66 · 10/11/2026 · peneira também nas receitas 4:6, Switch, Veroo, Joinout e prensa de viagem</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -606,7 +606,7 @@ const calc=m=>{const r=Number(rOf(m));const q=Math.max(0,Number(qOf(m))||0);
   else c=q/r;
   let a=bs==="agua"?q:c*r;
   // Peneira no modo "quanto tenho para moer": a dose da receita passa a ser o que sobra depois de peneirar
-  if(st.pen&&st.pen.on&&st.pen.modo==="tenho"&&Number(st.pen.tenho)>0&&PREC[m.id]){const pn=peneira(m,1);if(pn.on&&!pn.bloq){c=Number(st.pen.tenho)*(1-pn.perda);a=c*r}}
+  if(st.pen&&st.pen.on&&st.pen.modo==="tenho"&&Number(st.pen.tenho)>0&&precOf(m)){const pn=peneira(m,1);if(pn.on&&!pn.bloq){c=Number(st.pen.tenho)*(1-pn.perda);a=c*r}}
   return {r,q,c,a,b:Math.max(0,a-ret*c)}};
 let toastT;const toast=window.toastG=t=>{$("toast").textContent=t;clearTimeout(toastT);toastT=setTimeout(()=>$("toast").textContent="",5000)};
 const MN=Object.fromEntries(M.map(m=>[m.id,m.n]));
@@ -652,9 +652,10 @@ function comSimpleDrip(steps){const t200=Number(st.sd.t200)||40,rate=200/t200;le
     const j=idx[k+1];if(j!=null){const tn=seg(out[j][0])+shift,fim=t+d+(pour>240?d*.1:0)+3;if(tn<fim)shift+=Math.ceil(fim-tn)}});
   return out}
 // Peneira recomendada por classe do método (µm)
+const precOf=m=>PREC[m.id]??PREC[G(m)];
 const PREC={moka:300,aeropress:300,switch:300,v60:300,b75:300,fluire:300,origami:300,melitta:300,pano:300,coador:300,sifao:300,clever:400,chemex:400,prensa:500,cold:600};
 const penUm=()=>st.pen.sel==="inox"?(Number(st.pen.um)||300):Number(st.pen.sel);
-function peneira(m,c){const r={on:false};if(!st.pen.on)return r;r.on=true;const rec=PREC[m.id];
+function peneira(m,c){const r={on:false};if(!st.pen.on)return r;r.on=true;const rec=precOf(m);
   if(!rec){r.bloq=true;r.msg=m.id==="espresso"?"No espresso não se peneira: os finos ajudam a formar a crema e a resistência na extração.":"Neste método o pó vai inteiro para a bebida; não peneire.";return r}
   const um=penUm(),pm=Number(st.pen.perda),medida=pm>0&&pm<=40,perda=medida?pm/100:Math.min(.25,Math.max(.05,.10+(um-rec)/1000));r.medida=medida;
   r.rec=rec;r.um=um;r.perda=perda;r.moer=c/(1-perda);r.fino=r.moer-c;
@@ -784,7 +785,7 @@ function render(){
   const bs=baseOf(m);
   $("base").hidden=!!m.dose;
   document.querySelectorAll("#base button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===bs));
-  $("lQtd").textContent=m.dose?"Dose de café":({cafe:st.pen&&st.pen.on&&PREC[m.id]?"Café no coador":"Café",xicara:"Café pronto na xícara (ml)"}[bs]||"Água total");
+  $("lQtd").textContent=m.dose?"Dose de café":({cafe:st.pen&&st.pen.on&&precOf(m)?"Café no coador":"Café",xicara:"Café pronto na xícara (ml)"}[bs]||"Água total");
   $("qtd").nextElementSibling.textContent=(!m.dose&&bs==="xicara")?"ml":"g";
   if(document.activeElement!==$("qtd")) $("qtd").value=m.dose?q:bs==="cafe"?Math.round(c*10)/10:bs==="xicara"?Math.round(b):q;
   $("qtd").step=(m.dose||bs==="cafe")?0.5:bs==="xicara"?5:m.qs;
@@ -845,7 +846,7 @@ function render(){
    $("lCafe").textContent=pv?"Café · moer":"Café";$("oCafe").innerHTML=f(pv?pn.moer:c,1)+"<small>g</small>";
    $("oCafeN").textContent=pv?`fica ${f(c,1)} g no coador`:"";
    $("oAguaN").textContent=pv&&!m.dose&&!m.tank?`1:${rfmt(m,r)} sobre os ${f(c,1)} g peneirados`:"";
-   const F=!!st.ajF;$("ajQtd").hidden=F;$("ajPronto").hidden=F;$("ajResumo").hidden=!F;$("ajPen").hidden=F||!!m.cap||!PREC[m.id];
+   const F=!!st.ajF;$("ajQtd").hidden=F;$("ajPronto").hidden=F;$("ajResumo").hidden=!F;$("ajPen").hidden=F||!!m.cap||!precOf(m);
    if(F){["ajPen","ajRat","ajMoa","aBox","sdBox"].forEach(k=>$(k).hidden=true);
     const mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`),ac=accOf(m),pr=[];
     pr.push(pv?`Moer ${f(pn.moer,1)} g · peneira ${pc(pn.perda)}%`:m.cap?"1 cápsula":`Café ${f(c,1)} g`);
