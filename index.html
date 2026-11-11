@@ -173,7 +173,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 77 · 11/11/2026 · resultado do desconto do pote fica visível no temporizador</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 78 · 11/11/2026 · fluxo ao vivo, gráfico do preparo e temporizador só libera com o café do pote em uso</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -185,18 +185,20 @@ select.txt{appearance:auto}
 <radialGradient id="bgo" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#4a4440"/><stop offset="1" stop-color="#26221f"/></radialGradient>
 <linearGradient id="cr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1f0f06"/><stop offset="1" stop-color="#5a3018"/></linearGradient>
 <symbol id="grao" viewBox="0 0 30 30"><g transform="rotate(-35 15 15)"><ellipse cx="15" cy="15" rx="9.2" ry="12.6" fill="var(--b,url(#bg))"/><ellipse cx="12.2" cy="9.5" rx="3" ry="4.6" fill="#fff" opacity=".13"/><path d="M15.6 3.2c-2.8 3.4-3.1 6.6-.6 10.2s2.3 7.6-.8 13.4" fill="none" stroke="var(--k,url(#cr))" stroke-width="2.3" stroke-linecap="round"/><path d="M17.1 4.5c-1.9 3-1.9 5.6.2 8.8" fill="none" stroke="#c98a5a" stroke-width=".8" opacity="var(--h,.55)" stroke-linecap="round"/><ellipse cx="15" cy="15" rx="9.2" ry="12.6" fill="none" stroke="#1b0d05" stroke-width=".7" opacity=".6"/></g></symbol></defs></svg>
-  <div class="ola" id="apr" hidden role="dialog" aria-modal="true" aria-labelledby="aprT"><div class="cx"><div style="font-size:2.4rem;line-height:1">☕</div><p id="aprT">Aproveite seu café, <span class="nomeU">Jeff</span>!</p><p class="sub2" id="aprSub"></p><button class="btn pri" id="aprAv" type="button" style="padding:12px;font-size:1rem">Avaliar o café</button><button class="btn" id="aprNao" type="button" style="padding:12px;font-size:1rem">Agora não</button></div></div>
+  <div class="ola" id="apr" hidden role="dialog" aria-modal="true" aria-labelledby="aprT"><div class="cx"><div style="font-size:2.4rem;line-height:1">☕</div><p id="aprT">Aproveite seu café, <span class="nomeU">Jeff</span>!</p><p class="sub2" id="aprSub"></p><div id="aprG" hidden style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px"></div><div id="aprKV" class="cres" hidden style="margin:0;text-align:center"></div><button class="btn pri" id="aprAv" type="button" style="padding:12px;font-size:1rem">Avaliar o café</button><button class="btn" id="aprNao" type="button" style="padding:12px;font-size:1rem">Agora não</button></div></div>
   <div class="ola av" id="av" hidden role="dialog" aria-modal="true" aria-labelledby="avT"><div class="cx"><p id="avT">Como ficou o café?</p><p class="sub2" id="avSub" style="margin-top:-6px"></p><div id="avRows" style="display:grid;gap:6px"></div>
     <div class="rw" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Nota geral</b><br><span id="avMed" style="font-size:.78rem;color:var(--muted)">média: --</span></span><span class="gr ro" id="avGeral"></span></div>
     <textarea id="avObs" maxlength="300" placeholder="Observação (opcional): ex.: frutado, um pouco ralo"></textarea>
     <div style="display:flex;gap:8px"><button class="btn" id="avCanc" type="button" style="flex:1;padding:12px">Cancelar</button><button class="btn pri" id="avSalvar" type="button" style="flex:2;padding:12px">Salvar avaliação</button></div>
     <p class="cres" style="margin:0;font-size:.82rem">Toque no grão para dar a nota de 1 a 5. A nota geral é a média de Aroma, Acidez, Doçura, Amargor (menos amargo conta como melhor) e Retrogosto. O Corpo fica registrado, mas não entra na média.</p></div></div>
 
+  <div class="ola av" id="avHist" hidden role="dialog" aria-modal="true" aria-labelledby="avHT"><div class="cx"><p id="avHT">Avaliações do café</p><div id="avHL" style="display:grid;gap:10px"></div><button class="btn" id="avHF" type="button" style="padding:12px">Fechar</button></div></div>
   <section class="panel" aria-label="Café" id="cafePanel">
     <div>
       <label class="lbl" for="cSel">Café</label>
       <select class="txt" id="cSel"></select>
       <p class="cres" id="cResumo" style="margin-top:8px"></p>
+      <button class="lnk" id="avVer" type="button" hidden style="margin-top:-2px">Ver avaliações</button>
       <div id="cIndBox" hidden style="margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--soft)"><span class="lbl" style="margin-bottom:6px">Métodos para este café, do mais ao menos indicado</span><div id="cIndList" style="display:grid;gap:8px"></div><details style="margin-top:8px"><summary style="font-size:.84rem;cursor:pointer">Ver os demais métodos</summary><div id="cIndRest" style="display:grid;gap:8px;margin-top:8px"></div></details></div>
       <label class="unk" for="cAuto" id="cAutoBox" style="margin-top:10px"><input type="checkbox" id="cAuto"> Ajustar o preparo pela torra e pelo frescor deste café</label>
       <div class="bkb" style="display:flex;gap:8px;margin-top:8px" id="cActs">
@@ -592,8 +594,9 @@ const san=(x)=>{if(!x||typeof x!=="object"||x.desc)return null;const o={id:typeo
     if(old)v=(v>=1&&v<=5)?v*2:null;o[id]=(Number.isFinite(v)&&v>=0&&v<=10)?Math.round(v):null}return o};
 const ISD=v=>v==="desc"||v==="descpo";
 // Novo preparo: método, moedor e café precisam ser escolhidos antes de liberar o temporizador
-let NOVO=null,abrirMet=false,abrirMoe=false,abrirRec=false,recPend=false;const novoFalta=()=>(NOVO?[!NOVO.met&&"o método",!NOVO.moe&&"o moedor",!NOVO.caf&&"o café no pote (Usar no preparo)"].filter(Boolean):[]).concat(recPend?["o tipo de preparo"]:[]);
-const marca=k=>{if(NOVO){NOVO[k]=true;if(!novoFalta().length)NOVO=null}};
+let NOVO=null,abrirMet=false,abrirMoe=false,abrirRec=false,recPend=false;const cafOk=()=>{try{if(cur().cap)return true}catch(e){}return usoPote>=0&&POT.p[usoPote]===st.csel};
+const novoFalta=()=>(NOVO?[!NOVO.met&&"o método",!NOVO.moe&&"o moedor"].filter(Boolean):[]).concat(cafOk()?[]:["o café no pote (Usar no preparo)"]).concat(recPend?["o tipo de preparo"]:[]);
+const marca=k=>{if(NOVO){NOVO[k]=true;if(NOVO.met&&NOVO.moe)NOVO=null}};
 let CAF=null;try{CAF=JSON.parse(localStorage.getItem("calcCafes")||"null")}catch(e){}
 if(!Array.isArray(CAF)){CAF=[{...CAFE0,id:"c-tucano",nome:"Black Tucano Fruity"}];
   const o=san(st.cafe);if(o&&o.nome.trim()&&!CAF.some(c=>c.nome===o.nome))CAF.push({...o,id:"c-"+Date.now().toString(36)})}
@@ -603,7 +606,7 @@ let usoPote=-1;
 let AVAL=[];try{const x=JSON.parse(localStorage.getItem("calcAval")||"[]");if(Array.isArray(x))AVAL=x}catch(e){}
 const saveAval=()=>{try{localStorage.setItem("calcAval",JSON.stringify(AVAL))}catch(e){}};
 let POT={n:5,p:[],g:[],u:[],h:[],log:[],t:[]};
-const BAL={on:false,dev:null,cmd:null,w:null,alvoCafe:0,cap:false,semAuto:false,base:0,autoBase:false,hist:[],est:null,cand:null,bip:new Set()};
+const BAL={rec:[],on:false,dev:null,cmd:null,w:null,alvoCafe:0,cap:false,semAuto:false,base:0,autoBase:false,hist:[],est:null,cand:null,bip:new Set()};
 function loadPot(){try{const x=JSON.parse(localStorage.getItem("calcPotes")||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
 loadPot();
 const logPot=(ev,i)=>{const d=new Date(),p2=n=>String(n).padStart(2,"0");POT.log.unshift(`${p2(d.getDate())}/${p2(d.getMonth()+1)} ${p2(d.getHours())}:${p2(d.getMinutes())} · Pote ${i+1} · ${ev}`);POT.log=POT.log.slice(0,40)};
@@ -790,6 +793,7 @@ function renderCafe(){
   {const noPote=POT.p.slice(0,POT.n).includes(st.csel);const rk=[];$("cIndBox").hidden=!rk.length;
    const item=(r,i)=>{const m=M.find(x=>x.id===r.id),on=G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="cres" style="color:var(--fg)"><b>${i+1}. ${esc(m.n)}</b> · ${r.nota}%<br><span style="color:var(--muted);font-size:.84rem">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-ind="${i}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
    $("cIndList").innerHTML=rk.slice(0,5).map(item).join("");$("cIndRest").innerHTML=rk.slice(5).map((r,i)=>item(r,i+5)).join("")}
+  try{$("avVer").hidden=!AVAL.some(x=>x.caf===sel&&x.geral!=null)}catch(e){}
   $("cResumo").textContent=sel==="desc"?"Café em grãos sem dados. A receita fica registrada como café desconhecido.":sel==="descpo"?"Café já moído, sem dados. A moagem sugerida não se aplica: ajuste pela proporção e pelo tempo.":sel==="novo"?"Preencha os dados e toque em Cadastrar café. Só o nome é obrigatório.":cafeTxt(k)+(d!=null&&d>=0?` · ${d} dia${d===1?"":"s"} desde a torra`:"")+avResumo(sel);
   $("cActs").hidden=!reg; $("cAutoBox").hidden=ISD(sel);$("cFim").hidden=!(reg&&k.fim); $("cAuto").checked=st.auto!==false; $("cEdit").textContent=cEdit?"Esconder dados":"Editar dados"; $("cDel").textContent=cDelArm?"Confirmar exclusão":"Excluir café";
   $("cFields").hidden=!(sel==="novo"||(reg&&cEdit));
@@ -974,7 +978,7 @@ function descontaPote(){try{if(cur().cap)return;loadPot();
   POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};const dn=new Date(),p2=n=>String(n).padStart(2,"0");POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini,last:`${p2(dn.getDate())}/${p2(dn.getMonth()+1)} ${p2(dn.getHours())}:${p2(dn.getMinutes())}`};logPot(`preparo −${f(g,1)} g → ${f(POT.g[i],1)} g`,i);savePot();ultDesc={i,t:Date.now()};
   potMsg(`Descontei ${f(g,1)} g do Pote ${i+1}: restam ${f(Math.max(0,POT.g[i]),1)} g`+(POT.g[i]<c?". Está acabando":""));renderPotes()}catch(e){potMsg("Erro ao descontar do pote: "+(e&&e.message||e))}}
 async function iniciar(off){off=typeof off==="number"&&off>0?off:0;if(novoFalta().length)return;$("tPote").textContent="";descontaPote();
-  if(BAL.on&&BAL.w!=null&&!BAL.autoBase)BAL.base=Math.abs(BAL.w)<0.5?0:BAL.w;BAL.autoBase=false;BAL.bip=new Set();BAL.cand=null;
+  if(BAL.on&&BAL.w!=null&&!BAL.autoBase)BAL.base=Math.abs(BAL.w)<0.5?0:BAL.w;BAL.autoBase=false;BAL.bip=new Set();BAL.cand=null;BAL.rec=[];
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
   try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src)}}catch(e){}
   T.au=null;
@@ -1008,7 +1012,7 @@ function balRecebe(ev){const v=ev.target.value,r=new Uint8Array(v.buffer,v.byteO
     o+=Math.max(8,6+len+2)}}
 function balPeso(){const w=BAL.w,now=Date.now();$("bW").textContent=f(w,1)+" g";
   if(!T.run){balDetecta(w,now)}
-  else{const ag=w-BAL.base,al=balAlvos(T.steps||CUR).filter(x=>x!=null);
+  else{const ag=w-BAL.base,al=balAlvos(T.steps||CUR).filter(x=>x!=null);try{BAL.rec.push([decorrido(),ag])}catch(e){}
     // Bipe ao atingir cada peso da receita: alerta para olhar o fluxo e não a balança
     for(const a of al)if(!BAL.bip.has(a)&&ag>=a-0.5){BAL.bip.add(a);if(st.bipe!==false){som(1500,.09,.35);setTimeout(()=>som(1500,.09,.35),140)}vibra(80)}}
   balTela()}
@@ -1023,20 +1027,33 @@ function balDetecta(w,now){BAL.hist.push({t:now,w});BAL.hist=BAL.hist.filter(x=>
   const c=BAL.cand,sobe=w-c.base;
   if(sobe<1||now-c.t>25000||!balPronto()){BAL.cand=null;return}
   if(sobe>=Math.max(BAL.alvoCafe+5,20)){BAL.cand=null;BAL.base=c.base;BAL.autoBase=true;const off=Math.max(0,(now-c.t)/1000);toast("Despejo detectado: temporizador iniciado");iniciar(off)}}
+
+// Fluxo: g/s pela variação do peso nos últimos 2 s
+function balFluxo(){const r=BAL.rec;if(r.length<3)return null;const t1=r[r.length-1][0];let j=r.length-1;while(j>0&&t1-r[j-1][0]<=2)j--;const a=r[j],b=r[r.length-1];const dt=b[0]-a[0];return dt>=0.8?Math.max(0,(b[1]-a[1])/dt):null}
+// Série compacta (1 ponto por segundo) para guardar e desenhar
+function balSerie(){const r=BAL.rec,o=[];let k=-1;for(const [t,w] of r){const s=Math.floor(t);if(s<0)continue;if(s!==k){o.push([s,Math.round(w*10)/10]);k=s}else o[o.length-1][1]=Math.round(w*10)/10}return o}
+function grafico(g,alvos){if(!g||g.length<5)return"";const T1=Math.max(60,g[g.length-1][0]),Wm=Math.max(50,...g.map(x=>x[1]),...(alvos||[]))*1.06;
+  const fl=g.map((x,i)=>{const p=g[Math.max(0,i-1)];return[x[0],Math.max(0,x[1]-p[1])/Math.max(1,x[0]-p[0])]}),sm=fl.map((x,i)=>{const v=fl.slice(Math.max(0,i-2),i+3);return[x[0],v.reduce((a,b)=>a+b[1],0)/v.length]});
+  const Fm=Math.max(6,...sm.map(x=>x[1]))*1.1,X=t=>40+t*300/T1,Yw=w=>190-w*160/Wm,Yf=v=>190-v*160/Fm;
+  const ln=(alvos||[]).map(a=>`<line x1="40" x2="340" y1="${Yw(a).toFixed(1)}" y2="${Yw(a).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 4" stroke-width=".8"/><text x="344" y="${(Yw(a)+3).toFixed(1)}" font-size="9" fill="var(--muted)">${f(a)}</text>`).join("");
+  const ticks=[];for(let t=0;t<=T1;t+=T1>300?120:60)ticks.push(`<text x="${X(t).toFixed(1)}" y="205" font-size="9" fill="var(--muted)" text-anchor="middle">${tm(t)}</text>`);
+  const area="M"+sm.map(x=>`${X(x[0]).toFixed(1)},${Yf(x[1]).toFixed(1)}`).join(" L")+` L${X(sm[sm.length-1][0]).toFixed(1)},190 L40,190 Z`;
+  return `<svg viewBox="0 0 370 215" width="100%" role="img" aria-label="Gráfico do preparo: água acumulada e fluxo">${ln}<path d="${area}" fill="#6aa9d6" opacity=".35"/><polyline points="${g.map(x=>`${X(x[0]).toFixed(1)},${Yw(x[1]).toFixed(1)}`).join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2.4"/>${ticks.join("")}<text x="40" y="20" font-size="10" fill="var(--accent)">— água (g)</text><text x="130" y="20" font-size="10" fill="#6aa9d6">■ fluxo (g/s, até ${f(Fm,0)})</text></svg>`}
+function resumoG(g){if(!g||g.length<5)return null;const tot=g[g.length-1][1],tt=g[g.length-1][0];let ts=0,ws=0;for(let i=1;i<g.length;i++){const d=g[i][1]-g[i-1][1];if(d>0.3){ts+=g[i][0]-g[i-1][0];ws+=d}}return{tt,tot,fm:ts?ws/ts:null}}
 // Peso acumulado esperado em cada etapa com despejo (lê os textos dos passos)
 function balAlvos(steps){let prev=0;return steps.map(x=>{if(!/\d+:\d\d/.test(x[0]))return null;const t=x[1];
   const a=t.match(/(?:balança em|balança marcar|até a balança marcar|complete até|Complete até|até)\s*(\d+(?:,\d+)?)\s*g/);
   const b=!a&&/(despej|Despej|Pré-infusão|Molhe|molhe)/.test(t)&&t.match(/(\d+(?:,\d+)?)\s*g/);
   const cum=a?+a[1].replace(",","."):b?prev+ +b[1].replace(",","."):null;if(cum==null||cum<=prev)return null;prev=cum;return cum})}
-function balBox(w,alvo,dec){const pct=Math.max(0,Math.min(100,w/alvo*100)),falta=alvo-w,ok=falta<=(dec?0.05:1),ovr=w>alvo+(dec?0.5:5);
-  return `<div class="blive${ovr?" ovr":ok?" okk":""}"><div class="bw">${f(w,dec)}<small> / ${f(alvo,dec)} g</small></div><div class="bar"><i style="width:${pct}%"></i></div><div class="bf">${ovr?`Passou ${f(w-alvo,dec)} g`:ok?"No alvo":`Falta${falta>=2?"m":""} ${f(falta,dec)} g`}</div></div>`}
+function balBox(w,alvo,dec,fx){const pct=Math.max(0,Math.min(100,w/alvo*100)),falta=alvo-w,ok=falta<=(dec?0.05:1),ovr=w>alvo+(dec?0.5:5);
+  return `<div class="blive${ovr?" ovr":ok?" okk":""}"><div class="bw">${f(w,dec)}<small> / ${f(alvo,dec)} g</small></div><div class="bar"><i style="width:${pct}%"></i></div><div class="bf">${ovr?`Passou ${f(w-alvo,dec)} g`:ok?"No alvo":`Falta${falta>=2?"m":""} ${f(falta,dec)} g`}${fx!=null?`<span style="float:right">Fluxo <b style="color:#6aa9d6;font-family:var(--mono)">${f(fx,1)} g/s</b></span>`:""}</div></div>`}
 function balTela(){const on=BAL.on;$("bConn").hidden=on||!navigator.bluetooth||BAL.cap;$("bOn").hidden=!on;$("bTara").hidden=!on;
   $("bArm").hidden=!balPronto();$("bArm").textContent="Início automático: o temporizador começa sozinho quando você despejar a água. Não precisa zerar a balança.";
   document.querySelectorAll("#steps .blive").forEach(x=>x.remove());
   if(!on||BAL.w==null){$("bPrev").hidden=true;return}
   if(!T.run){const show=BAL.alvoCafe>0&&!BAL.cap;$("bPrev").hidden=!show;if(show)$("bPrev").innerHTML=`<span class="t" style="font:600 1rem var(--mono);color:var(--accent)">Moer</span><span>Pese <b>${f(BAL.alvoCafe,1)} g</b> de café${balBox(BAL.w,BAL.alvoCafe,1)}</span>`;return}
   $("bPrev").hidden=true;const ag=BAL.w-BAL.base,li=document.querySelector("#steps li.on");if(!li)return;const sts=T.steps||CUR,al=balAlvos(sts)[+li.dataset.i];if(al==null){if(/^Fim do preparo/.test(sts[+li.dataset.i][1])){const tot=balAlvos(sts).filter(x=>x!=null).pop();li.querySelector(".x").insertAdjacentHTML("beforeend",`<div class="blive"><div class="bw">${f(ag,0)}<small> g de água na balança</small></div>${tot?`<div class="bf">Despejado ${f(tot)} g${BAL.xic?` · na xícara ≈ ${f(BAL.xic)} ml quando terminar de pingar`:""}</div>`:""}</div>`)}return}
-  li.querySelector(".x").insertAdjacentHTML("beforeend",balBox(ag,al,0))}
+  li.querySelector(".x").insertAdjacentHTML("beforeend",balBox(ag,al,0,balFluxo()))}
 async function balConectar(){if(!navigator.bluetooth)return;
   try{const dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:"dot"},{namePrefix:"Dot"},{namePrefix:"DOT"},{namePrefix:"TES"},{namePrefix:"TIMEMORE"},{namePrefix:"Timemore"},{services:[BAL.S]}],optionalServices:[BAL.S]});
     const srv=await dev.gatt.connect(),sv=await srv.getPrimaryService(BAL.S),nt=await sv.getCharacteristic(BAL.N);BAL.cmd=await sv.getCharacteristic(BAL.C);
@@ -1086,22 +1103,32 @@ function avResumo(id){const L=AVAL.filter(x=>x.caf===id&&x.geral!=null);if(!L.le
 function abrirAproveite(){const m=cur(),{c,a}=calc(m),nome=ISD(st.csel)?(st.csel==="descpo"?"Café em pó":"Café em grãos"):(st.cafe&&st.cafe.nome)||"Café";
   const vs=M.filter(x=>G(x)===G(m)).length>1,bt=document.querySelector(`#metodos button[data-v="${G(m)}"]`),met=(bt?bt.textContent:m.n)+(vs?" · "+vn(m):"");
   avCtx={caf:st.csel,nome,met,c:Math.round(c*10)/10,a:Math.round(a)};
-  $("aprSub").textContent=m.cap?`${nome} · ${met}`:`${nome} · ${met} · ${f(c,1)} g : ${f(a)} g`;$("apr").hidden=false}
-$("tStop").onclick=()=>{const rodou=T.run;encerrar();if(rodou)abrirAproveite()};
+  $("aprSub").textContent=m.cap?`${nome} · ${met}`:`${nome} · ${met} · ${f(c,1)} g : ${f(a)} g`;
+  const g=BAL.rec.length?balSerie():null,rs=resumoG(g),al=balAlvos(T.lastSteps||CUR).filter(x=>x!=null);avCtx.g=rs?g:null;avCtx.al=rs?al:null;
+  $("aprG").hidden=!rs;$("aprKV").hidden=!rs;if(rs){$("aprG").innerHTML=grafico(g,al);$("aprKV").innerHTML=`Tempo total <b>${tm(rs.tt)}</b> · Água <b>${f(rs.tot)} g</b>${rs.fm?` · Fluxo médio <b>${f(rs.fm,1)} g/s</b>`:""}`}
+  $("apr").hidden=false}
+$("tStop").onclick=()=>{const rodou=T.run;T.lastSteps=T.steps;encerrar();if(rodou)abrirAproveite()};
 const avPendente=()=>{if(!avCtx||avCtx.pid)return;const dn=new Date(),p2=n=>String(n).padStart(2,"0");const id="a-"+Date.now().toString(36);
-  AVAL.push({id,pend:true,d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,h:`${p2(dn.getHours())}:${p2(dn.getMinutes())}`,caf:avCtx.caf,nome:avCtx.nome,met:avCtx.met,c:avCtx.c,a:avCtx.a});avCtx.pid=id;saveAval();avPendTela()};
+  AVAL.push({id,pend:true,d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,h:`${p2(dn.getHours())}:${p2(dn.getMinutes())}`,caf:avCtx.caf,nome:avCtx.nome,met:avCtx.met,c:avCtx.c,a:avCtx.a,g:avCtx.g||null,al:avCtx.al||null});avCtx.pid=id;saveAval();avPendTela()};
 function avPendTela(){const L=AVAL.filter(x=>x.pend).slice(-3).reverse();$("avPend").hidden=!L.length;
   $("avPend").innerHTML=L.map(x=>`<div style="display:flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px"><span style="flex:1;font-size:.88rem;line-height:1.35">Avaliar depois: <b>${esc(x.nome||"Café")}</b><br><span style="color:var(--muted)">${esc(x.met||"")} · ${dataBR(x.d).slice(0,5)}${x.h?" "+x.h:""}</span></span><button class="btn pri" type="button" data-avp="${x.id}" style="padding:7px 10px">Avaliar</button><button class="lnk" type="button" data-avx="${x.id}" aria-label="Descartar">✕</button></div>`).join("")}
 $("avPend").addEventListener("click",e=>{const a=e.target.closest("[data-avp]"),x=e.target.closest("[data-avx]");
   if(x){AVAL=AVAL.filter(v=>v.id!==x.dataset.avx);saveAval();avPendTela();return}
-  if(a){const v=AVAL.find(v=>v.id===a.dataset.avp);if(!v)return;avCtx={caf:v.caf,nome:v.nome,met:v.met,c:v.c,a:v.a,pid:v.id};avN={};$("avObs").value="";$("avSub").textContent=`${v.nome||"Café"} · ${v.met||""} · ${dataBR(v.d)}`;avTela();$("av").hidden=false}});
+  if(a){const v=AVAL.find(v=>v.id===a.dataset.avp);if(!v)return;avCtx={caf:v.caf,nome:v.nome,met:v.met,c:v.c,a:v.a,g:v.g,al:v.al,pid:v.id};avN={};$("avObs").value="";$("avSub").textContent=`${v.nome||"Café"} · ${v.met||""} · ${dataBR(v.d)}`;avTela();$("av").hidden=false}});
 $("aprNao").onclick=()=>{$("apr").hidden=true;avPendente()};
+$("avVer").onclick=()=>{const L=AVAL.filter(x=>x.caf===st.csel&&x.geral!=null).slice().reverse();$("avHT").textContent="Avaliações: "+(L[0]&&L[0].nome||"café");
+  $("avHL").innerHTML=L.map(x=>{const rs=resumoG(x.g),nn=x.n||{};return `<div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:6px">
+   <div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:.95rem">${dataBR(x.d).slice(0,5)} · ${esc(x.met||"")}</b><b style="color:var(--accent)">${f(x.geral,1)}</b></div>
+   ${rs?grafico(x.g,x.al):""}
+   <div class="cres" style="margin:0;font-size:.82rem">${AVC.filter(([k])=>nn[k]).map(([k,l])=>`${l} ${nn[k]}`).join(" · ")}${x.obs?`<br>${esc(x.obs)}`:""}${rs?`<br>${tm(rs.tt)} · ${f(rs.tot)} g${rs.fm?` · fluxo médio ${f(rs.fm,1)} g/s`:""}`:""}</div></div>`}).join("")||'<p class="cres">Nenhuma avaliação ainda.</p>';$("avHist").hidden=false};
+$("avHF").onclick=()=>{$("avHist").hidden=true};
+
 $("aprAv").onclick=()=>{$("apr").hidden=true;if(avCtx)avCtx.pid=null;avN={};$("avObs").value="";$("avSub").textContent=avCtx?`${avCtx.nome} · ${avCtx.met}`:"";avTela();$("av").hidden=false};
 $("avRows").addEventListener("click",e=>{const b=e.target.closest("[data-av]");if(!b)return;const k=b.dataset.av,v=+b.dataset.v;avN[k]=avN[k]===v?v-1||null:v;avTela()});
 $("avCanc").onclick=()=>{$("av").hidden=true;avPendente()};
 $("avSalvar").onclick=()=>{if(!AVC.some(([k])=>avN[k])){toast("Dê nota a pelo menos uma característica");return}const md=avMedia(avN),dn=new Date(),p2=n=>String(n).padStart(2,"0");
   const reg={n:{...avN},geral:md==null?null:Math.round(md*10)/10,obs:$("avObs").value.trim().slice(0,300)},pv=avCtx&&avCtx.pid&&AVAL.find(v=>v.id===avCtx.pid);
-  if(pv){Object.assign(pv,reg);delete pv.pend}else AVAL.push({id:"a-"+Date.now().toString(36),d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,caf:avCtx&&avCtx.caf,nome:avCtx&&avCtx.nome,met:avCtx&&avCtx.met,c:avCtx&&avCtx.c,a:avCtx&&avCtx.a,...reg});
+  if(pv){Object.assign(pv,reg);delete pv.pend}else AVAL.push({id:"a-"+Date.now().toString(36),d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,caf:avCtx&&avCtx.caf,nome:avCtx&&avCtx.nome,met:avCtx&&avCtx.met,c:avCtx&&avCtx.c,a:avCtx&&avCtx.a,g:avCtx&&avCtx.g||null,al:avCtx&&avCtx.al||null,...reg});
   saveAval();avPendTela();$("av").hidden=true;toast(md==null?"Avaliação salva":`Avaliação salva: nota geral ${f(md,1)}`);render()};
 
 $("tPause").onclick=()=>{if(!T.run)return;const tocando=T.au&&!T.auFim;
