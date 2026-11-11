@@ -157,7 +157,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 64 · 10/11/2026 · peneira antes da proporção, botão Pronto e card com o café a moer</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 65 · 10/11/2026 · peneirar só aparece nos métodos que pedem</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -845,7 +845,7 @@ function render(){
    $("lCafe").textContent=pv?"Café · moer":"Café";$("oCafe").innerHTML=f(pv?pn.moer:c,1)+"<small>g</small>";
    $("oCafeN").textContent=pv?`fica ${f(c,1)} g no coador`:"";
    $("oAguaN").textContent=pv&&!m.dose&&!m.tank?`1:${rfmt(m,r)} sobre os ${f(c,1)} g peneirados`:"";
-   const F=!!st.ajF;$("ajQtd").hidden=F;$("ajPronto").hidden=F;$("ajResumo").hidden=!F;$("ajPen").hidden=F||!!m.cap;
+   const F=!!st.ajF;$("ajQtd").hidden=F;$("ajPronto").hidden=F;$("ajResumo").hidden=!F;$("ajPen").hidden=F||!!m.cap||!PREC[m.id];
    if(F){["ajPen","ajRat","ajMoa","aBox","sdBox"].forEach(k=>$(k).hidden=true);
     const mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`),ac=accOf(m),pr=[];
     pr.push(pv?`Moer ${f(pn.moer,1)} g · peneira ${pc(pn.perda)}%`:m.cap?"1 cápsula":`Café ${f(c,1)} g`);
