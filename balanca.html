@@ -40,6 +40,10 @@ button:disabled{opacity:.45}
 </div>
 
 <div class="card info">
+  <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="todos"> Mostrar todos os aparelhos Bluetooth na lista</label>
+</div>
+
+<div class="card info">
   <div>Bateria: <b id="bat">--</b></div>
   <div>Leituras recebidas: <b id="n">0</b></div>
   <div>Aparelho: <b id="nome">--</b></div>
@@ -52,7 +56,10 @@ button:disabled{opacity:.45}
 
 <script>
 const $=id=>document.getElementById(id);
-const SVC=0xfff0, NOTIF=0xfff1, CMD=0xfff2;
+const U=x=>"0000"+x+"-0000-1000-8000-00805f9b34fb";
+const SVC=U("fff0"), NOTIF=U("fff1"), CMD=U("fff2");
+let etapa="";
+const errTxt=e=>{if(e==null)return "sem detalhe";if(typeof e==="string")return e;return [e.name,e.message,e.code].filter(x=>x!=null&&x!=="").join(" · ")||JSON.stringify(e)||String(e)};
 let dev=null, cmd=null, nLeit=0;
 const logs=[];
 function log(t){logs.unshift(t);logs.length=Math.min(logs.length,25);$("log").textContent=logs.join("\n")}
@@ -76,16 +83,23 @@ function recebe(ev){const v=ev.target.value,r=new Uint8Array(v.buffer,v.byteOffs
 
 async function conectar(){
   if(!navigator.bluetooth){status("Este navegador não tem Bluetooth. Abra esta página no Bluefy.","err");return}
-  try{status("Escolha a balança na lista…");
-    dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SVC]});
-    $("nome").textContent=dev.name||"(sem nome)";dev.addEventListener("gattserverdisconnected",()=>{status("A balança desconectou","err");botoes(false)});
-    status("Conectando…");const srv=await dev.gatt.connect();const s=await srv.getPrimaryService(SVC);
-    const nt=await s.getCharacteristic(NOTIF);cmd=await s.getCharacteristic(CMD);
-    nt.addEventListener("characteristicvaluechanged",recebe);await nt.startNotifications();
+  try{
+    etapa="verificar Bluetooth";try{const av=navigator.bluetooth.getAvailability?await navigator.bluetooth.getAvailability():"?";log("Bluetooth disponível: "+av)}catch(e){log("getAvailability: "+errTxt(e))}
+    status("Escolha a balança na lista…");
+    etapa="escolher o aparelho";
+    const modo=$("todos").checked?{acceptAllDevices:true,optionalServices:[SVC]}:{filters:[{namePrefix:"dot"},{namePrefix:"Dot"},{namePrefix:"DOT"},{namePrefix:"TES"},{namePrefix:"TIMEMORE"},{namePrefix:"Timemore"},{services:[SVC]}],optionalServices:[SVC]};
+    log("procurando: "+($("todos").checked?"todos os aparelhos":"nomes dot/TES/Timemore"));
+    dev=await navigator.bluetooth.requestDevice(modo);
+    $("nome").textContent=dev.name||"(sem nome)";log("escolhido: "+(dev.name||"(sem nome)"));
+    dev.addEventListener("gattserverdisconnected",()=>{status("A balança desconectou","err");botoes(false)});
+    etapa="conectar";status("Conectando…");const srv=await dev.gatt.connect();
+    etapa="abrir o serviço FFF0";let s;try{s=await srv.getPrimaryService(SVC)}catch(e){try{const all=await srv.getPrimaryServices();log("serviços: "+all.map(x=>x.uuid).join(", "))}catch(e2){}throw e}
+    etapa="abrir as características";const nt=await s.getCharacteristic(NOTIF);cmd=await s.getCharacteristic(CMD);
+    etapa="ligar as notificações";nt.addEventListener("characteristicvaluechanged",recebe);await nt.startNotifications();
     botoes(true);status("Conectada. Coloque algo na balança.","ok");
-    await new Promise(r=>setTimeout(r,500));await envia(3,6,[0]);       // unidade em gramas
-    await new Promise(r=>setTimeout(r,200));await envia(3,8,[1,0]);     // modo padrão
-  }catch(e){status("Não conectou: "+e.message,"err");log("erro: "+e.message);botoes(false)}}
+    await new Promise(r=>setTimeout(r,500));await envia(3,6,[0]);
+    await new Promise(r=>setTimeout(r,200));await envia(3,8,[1,0]);
+  }catch(e){const t=errTxt(e);status("Não conectou na etapa \""+etapa+"\": "+t,"err");log("erro em "+etapa+": "+t);botoes(false)}}
 function botoes(on){$("tara").disabled=!on;$("sair").disabled=!on;$("conectar").disabled=on}
 $("conectar").onclick=conectar;
 $("tara").onclick=()=>envia(3,0x0d,[]);
