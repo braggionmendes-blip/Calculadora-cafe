@@ -157,7 +157,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 58 · 10/11/2026 · tela enxuta: pote, método e moedor recolhem após a escolha</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 59 · 10/11/2026 · lista de receitas também recolhe ao escolher o método</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
   </header>
   <div class="ola" id="ola" hidden role="dialog" aria-modal="true" aria-labelledby="olaT"><div class="cx"><p id="olaT">Olá Jeff! Vamos preparar um café?!?</p><div class="acts"><button class="btn" id="olaNao" type="button">Não</button><button class="btn pri" id="olaSim" type="button">Sim</button></div></div></div>
@@ -839,7 +839,7 @@ function render(){
   renderSaved();
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}
 }
-$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=l&&M.some(x=>x.id===l&&G(x)===g)?l:g;abrirMet=false;abrirRec=M.filter(x=>G(x)===g).length>1;render()});
+$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=l&&M.some(x=>x.id===l&&G(x)===g)?l:g;abrirMet=false;abrirRec=false;render()});
 $("k46s").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),s:b.dataset.v};render()});
 $("k46c").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),c:b.dataset.v};render()});
 $("recVar").addEventListener("change",e=>{marca("met");abrirMet=false;abrirRec=false;st.met=e.target.value;st.gsel={...(st.gsel||{}),[G(cur())]:st.met};render()});
