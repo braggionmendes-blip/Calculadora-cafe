@@ -176,7 +176,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 85 · 13/11/2026 · Cuppamoka com a receita do Terra Cruz Cafés</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 86 · 13/11/2026 · Pipamoka com a receita do MusiCafe</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -655,6 +655,9 @@ const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Padr�
  {id:"wPip",grp:"wacaco",dev:"Pipamoka",rn:"Pipamoka · Padrão (1:15)",n:"Wacaco",cls:"Média-grossa",q:240,qs:10,r:[14,16,15,0.5],temp:"80 a 88 °C",tempo:"1:40 a 2:00",g:gPip,
   steps:(c,a)=>[["Preparo",`Coloque os ${f(c,1)} g de café na cápsula de filtro (no máximo 16 g, cerca de 2 medidas), nivele sem compactar e feche`],["Preparo",`Confira que o êmbolo está no fundo da caneca e coloque ${g(a)} de água (até a marca "1")`],["0:00","Solte a cápsula na água, espere afundar e feche bem a tampa"],["0:20","Gire o anel laranja devagar, segurando a caneca: cerca de 80 s até o fim"],["1:40–2:00",'Fim do preparo: ao ouvir o "pop", o café está pronto']],
   tip:"Pipamoka: extração por pressão a vácuo girando o anel. A Wacaco indica 16 g, moagem média a média-grossa e água a 80 °C; reviews usam cerca de 88 °C. Se o anel ficar duro de girar, a moagem está fina: abra. Girar rápido deixa o café mais fraco."},
+ {id:"wPipMC",grp:"wacaco",dev:"Pipamoka",rn:"Pipamoka · MusiCafe (3 min)",n:"Wacaco",cls:"Média",q:240,qs:10,r:[16,18,17.1,0.1],temp:"Recém-fervida (≈ 96 °C)",tempo:"3:00",g:{k7:[72,85,78],r3:[105,135,120],pro:[70,90,80],oster:[9,12,10],mongdio:[18,24,21],icoffee:[14,18,16]},
+  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g na cápsula de filtro (enche o filtro), nivele com o dedo sem compactar e feche`],["Preparo",`Êmbolo no fundo da caneca e ${g(a)} de água recém-fervida (até a marca "1")`],["0:00","Solte a cápsula com a borracha para baixo: ela desce devagar fazendo a pré-infusão. Dê batidinhas na caneca para soltar as bolhas"],["1:00","Tampe bem apertado e comece a girar o anel: cerca de meia volta a cada 3 s"],["2:00","Metade do êmbolo: mantenha o ritmo, sem acelerar (rápido demais deixa o café subextraído)"],["2:45–3:00","Fim do preparo: confira que não sobrou água em cima da cápsula"]],
+  tip:"Receita do vídeo do MusiCafe: 13 a 14 g sem compactar, moagem média (a mesma de um V60 de 400 ml; no Zeppresso JX Pro, 2 voltas + ponto 4), água fervendo até a marca 1, cerca de 1 min de pré-infusão e 2 min girando, 3 min no total, rende ≈ 240 ml. Segundo o vídeo, o método oficial (40 s e 2 min no total) saiu subextraído, ralo e com gosto de chá; esta versão destacou corpo, chocolate e castanhas, com acidez baixa. Moer fino ou compactar trava a água em cima da cápsula."},
  {id:"wPipF",grp:"wacaco",dev:"Pipamoka",rn:"Pipamoka · Mais forte (1:11)",n:"Wacaco",cls:"Média",q:176,qs:10,r:[10,13,11,0.5],temp:"85 a 88 °C",tempo:"1:50 a 2:10",g:{k7:[72,88,80],r3:[105,135,120],pro:[72,92,82],oster:[10,13,11],mongdio:[19,26,22],icoffee:[14,19,16]},
   steps:(c,a)=>[["Preparo",`${f(c,1)} g na cápsula de filtro, nivelado e fechado`],["Preparo",`Êmbolo no fundo e ${g(a)} de água (cerca de 3/4 da caneca)`],["0:00","Solte a cápsula, espere afundar e feche a tampa"],["0:30","Gire o anel bem devagar, cerca de 90 s"],["1:50–2:10","Fim do preparo"]],
   tip:"Menos água com a mesma dose máxima deixa o café mais encorpado (reviews relatam ~180 ml com sabor mais forte)."});}
