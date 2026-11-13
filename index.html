@@ -176,7 +176,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 87 · 13/11/2026 · Prestina com a receita do Pirados por Café</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 88 · 13/11/2026 · AeroPress invertida (prensa iCoffee) com a receita do vídeo</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -535,6 +535,10 @@ const M=[
   g:{k7:[65,80,72],r3:[95,130,110],pro:[65,95,80],oster:[8,11,10],mongdio:[16,23,19],icoffee:[13,18,15]},
   steps:(c,a)=>{const k=Math.sqrt(a/240);return[["Preparo","Use filtro de fundo plano (tipo Wave), escalde e descarte a água"],["0:00",`Despeje até ${g(a*50/240)}`],[tm(40*k),`Complete até ${g(a*110/240)}`],[tm(70*k),`Complete até ${g(a*175/240)}`],[tm(100*k),`Finalize até ${g(a)}`],[tm(150*k)+"–"+tm(180*k),"Fim do preparo"]]},
   tip:"Receita Veroo (cartão Sugestão do Barista), pensada para café de frutas amarelas, doçura e acidez málica. Feita para Kalita: 15 g para 240 g (1:16) a 93 °C. No Origami, use filtro de fundo plano. Faça despejos curtos e controlados, sem concentrar a água só no centro."},
+ {id:"aeroInv",grp:"aeropress",rn:"Invertida · 15 g : 200 g (prensa iCoffee)",n:"AeroPress · invertida",cls:"Média-fina",q:200,qs:10,r:[12,16,13.3,0.1],temp:"93 °C",tempo:"3:00 a 3:30",
+  g:{k7:[55,70,62],r3:[70,90,80],pro:[40,70,55],oster:[5,9,7],mongdio:[11,18,14],icoffee:[9,14,11]},
+  steps:(c,a)=>[["Preparo","Monte invertida: êmbolo encaixado cerca de 1 cm, de cabeça para baixo. Escalde o filtro de papel na tampa"],["0:00",`Coloque os ${f(c,1)} g de café, despeje ${g(a)} de água a 93 °C e mexa`],["2:00","Mexa mais uma vez e feche com a tampa e o filtro"],["2:30","Vire sobre a xícara e pressione devagar, por cerca de 1 min"],["3:10–3:30","Fim do preparo"]],
+  tip:"Receita do vídeo que compara a AeroPress original com a da iCoffee: 15 g de café, água a 93 °C, moagem de 50 cliques no moedor dele, mexer, esperar até 2:00, mexer de novo, tampar, virar aos 2:30 e prensar por cerca de 1 min. A da iCoffee é menor: não coube 230 ml, ele usou 200 ml (na AeroPress original, 230 ml). Resultado: acidez leve, mais doce e encorpado, quase igual nas duas."},
  {id:"vAero",grp:"aeropress",rn:"Veroo · 16 g / 220 g",n:"AeroPress · Veroo",cls:"Média-fina",q:220,qs:10,r:[12,16,13.75,0.25],temp:"90 °C",tempo:"1:45",
   g:{k7:[55,70,60],r3:[70,90,80],pro:[40,70,55],oster:[5,9,7],mongdio:[11,18,14],icoffee:[9,14,11]},
   steps:(c,a)=>[["0:00",`Adicione toda a água (${g(a)}) sobre os ${f(c,1)} g de café`],["0:10","Misture suavemente 3 vezes e encaixe o êmbolo"],["1:15","Comece a pressionar, devagar e de maneira constante"],["1:45","Fim da extração"]],
@@ -809,7 +813,7 @@ const PERF={v60:{c:3,b:1,i:0,d:2,e:0},b75:{c:3,b:1,i:0,d:3,e:0},origami:{c:2,b:2
   espresso:{c:0,b:3,i:0,d:2,e:3},me26:{c:0,b:3,i:0,d:2,e:3},turco:{c:0,b:3,i:1,d:0,e:1}};
 // Métodos que o Jeff tem
 const MEUS=["v60","b75","origami","melitta","pano","fluire","switch","prensa","me26"];
-PERF.wacaco={c:2,b:2,i:2,d:2,e:0};MEUS.push("wacaco");
+PERF.wacaco={c:2,b:2,i:2,d:2,e:0};MEUS.push("wacaco","aeropress");
 
 const ROT={c:"clareza para acidez e aromas",b:"corpo",i:"imersão, que extrai melhor café menos fresco",d:"doçura",e:"concentração (espresso)"};
 function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,co=k.corpo,d=k.docura,ar=k.aroma,dd=dias(k.data),tx=(k.nome+" "+k.processo+" "+k.tipo).toLowerCase();
