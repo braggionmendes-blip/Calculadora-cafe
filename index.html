@@ -176,7 +176,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 86 · 13/11/2026 · Pipamoka com a receita do MusiCafe</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 87 · 13/11/2026 · Prestina com a receita do Pirados por Café</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -640,6 +640,9 @@ const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Padr�
  {id:"wacaco",dev:"Prestina",rn:"Prestina · Padrão (1:16)",n:"Wacaco",cls:"Média",q:240,qs:10,r:[14,18,16,0.5],temp:"93 °C",tempo:"2:30 a 2:45",g:gPres,
   steps:(c,a)=>[["Preparo",`Encaixe o filtro de inox, coloque os ${f(c,1)} g de café na câmara e nivele`],["0:00",`Despeje os ${g(a)} de água quente (no máximo até a linha Max) e mexa 3 vezes`],["0:15","Feche a tampa e deixe em imersão: a válvula segura a água"],["2:00","Encaixe a xícara e pressione com força constante, em cerca de 30 s"],["2:30–2:45","Fim do preparo"]],
   tip:"Prestina: cafeteira híbrida de imersão e pressão, 240 ml de capacidade, filtro de inox. A válvula retém a água durante a imersão e abre ao pressionar a xícara. Moagem média; se a prensagem ficar dura, abra 3 cliques. A Wacaco não informa dose nem tempo: 15 g e 2 min de imersão são ponto de partida."},
+ {id:"wPresPC",grp:"wacaco",dev:"Prestina",rn:"Prestina · Pirados por Café (1:12 + bypass)",n:"Wacaco",cls:"Média-fina",q:180,qs:10,r:[11,13,12,0.5],temp:"95 °C",tempo:"2:30 a 3:00",g:(M.find(x=>x.id==="v60")||{}).g||gPres,
+  steps:(c,a)=>[["Preparo",`Encaixe o filtro e coloque os ${f(c,1)} g de café moído na câmara`],["0:00",`Despeje os ${g(a)} de água a 95 °C e mexa 5 vezes. Não tampe ainda`],["1:00","Mexa de novo 5 vezes e tampe"],["2:00","Encaixe a xícara e pressione até o fim (pede mais força que a AeroPress por causa da válvula)"],["2:30",`Bypass: complete com ${g(a*20/180)} de água quente e misture`],["2:30–3:00","Fim do preparo"]],
+  tip:"Receita do vídeo do Pirados por Café: 15 g em moagem média-fina (tipo V60; a Wacaco indica média), 180 ml a 95 °C (torra clara pede mais energia), mexer 5 vezes, esperar 1 min sem tampar, mexer mais 5, tampar, pressionar aos 2:00 até o fim e completar com 20 ml de água quente (bypass). Concentra a extração e depois ajusta a força. No vídeo saiu floral, com especiarias, mais encorpado pela oleosidade do filtro de inox."},
  {id:"wPresC",grp:"wacaco",dev:"Prestina",rn:"Prestina · Concentrado (1:8)",n:"Wacaco",cls:"Média-fina",q:150,qs:10,r:[7,10,8,0.5],temp:"94 °C",tempo:"2:00 a 2:15",g:{k7:[65,80,72],r3:[95,125,110],pro:[60,85,72],oster:[8,11,9],mongdio:[16,22,19],icoffee:[12,17,14]},
   steps:(c,a)=>[["Preparo",`Encaixe o filtro de inox e coloque os ${f(c,1)} g de café na câmara`],["0:00",`Despeje os ${g(a)} de água e mexa bem para molhar todo o pó`],["0:15","Feche a tampa e deixe em imersão"],["1:30","Encaixe a xícara e pressione devagar e firme, em cerca de 30 s"],["2:00–2:15","Fim do preparo. Para um americano, complete com água quente a gosto"]],
   tip:"Versão concentrada para tomar curta ou diluir depois (ex.: 150 g de concentrado + 90 g de água quente). Moa um pouco mais fino que o padrão."},
