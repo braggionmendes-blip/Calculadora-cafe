@@ -176,7 +176,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 83 · 11/11/2026 · avaliação mostra os dados e o gráfico do preparo; botão "Este é o café moído no método"</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 84 · 13/11/2026 · Wacaco Prestina, Cuppamoka e Pipamoka com lista de equipamento e receitas</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -268,7 +268,7 @@ select.txt{appearance:auto}
       <span class="lbl" id="lMet">Método</span>
       <div class="chipRow" id="metChip" hidden><button class="btn" type="button" aria-pressed="true" id="metChipBtn"></button><button class="lnk" type="button" id="metTrocar">Trocar</button></div>
       <div class="seg" id="metodos" role="group" aria-labelledby="lMet"></div>
-      <div id="varBox" hidden style="margin-top:10px"><label class="lbl" for="recVar" id="lRecVar">Receita deste método</label><select class="txt" id="recVar"></select>
+      <div id="varBox" hidden style="margin-top:10px"><div id="devBox" hidden style="margin-bottom:10px"><label class="lbl" for="devSel">Equipamento</label><select class="txt" id="devSel"></select></div><label class="lbl" for="recVar" id="lRecVar">Receita deste método</label><select class="txt" id="recVar"></select>
         <div id="k46Box" hidden style="margin-top:10px">
           <div><span class="lbl">4:6 · sabor (2 primeiros despejos)</span><div class="seg" id="k46s"><button type="button" data-v="acido">Mais ácido</button><button type="button" data-v="eq">Equilibrado</button><button type="button" data-v="doce">Mais doce</button></div></div>
           <div style="margin-top:8px"><span class="lbl">4:6 · intensidade (despejos finais)</span><div class="seg" id="k46c"><button type="button" data-v="suave">Mais suave</button><button type="button" data-v="normal">Normal</button><button type="button" data-v="forte">Mais forte</button></div></div>
@@ -632,6 +632,29 @@ if(!Array.isArray(REC)) REC=[{nome:"B75 Black Tucano (vídeo)",cafeId:"c-tucano"
 const saveRec=()=>{try{localStorage.setItem("calcReceitas",JSON.stringify(REC))}catch(e){}};
 const $=id=>document.getElementById(id);
 const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Padrão do app");
+// ===== Wacaco (Prestina, Cuppamoka, Pipamoka): um método com lista de equipamentos e receitas de cada um =====
+{const gPres={k7:[75,90,82],r3:[110,140,125],pro:[75,95,85],oster:[10,13,11],mongdio:[20,26,23],icoffee:[15,20,17]},
+       gCup={k7:[65,80,72],r3:[95,125,110],pro:[60,90,75],oster:[8,10,9],mongdio:[16,21,18],icoffee:[12,16,14]},
+       gPip={k7:[78,95,86],r3:[115,145,130],pro:[80,100,90],oster:[11,14,12],mongdio:[21,28,24],icoffee:[16,21,18]};
+ M.push(
+ {id:"wacaco",dev:"Prestina",rn:"Prestina · Padrão (1:16)",n:"Wacaco",cls:"Média",q:240,qs:10,r:[14,18,16,0.5],temp:"93 °C",tempo:"2:30 a 2:45",g:gPres,
+  steps:(c,a)=>[["Preparo",`Encaixe o filtro de inox, coloque os ${f(c,1)} g de café na câmara e nivele`],["0:00",`Despeje os ${g(a)} de água quente (no máximo até a linha Max) e mexa 3 vezes`],["0:15","Feche a tampa e deixe em imersão: a válvula segura a água"],["2:00","Encaixe a xícara e pressione com força constante, em cerca de 30 s"],["2:30–2:45","Fim do preparo"]],
+  tip:"Prestina: cafeteira híbrida de imersão e pressão, 240 ml de capacidade, filtro de inox. A válvula retém a água durante a imersão e abre ao pressionar a xícara. Moagem média; se a prensagem ficar dura, abra 3 cliques. A Wacaco não informa dose nem tempo: 15 g e 2 min de imersão são ponto de partida."},
+ {id:"wPresC",grp:"wacaco",dev:"Prestina",rn:"Prestina · Concentrado (1:8)",n:"Wacaco",cls:"Média-fina",q:150,qs:10,r:[7,10,8,0.5],temp:"94 °C",tempo:"2:00 a 2:15",g:{k7:[65,80,72],r3:[95,125,110],pro:[60,85,72],oster:[8,11,9],mongdio:[16,22,19],icoffee:[12,17,14]},
+  steps:(c,a)=>[["Preparo",`Encaixe o filtro de inox e coloque os ${f(c,1)} g de café na câmara`],["0:00",`Despeje os ${g(a)} de água e mexa bem para molhar todo o pó`],["0:15","Feche a tampa e deixe em imersão"],["1:30","Encaixe a xícara e pressione devagar e firme, em cerca de 30 s"],["2:00–2:15","Fim do preparo. Para um americano, complete com água quente a gosto"]],
+  tip:"Versão concentrada para tomar curta ou diluir depois (ex.: 150 g de concentrado + 90 g de água quente). Moa um pouco mais fino que o padrão."},
+ {id:"wCup",grp:"wacaco",dev:"Cuppamoka",rn:"Cuppamoka · Padrão (1:18)",n:"Wacaco",cls:"Média",q:270,qs:10,r:[16,20,18,0.5],temp:"93 °C",tempo:"3:00 a 3:30",g:gCup,
+  steps:(c,a)=>{const k=Math.sqrt(a/270);return[["Preparo","Gire o cone para tirar do copo, coloque o filtro de papel, escalde e descarte a água do copo"],["0:00",`Bloom: ${g(c*2)} de água molhando todo o pó`],[tm(30*k),`Despeje em círculos lentos até a balança marcar ${g(a*0.55)}`],[tm(70*k),`Complete até a balança marcar ${g(a)}, sem passar da borda do cone`],[tm(180*k)+"–"+tm(210*k),"Fim do preparo: desrosqueie o cone e apoie no suporte"]]},
+  tip:"Cuppamoka: coado portátil com cone de papel sobre copo térmico de 300 ml; aceita até 20 g de café. Receita de referência: 15 g para 270 g a 93 °C (Homegrounds). O cone fica alto sobre o copo: despeje devagar para não transbordar."},
+ {id:"wCupF",grp:"wacaco",dev:"Cuppamoka",rn:"Cuppamoka · Mais forte (1:15)",n:"Wacaco",cls:"Média",q:300,qs:10,r:[14,16,15,0.5],temp:"93 a 94 °C",tempo:"3:15 a 3:45",g:gCup,
+  steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Filtro de papel no cone, escalde e descarte a água do copo"],["0:00",`Bloom: ${g(c*2)} de água`],[tm(35*k),`Despeje até a balança marcar ${g(a*0.5)}`],[tm(80*k),`Despeje até a balança marcar ${g(a*0.8)}`],[tm(115*k),`Complete até a balança marcar ${g(a)}`],[tm(195*k)+"–"+tm(225*k),"Fim do preparo"]]},
+  tip:"Usa a capacidade máxima do Cuppamoka: 20 g de café e 300 g de água. Se o cone encher demais, divida em despejos menores."},
+ {id:"wPip",grp:"wacaco",dev:"Pipamoka",rn:"Pipamoka · Padrão (1:15)",n:"Wacaco",cls:"Média-grossa",q:240,qs:10,r:[14,16,15,0.5],temp:"80 a 88 °C",tempo:"1:40 a 2:00",g:gPip,
+  steps:(c,a)=>[["Preparo",`Coloque os ${f(c,1)} g de café na cápsula de filtro (no máximo 16 g, cerca de 2 medidas), nivele sem compactar e feche`],["Preparo",`Confira que o êmbolo está no fundo da caneca e coloque ${g(a)} de água (até a marca "1")`],["0:00","Solte a cápsula na água, espere afundar e feche bem a tampa"],["0:20","Gire o anel laranja devagar, segurando a caneca: cerca de 80 s até o fim"],["1:40–2:00",'Fim do preparo: ao ouvir o "pop", o café está pronto']],
+  tip:"Pipamoka: extração por pressão a vácuo girando o anel. A Wacaco indica 16 g, moagem média a média-grossa e água a 80 °C; reviews usam cerca de 88 °C. Se o anel ficar duro de girar, a moagem está fina: abra. Girar rápido deixa o café mais fraco."},
+ {id:"wPipF",grp:"wacaco",dev:"Pipamoka",rn:"Pipamoka · Mais forte (1:11)",n:"Wacaco",cls:"Média",q:176,qs:10,r:[10,13,11,0.5],temp:"85 a 88 °C",tempo:"1:50 a 2:10",g:{k7:[72,88,80],r3:[105,135,120],pro:[72,92,82],oster:[10,13,11],mongdio:[19,26,22],icoffee:[14,19,16]},
+  steps:(c,a)=>[["Preparo",`${f(c,1)} g na cápsula de filtro, nivelado e fechado`],["Preparo",`Êmbolo no fundo e ${g(a)} de água (cerca de 3/4 da caneca)`],["0:00","Solte a cápsula, espere afundar e feche a tampa"],["0:30","Gire o anel bem devagar, cerca de 90 s"],["1:50–2:10","Fim do preparo"]],
+  tip:"Menos água com a mesma dose máxima deixa o café mais encorpado (reviews relatam ~180 ml com sabor mais forte)."});}
 $("metodos").innerHTML=M.filter(m=>!m.grp).map(m=>`<button type="button" data-v="${m.id}">${m.n}</button>`).join("");
 const cur=()=>M.find(m=>m.id===st.met)||M[4];
 const qOf=m=>st.q[m.id]??m.q, rOf=m=>st.r[m.id]??m.r[2];
@@ -675,7 +698,7 @@ function renderSaved(){
 let delArm=-1,cDelArm=false,rsel=-1;
 st.pen=Object.assign({on:false,sel:"inox",um:null,perda:null,modo:"quero",tenho:null},st.pen||{});
 // Acessórios LilyDrip: só em coadores cônicos
-const CONE=["v60","b75","origami","switch","swAgua","swU1","swU2","swTC","vV60","vKal","k46v60","k46ori","k46b75","k46sw","joinout"];
+const CONE=["wCup","wCupF","v60","b75","origami","switch","swAgua","swU1","swU2","swTC","vV60","vKal","k46v60","k46ori","k46b75","k46sw","joinout"];
 const ACC={star:{n:"Starflower",info:"Escoa rápido (saída larga, 7 ranhuras): a camada de café fica mais rasa e plana. Moagem mais fina para compensar. Corpo mais leve e mais clareza.",
     passo:"Dobre o filtro na costura e modele no CFS; encaixe o Starflower no fundo do coador e o filtro por cima"},
   lotos:{n:"LOTOS",info:"Transforma o coador cônico em fundo plano: use filtro de fundo plano (tipo wave/cesta) sobre ele. A peça não tem furo central; mantenha a moagem e ajuste pelo tempo final.",
@@ -709,7 +732,7 @@ function peneira(m,c){const r={on:false};if(!st.pen.on)return r;r.on=true;const 
   r.dica=um<rec-50?`Peneira mais fina que a indicada (${rec} µm): tira menos finos`:um>rec+50?`Peneira mais aberta que a indicada (${rec} µm): tira também parte do pó bom`:`Peneira adequada para este método`;
   if(st.pen.sel==="inox"&&!Number(st.pen.um))r.dica+=" (abertura da sua peneira considerada 300 µm)";
   return r}
-const PERC=["v60","b75","fluire","origami","melitta","pano","coador","chemex","vV60","vMel","vKal","k46v60","k46mel","k46ori","k46b75","joinout"];
+const PERC=["wCup","wCupF","v60","b75","fluire","origami","melitta","pano","coador","chemex","vV60","vMel","vKal","k46v60","k46mel","k46ori","k46b75","joinout"];
 // Coados: mais café = camada mais alta = escoa mais devagar; compensa com moagem mais grossa (e vice-versa)
 function ajDose(m){const gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
   if(!PERC.includes(m.id))return {off:0,nota:""};
@@ -777,6 +800,8 @@ const PERF={v60:{c:3,b:1,i:0,d:2,e:0},b75:{c:3,b:1,i:0,d:3,e:0},origami:{c:2,b:2
   espresso:{c:0,b:3,i:0,d:2,e:3},me26:{c:0,b:3,i:0,d:2,e:3},turco:{c:0,b:3,i:1,d:0,e:1}};
 // Métodos que o Jeff tem
 const MEUS=["v60","b75","origami","melitta","pano","fluire","switch","prensa","me26"];
+PERF.wacaco={c:2,b:2,i:2,d:2,e:0};MEUS.push("wacaco");
+
 const ROT={c:"clareza para acidez e aromas",b:"corpo",i:"imersão, que extrai melhor café menos fresco",d:"doçura",e:"concentração (espresso)"};
 function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,co=k.corpo,d=k.docura,ar=k.aroma,dd=dias(k.data),tx=(k.nome+" "+k.processo+" "+k.tipo).toLowerCase();
   const clara=t==="Clara"||t==="Média-clara",escura=t==="Média-escura"||t==="Escura",barril=/barrel|barril|maturad/.test(tx);
@@ -819,12 +844,14 @@ function render(){
   const m=cur(), {q,r,c,a,b}=calc(m);
   document.querySelectorAll("#metodos button").forEach(b=>b.setAttribute("aria-pressed",!(NOVO&&!NOVO.met)&&b.dataset.v===G(m)));
   {const o=st.k46||{};$("k46Box").hidden=!m.k46;document.querySelectorAll("#k46s button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===(o.s||"eq")));document.querySelectorAll("#k46c button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===(o.c||"normal")))}
-  {const vs=M.filter(x=>G(x)===G(m));$("varBox").hidden=vs.length<2;
+  {const va=M.filter(x=>G(x)===G(m)),hd=va.some(x=>x.dev),vs=hd?va.filter(x=>x.dev===m.dev):va;$("varBox").hidden=va.length<2;
+   if(hd){const ds=[...new Set(va.map(x=>x.dev))],hh=ds.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join("");if($("devSel").dataset.h!==hh){$("devSel").innerHTML=hh;$("devSel").dataset.h=hh}$("devSel").value=m.dev}
+   $("devBox").dataset.on=hd?"1":"";
    if(vs.length>1){const h=(recPend?`<option value="">Escolha o tipo de preparo…</option>`:"")+vs.map(x=>`<option value="${x.id}">${vn(x)}</option>`).join("");if($("recVar").dataset.h!==h){$("recVar").innerHTML=h;$("recVar").dataset.h=h}$("recVar").value=recPend?"":m.id}}
   document.querySelectorAll("#moedores button").forEach(b=>b.setAttribute("aria-pressed",!(NOVO&&!NOVO.moe)&&b.dataset.v===st.moe));
   // Recolhe método e moedor já escolhidos; "Trocar" reabre
   {const fm=!(NOVO&&!NOVO.met)&&!abrirMet&&!recPend,vs=M.filter(x=>G(x)===G(m)).length>1,bt=document.querySelector(`#metodos button[data-v="${G(m)}"]`);
-   $("metChip").hidden=!fm;$("metodos").hidden=fm;$("lRecVar").hidden=fm&&!abrirRec;$("recVar").hidden=fm&&!abrirRec;
+   $("metChip").hidden=!fm;$("metodos").hidden=fm;$("lRecVar").hidden=fm&&!abrirRec;$("recVar").hidden=fm&&!abrirRec;$("devBox").hidden=!$("devBox").dataset.on||(fm&&!abrirRec);
    if(fm)$("metChipBtn").textContent=(bt?bt.textContent:m.n)+(vs?" · "+vn(m):"");
    const fo=!(NOVO&&!NOVO.moe)&&!abrirMoe,mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`);
    $("moeChip").hidden=!fo;$("moedores").hidden=fo;if(fo)$("moeChipBtn").textContent=mb?mb.textContent:st.moe}
@@ -909,6 +936,7 @@ function render(){
 $("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=g;const mv=M.filter(x=>G(x)===g).length>1;recPend=mv;abrirMet=mv;abrirRec=false;render()});
 $("k46s").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),s:b.dataset.v};render()});
 $("k46c").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),c:b.dataset.v};render()});
+$("devSel").addEventListener("change",e=>{const v=M.find(x=>G(x)===G(cur())&&x.dev===e.target.value);if(!v)return;st.met=v.id;st.gsel={...(st.gsel||{}),[G(v)]:v.id};render()});
 $("recVar").addEventListener("change",e=>{if(!e.target.value)return;marca("met");recPend=false;abrirMet=false;abrirRec=false;st.met=e.target.value;st.gsel={...(st.gsel||{}),[G(cur())]:st.met};render()});
 $("moedores").addEventListener("click",e=>{const b=e.target.closest("button");if(b){marca("moe");st.moe=b.dataset.v;abrirMoe=false;abrirMet=false;abrirRec=false;render()}});
 $("metTrocar").onclick=$("metChipBtn").onclick=()=>{abrirMet=true;render()};
