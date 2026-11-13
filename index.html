@@ -176,7 +176,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 84 · 13/11/2026 · Wacaco Prestina, Cuppamoka e Pipamoka com lista de equipamento e receitas</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 85 · 13/11/2026 · Cuppamoka com a receita do Terra Cruz Cafés</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -646,6 +646,9 @@ const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Padr�
  {id:"wCup",grp:"wacaco",dev:"Cuppamoka",rn:"Cuppamoka · Padrão (1:18)",n:"Wacaco",cls:"Média",q:270,qs:10,r:[16,20,18,0.5],temp:"93 °C",tempo:"3:00 a 3:30",g:gCup,
   steps:(c,a)=>{const k=Math.sqrt(a/270);return[["Preparo","Gire o cone para tirar do copo, coloque o filtro de papel, escalde e descarte a água do copo"],["0:00",`Bloom: ${g(c*2)} de água molhando todo o pó`],[tm(30*k),`Despeje em círculos lentos até a balança marcar ${g(a*0.55)}`],[tm(70*k),`Complete até a balança marcar ${g(a)}, sem passar da borda do cone`],[tm(180*k)+"–"+tm(210*k),"Fim do preparo: desrosqueie o cone e apoie no suporte"]]},
   tip:"Cuppamoka: coado portátil com cone de papel sobre copo térmico de 300 ml; aceita até 20 g de café. Receita de referência: 15 g para 270 g a 93 °C (Homegrounds). O cone fica alto sobre o copo: despeje devagar para não transbordar."},
+ {id:"wCupTC",grp:"wacaco",dev:"Cuppamoka",rn:"Cuppamoka · Terra Cruz (1:16)",n:"Wacaco",cls:"Média-fina",q:240,qs:10,r:[15,17,16,0.5],temp:"93 °C",tempo:"3:00 a 3:30",g:(M.find(x=>x.id==="v60")||{}).g||gCup,
+  steps:(c,a)=>{const k=a/240;return[["Preparo","Escalde o filtro e pré-aqueça a caneca no mesmo movimento; descarte a água"],["0:00",`Pré-infusão: ${g(30*k)} de água, molhando todo o pó`],["0:30",`Primeiro despejo até a balança marcar ${g(150*k)}`],["1:15",`Despejo final até a balança marcar ${g(a)}`],["3:00–3:30","Fim do preparo"]]},
+  tip:"Receita do vídeo do Terra Cruz Cafés: 15 g, moagem média-fina igual à do V60, pré-infusão de 30 ml por 30 s, primeiro despejo até 150 g, final até 240 g e coagem total entre 3:00 e 3:30. O vídeo não diz a hora do despejo final nem a temperatura: 1:15 e 93 °C são pontos de partida. Resultado esperado: clareza, acidez presente e corpo limpo."},
  {id:"wCupF",grp:"wacaco",dev:"Cuppamoka",rn:"Cuppamoka · Mais forte (1:15)",n:"Wacaco",cls:"Média",q:300,qs:10,r:[14,16,15,0.5],temp:"93 a 94 °C",tempo:"3:15 a 3:45",g:gCup,
   steps:(c,a)=>{const k=Math.sqrt(a/300);return[["Preparo","Filtro de papel no cone, escalde e descarte a água do copo"],["0:00",`Bloom: ${g(c*2)} de água`],[tm(35*k),`Despeje até a balança marcar ${g(a*0.5)}`],[tm(80*k),`Despeje até a balança marcar ${g(a*0.8)}`],[tm(115*k),`Complete até a balança marcar ${g(a)}`],[tm(195*k)+"–"+tm(225*k),"Fim do preparo"]]},
   tip:"Usa a capacidade máxima do Cuppamoka: 20 g de café e 300 g de água. Se o cone encher demais, divida em despejos menores."},
@@ -698,7 +701,7 @@ function renderSaved(){
 let delArm=-1,cDelArm=false,rsel=-1;
 st.pen=Object.assign({on:false,sel:"inox",um:null,perda:null,modo:"quero",tenho:null},st.pen||{});
 // Acessórios LilyDrip: só em coadores cônicos
-const CONE=["wCup","wCupF","v60","b75","origami","switch","swAgua","swU1","swU2","swTC","vV60","vKal","k46v60","k46ori","k46b75","k46sw","joinout"];
+const CONE=["wCup","wCupF","wCupTC","v60","b75","origami","switch","swAgua","swU1","swU2","swTC","vV60","vKal","k46v60","k46ori","k46b75","k46sw","joinout"];
 const ACC={star:{n:"Starflower",info:"Escoa rápido (saída larga, 7 ranhuras): a camada de café fica mais rasa e plana. Moagem mais fina para compensar. Corpo mais leve e mais clareza.",
     passo:"Dobre o filtro na costura e modele no CFS; encaixe o Starflower no fundo do coador e o filtro por cima"},
   lotos:{n:"LOTOS",info:"Transforma o coador cônico em fundo plano: use filtro de fundo plano (tipo wave/cesta) sobre ele. A peça não tem furo central; mantenha a moagem e ajuste pelo tempo final.",
@@ -732,7 +735,7 @@ function peneira(m,c){const r={on:false};if(!st.pen.on)return r;r.on=true;const 
   r.dica=um<rec-50?`Peneira mais fina que a indicada (${rec} µm): tira menos finos`:um>rec+50?`Peneira mais aberta que a indicada (${rec} µm): tira também parte do pó bom`:`Peneira adequada para este método`;
   if(st.pen.sel==="inox"&&!Number(st.pen.um))r.dica+=" (abertura da sua peneira considerada 300 µm)";
   return r}
-const PERC=["wCup","wCupF","v60","b75","fluire","origami","melitta","pano","coador","chemex","vV60","vMel","vKal","k46v60","k46mel","k46ori","k46b75","joinout"];
+const PERC=["wCup","wCupF","wCupTC","v60","b75","fluire","origami","melitta","pano","coador","chemex","vV60","vMel","vKal","k46v60","k46mel","k46ori","k46b75","joinout"];
 // Coados: mais café = camada mais alta = escoa mais devagar; compensa com moagem mais grossa (e vice-versa)
 function ajDose(m){const gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
   if(!PERC.includes(m.id))return {off:0,nota:""};
