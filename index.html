@@ -176,7 +176,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 89 · 14/11/2026 · Importar um café marcado como acabou coloca ele de volta em uso</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 90 · 14/11/2026 · Espresso portátil: OutIn Nano (Basket Plus) e iCoffee</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -636,6 +636,19 @@ if(!Array.isArray(REC)) REC=[{nome:"B75 Black Tucano (vídeo)",cafeId:"c-tucano"
 const saveRec=()=>{try{localStorage.setItem("calcReceitas",JSON.stringify(REC))}catch(e){}};
 const $=id=>document.getElementById(id);
 const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Padrão do app");
+// ===== Espresso portátil (OutIn Nano, iCoffee): um método com lista de equipamentos. Receitas provisórias até o Jeff mandar as caixas/manuais =====
+{const gEP={k7:[35,45,40],r3:[25,45,35],pro:[8,24,15],oster:[1,3,1,'Pode não chegar à finura de espresso'],mongdio:[3,9,6,'Pode não chegar à finura de espresso'],icoffee:[2,7,5,'Pode não chegar à finura de espresso']},
+  PROV=" Receita provisória: será ajustada com os dados da caixa e do manual.";
+ M.push(
+ {id:"portatil",dev:"OutIn Nano",rn:"Nano · Basket Plus (dose dupla)",n:"Espresso portátil",cls:"Fina",dose:true,tank:true,q:17,qs:0.5,r:[3,5,4,0.5],temp:"Aquecimento automático",tempo:"30 a 40 s de extração",g:gEP,
+  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no Basket Plus, distribua e compacte firme e nivelado`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (sem passar da linha máxima). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Monte a máquina e ligue: ela aquece a água e começa a extração"],["0:30–0:40","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
+  tip:"O Basket Plus leva 16 a 18 g e faz espresso duplo. A proporção aqui é água no reservatório : café. Se sair rápido e aguado, moa mais fino ou compacte mais; se travar, moa mais grosso."+PROV},
+ {id:"epNano1",grp:"portatil",dev:"OutIn Nano",rn:"Nano · cesto padrão (dose simples)",n:"Espresso portátil",cls:"Fina",dose:true,tank:true,q:9,qs:0.5,r:[4,7,5,0.5],temp:"Aquecimento automático",tempo:"25 a 35 s de extração",g:gEP,
+  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no cesto padrão, distribua e compacte firme`],["Preparo",`Encha o reservatório com ${f(a)} ml de água. Água já quente encurta o aquecimento`],["0:00","Monte a máquina e ligue: ela aquece a água e começa a extração"],["0:25–0:35","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
+  tip:"Dose simples no cesto que vem com a Nano. A proporção aqui é água no reservatório : café."+PROV},
+ {id:"epIcof",grp:"portatil",dev:"iCoffee",rn:"iCoffee · café moído",n:"Espresso portátil",cls:"Fina",dose:true,tank:true,q:8,qs:0.5,r:[3,6,5,0.5],temp:"Aquecimento automático",tempo:"cerca de 3:30 com água fria",g:gEP,
+  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no cesto inox, nivele e compacte de leve`],["Preparo",`Encha o reservatório com ${f(a)} ml de água. Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Monte a máquina no suporte sobre a xícara, ligue e aperte o botão"],["3:20","Com água fria, a extração começa quando a água esquenta (com água quente, bem antes)"],["3:50","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
+  tip:"30 a 40 ml é espresso, 60 a 80 ml é lungo. A proporção aqui é água no reservatório : café."+PROV});}
 // ===== Wacaco (Prestina, Cuppamoka, Pipamoka): um método com lista de equipamentos e receitas de cada um =====
 {const gPres={k7:[75,90,82],r3:[110,140,125],pro:[75,95,85],oster:[10,13,11],mongdio:[20,26,23],icoffee:[15,20,17]},
        gCup={k7:[65,80,72],r3:[95,125,110],pro:[60,90,75],oster:[8,10,9],mongdio:[16,21,18],icoffee:[12,16,14]},
@@ -813,7 +826,7 @@ const PERF={v60:{c:3,b:1,i:0,d:2,e:0},b75:{c:3,b:1,i:0,d:3,e:0},origami:{c:2,b:2
   espresso:{c:0,b:3,i:0,d:2,e:3},me26:{c:0,b:3,i:0,d:2,e:3},turco:{c:0,b:3,i:1,d:0,e:1}};
 // Métodos que o Jeff tem
 const MEUS=["v60","b75","origami","melitta","pano","fluire","switch","prensa","me26"];
-PERF.wacaco={c:2,b:2,i:2,d:2,e:0};MEUS.push("wacaco","aeropress");
+PERF.wacaco={c:2,b:2,i:2,d:2,e:0};PERF.portatil={c:0,b:3,i:0,d:2,e:3};MEUS.push("wacaco","aeropress","portatil");
 
 const ROT={c:"clareza para acidez e aromas",b:"corpo",i:"imersão, que extrai melhor café menos fresco",d:"doçura",e:"concentração (espresso)"};
 function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,co=k.corpo,d=k.docura,ar=k.aroma,dd=dias(k.data),tx=(k.nome+" "+k.processo+" "+k.tipo).toLowerCase();
