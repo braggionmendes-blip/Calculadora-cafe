@@ -176,7 +176,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 88 · 13/11/2026 · AeroPress invertida (prensa iCoffee) com a receita do vídeo</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 89 · 14/11/2026 · Importar um café marcado como acabou coloca ele de volta em uso</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -1275,9 +1275,9 @@ const importar=txt=>{try{$("bkTxt").blur()}catch(e){}const toast=t=>{$("bkMsg").
   const lista=Array.isArray(d)?d:(d&&d.receitas);const cl=d&&Array.isArray(d.cafes)?d.cafes:[];
   if(!Array.isArray(lista)&&!cl.length){toast("Não encontrei receitas nesse backup");return}
   // "atualizar": true no arquivo completa ou corrige cafés já cadastrados (só os campos preenchidos no arquivo)
-  const upd=d&&d.atualizar===true;let nc=0,nu=0;for(const c0 of cl){const c=san(c0);if(!c||!c.nome)continue;const ex=CAF.find(y=>y.id===c.id||(y.nome===c.nome&&y.tipo===c.tipo));
-    if(ex){if(upd){let ch=false;for(const[k,v]of Object.entries(c)){if(k==="id"||v==null||v==="")continue;if(ex[k]!==v){ex[k]=v;ch=true}}if(ch)nu++}continue}c.id=c.id||"c-"+Date.now().toString(36)+nc;CAF.push(c);nc++}
-  if(nc||nu)saveCaf();
+  const upd=d&&d.atualizar===true;let nc=0,nu=0,nr=0;for(const c0 of cl){const c=san(c0);if(!c||!c.nome)continue;const ex=CAF.find(y=>y.id===c.id||(y.nome===c.nome&&y.tipo===c.tipo));
+    if(ex){if(ex.fim){delete ex.fim;nr++}if(upd){let ch=false;for(const[k,v]of Object.entries(c)){if(k==="id"||v==null||v==="")continue;if(ex[k]!==v){ex[k]=v;ch=true}}if(ch)nu++}continue}c.id=c.id||"c-"+Date.now().toString(36)+nc;CAF.push(c);nc++}
+  if(nc||nu||nr)saveCaf();
   const chave=x=>[x.nome,x.met,x.moe,x.gr,x.c,x.r].join("|");const tem=new Set(REC.map(chave));let n=0;
   for(const x of (lista||[])){if(!x||!M.find(y=>y.id===x.met)||!(x.moe in GN)||!(Number(x.r)>0))continue;if(tem.has(chave(x)))continue;
     const kc=x.cafe&&typeof x.cafe==="object"?(x.cafe.desc?(x.cafe.po?{desc:true,po:true}:{desc:true}):san(x.cafe)):undefined;
@@ -1286,7 +1286,7 @@ const importar=txt=>{try{$("bkTxt").blur()}catch(e){}const toast=t=>{$("bkMsg").
   let np=-1;BK_POT=null;$("bkPotes").hidden=true;if(d&&d.potes&&Array.isArray(d.potes.p)){const cheio=d.potes.p.filter(Boolean).length;if(!POT.p.some(Boolean)){localStorage.setItem("calcPotes",JSON.stringify(d.potes));loadPot();savePot();np=cheio}else if(cheio){BK_POT=d.potes;$("bkPotes").hidden=false;np=-2}}
   if(d&&Array.isArray(d.avaliacoes)){const ids=new Set(AVAL.map(x=>x.id));for(const x of d.avaliacoes)if(x&&x.id&&!ids.has(x.id))AVAL.push(x);saveAval()}
   if(d&&d.moagens&&typeof d.moagens==="object")for(const[k,v]of Object.entries(d.moagens))if(st.gr[k]==null&&Number.isFinite(Number(v)))st.gr[k]=Number(v);
-  saveRec();render();toast((n||nc||nu?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`+(nu?`; ${nu} café${nu===1?"":"s"} atualizado${nu===1?"":"s"}`:""):"Nenhuma receita ou café novo")+(np>=0?`; ${np} pote${np===1?"":"s"} com café`:np===-2?". Este aparelho já tem potes: toque no botão abaixo para trocar pelos do backup":d&&d.potes?"":". Este backup não tem potes"))};
+  saveRec();render();toast((n||nc||nu||nr?`Importado: ${n} receita${n===1?"":"s"} e ${nc} café${nc===1?"":"s"}`+(nu?`; ${nu} café${nu===1?"":"s"} atualizado${nu===1?"":"s"}`:"")+(nr?`; ${nr} café${nr===1?"":"s"} de volta às sugestões e aos potes`:""):"Nenhuma receita ou café novo")+(np>=0?`; ${np} pote${np===1?"":"s"} com café`:np===-2?". Este aparelho já tem potes: toque no botão abaixo para trocar pelos do backup":d&&d.potes?"":". Este backup não tem potes"))};
 let BK_POT=null;
 $("bkPotes").onclick=()=>{if(!BK_POT)return;localStorage.setItem("calcPotes",JSON.stringify(BK_POT));loadPot();savePot();const k=POT.p.filter(Boolean).length;BK_POT=null;$("bkPotes").hidden=true;potSel=-1;render();$("bkMsg").textContent=`Potes substituídos: ${k} com café`;window.toastG($("bkMsg").textContent)};
 $("bkImport").onclick=()=>{try{importar($("bkTxt").value)}catch(e){$("bkMsg").textContent="Erro ao importar: "+(e&&e.message||e)}};
