@@ -1,0 +1,104 @@
+name: App iOS
+
+# Compila o app de iPhone no GitHub (máquina macOS), sem precisar de Mac.
+# - "simulador": roda a cada mudança e só confere se o app compila (não precisa de conta Apple).
+# - "testflight": roda quando você aperta "Run workflow" e marca "Enviar para o TestFlight".
+#   Precisa da conta Apple Developer e dos segredos ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 e APPLE_TEAM_ID
+#   (Settings > Secrets and variables > Actions do repositório). Veja nativo/LEIAME.md.
+
+on:
+  push:
+    branches: [main]
+    paths: ["index.html", "icons/**", "nativo/**", ".github/workflows/ios.yml"]
+  workflow_dispatch:
+    inputs:
+      testflight:
+        description: "Enviar para o TestFlight"
+        type: boolean
+        default: false
+
+jobs:
+  simulador:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Gerar o projeto iOS
+        working-directory: nativo
+        run: |
+          npm install --no-audit --no-fund
+          node copia-web.js
+          npx cap add ios
+          npx cap sync ios
+          node prepara-ios.js
+      - name: Compilar para o simulador
+        working-directory: nativo/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination "generic/platform=iOS Simulator" \
+            CODE_SIGNING_ALLOWED=NO build | tail -n 40
+
+  testflight:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.testflight }}
+    needs: simulador
+    runs-on: macos-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - name: Conferir os segredos da conta Apple
+        run: |
+          for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do
+            if [ -z "${!v}" ]; then echo "::error::Falta o segredo $v (veja nativo/LEIAME.md)"; exit 1; fi
+          done
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Gerar o projeto iOS
+        working-directory: nativo
+        run: |
+          npm install --no-audit --no-fund
+          node copia-web.js
+          npx cap add ios
+          npx cap sync ios
+          node prepara-ios.js
+      - name: Chave da App Store Connect
+        run: |
+          mkdir -p ~/private_keys
+          printf '%s' "$ASC_KEY_P8" > ~/private_keys/AuthKey_$ASC_KEY_ID.p8
+      - name: Número da versão
+        working-directory: nativo/ios/App
+        run: xcrun agvtool new-version -all ${{ github.run_number }}
+      - name: Arquivar e assinar
+        working-directory: nativo/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
+            -sdk iphoneos -destination "generic/platform=iOS" -archivePath $RUNNER_TEMP/App.xcarchive \
+            DEVELOPMENT_TEAM=$APPLE_TEAM_ID CODE_SIGN_STYLE=Automatic \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_$ASC_KEY_ID.p8 \
+            -authenticationKeyID $ASC_KEY_ID -authenticationKeyIssuerID $ASC_ISSUER_ID \
+            archive | tail -n 40
+      - name: Enviar para o TestFlight
+        working-directory: nativo/ios/App
+        run: |
+          cat > $RUNNER_TEMP/export.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive -archivePath $RUNNER_TEMP/App.xcarchive \
+            -exportOptionsPlist $RUNNER_TEMP/export.plist -exportPath $RUNNER_TEMP/export \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_$ASC_KEY_ID.p8 \
+            -authenticationKeyID $ASC_KEY_ID -authenticationKeyIssuerID $ASC_ISSUER_ID
