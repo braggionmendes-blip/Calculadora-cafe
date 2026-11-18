@@ -176,7 +176,7 @@ select.txt{appearance:auto}
   <header>
     <h1>Calculadora de extração</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 90 · 14/11/2026 · Espresso portátil: OutIn Nano (Basket Plus) e iCoffee</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 91 · 17/11/2026 · Mais balanças Bluetooth: Acaia, Felicita, Decent, Bookoo, Varia e Eureka Precisa</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -383,7 +383,7 @@ select.txt{appearance:auto}
     </div>
     <div class="facts" id="facts"></div>
     <p class="aviso" id="novoAviso" hidden></p>
-    <div class="sh"><h2>Passo a passo</h2><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="unk" for="tBipe"><input type="checkbox" id="tBipe"> Com bipe</label><button class="btn" id="bConn" type="button" hidden>Conectar balança</button><span class="bchip" id="bOn" hidden><i></i><span id="bW">0,0 g</span></span><button class="btn" id="bTara" type="button" hidden>Tara</button><button class="btn pri" id="tStart" type="button">Iniciar temporizador</button></div></div>
+    <div class="sh"><h2>Passo a passo</h2><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="unk" for="tBipe"><input type="checkbox" id="tBipe"> Com bipe</label><button class="btn" id="bConn" type="button" hidden>Conectar balança</button><span class="bchip" id="bOn" hidden><i></i><span id="bW">0,0 g</span></span><button class="btn" id="bTara" type="button" hidden>Tara</button><button class="btn" id="bDiag" type="button" hidden>Copiar dados da balança</button><button class="btn pri" id="tStart" type="button">Iniciar temporizador</button></div></div>
     <p class="cres" id="bArm" hidden style="margin:-4px 0 0"></p>
     <div class="bprev" id="bPrev" hidden></div>
     <ol class="steps" id="steps"></ol>
@@ -1063,14 +1063,56 @@ setBipe(st.bipe!==false);
 $("tBipe").addEventListener("change",e=>setBipe(e.target.checked));
 $("tSom").onclick=()=>setBipe(st.bipe===false);
 $("tStart").onclick=iniciar;
-// ===== Balança Timemore Dot (Bluetooth, só em navegadores com Web Bluetooth, como o Bluefy) =====
-{const U=x=>"0000"+x+"-0000-1000-8000-00805f9b34fb";BAL.S=U("fff0");BAL.N=U("fff1");BAL.C=U("fff2")}
+// ===== Balanças Bluetooth (Web Bluetooth no Bluefy; plugin BluetoothLe no app nativo) =====
+// Timemore Dot foi testada com a balança. Acaia, Felicita, Decent, Bookoo, Varia e Eureka Precisa seguem o protocolo
+// público dessas marcas (o mesmo usado por apps como o Beanconqueror) e ainda não foram testadas com a balança na mão.
+const UU=x=>x.length===4?"0000"+x+"-0000-1000-8000-00805f9b34fb":x;
+const BALS=[
+ {id:"decent",nome:"Decent",S:UU("fff0"),N:UU("fff4"),C:UU("36f5")},
+ {id:"fff0",nome:"Timemore Dot",S:UU("fff0"),N:UU("fff1"),C:UU("fff2")},
+ {id:"acaia",nome:"Acaia",S:"49535343-fe7d-4ae5-8fa9-9fafd205e455",N:"49535343-1e4d-4bd9-ba61-23c647249616",C:"49535343-8841-43f4-a8d4-ecbe34729bb3"},
+ {id:"acaia1",nome:"Acaia",S:UU("1820"),N:UU("2a80"),C:UU("2a80")},
+ {id:"felicita",nome:"Felicita",S:UU("ffe0"),N:UU("ffe1"),C:UU("ffe1")},
+ {id:"bookoo",nome:"Bookoo",S:UU("0ffe"),N:UU("ff11"),C:UU("ff12")}];
+const BAL_SVCS=[...new Set(BALS.map(p=>p.S))];
+const BAL_NOMES=["dot","Dot","DOT","TES","TIMEMORE","Timemore","ACAIA","Acaia","PYXIS","LUNAR","PEARL","PROCH","CINCO","UMBRA","FELICITA","Felicita","Decent","BOOKOO","Bookoo","AKU","Varia","VARIA","CFS","Eureka","EUREKA"];
+BAL.S=BALS[1].S;BAL.N=BALS[1].N;BAL.C=BALS[1].C;BAL.tipo="fff0";BAL.fmt="dot";BAL.raw=[];BAL.buf=[];BAL.lidos=0;
+// Dentro do serviço FFF0/FFF1, três marcas: Timemore (A5 5A), Varia AKU (FA) e Eureka Precisa (AA)
+function balFmtNome(n){n=String(n||"");return /^(AKU|varia)/i.test(n)?"varia":/^(CFS|eureka)/i.test(n)?"eureka":"dot"}
+const balNomeMarca=()=>BAL.tipo==="fff0"?({dot:"Timemore Dot",varia:"Varia AKU",eureka:"Eureka Precisa"})[BAL.fmt]:(BALS.find(p=>p.id===BAL.tipo)||{}).nome||"Balança";
 function balQuadro(op,id,d=[]){const p=[0xa5,0x5a,op,id,(d.length>>8)&255,d.length&255,...d];let c=0xffff;for(const b of p){c^=b;for(let j=0;j<8;j++)c=(c&1)?(c>>>1)^0xa001:c>>>1}return new Uint8Array([...p,(c>>8)&255,c&255])}
-async function balEnvia(op,id,d){if(!BAL.cmd)return;const q=balQuadro(op,id,d);try{BAL.cmd.writeValueWithoutResponse?await BAL.cmd.writeValueWithoutResponse(q):await BAL.cmd.writeValue(q)}catch(e){}}
-function balRecebe(ev){const v=ev.target.value,r=new Uint8Array(v.buffer,v.byteOffset||0,v.byteLength);let o=0;
-  while(o<=r.length-8){if(r[o]!==0xa5||r[o+1]!==0x5a){o++;continue}const op=r[o+2],id=r[o+3],len=(r[o+4]<<8)|r[o+5];if(len>r.length-(o+6))break;const d=r.slice(o+6,o+6+len);
-    if((op===1||op===2)&&id===1&&d.length>=4){BAL.w=((d[0]<<24)|(d[1]<<16)|(d[2]<<8)|d[3])/10;balPeso()}
-    o+=Math.max(8,6+len+2)}}
+const acaiaMsg=(t,p)=>{let a=0,b=0;p.forEach((x,i)=>{if(i%2)b+=x;else a+=x});return new Uint8Array([0xef,0xdd,t,...p,a&255,b&255])};
+async function balEscreve(q){if(!BAL.cmd)return;try{BAL.cmd.writeValueWithoutResponse?await BAL.cmd.writeValueWithoutResponse(q):await BAL.cmd.writeValue(q)}catch(e){try{BAL.cmd.writeValue&&await BAL.cmd.writeValue(q)}catch(e2){}}}
+async function balEnvia(op,id,d){if(BAL.tipo!=="fff0"||BAL.fmt!=="dot")return;await balEscreve(balQuadro(op,id,d))}
+// Comandos ao conectar: unidade em gramas na Timemore; identificação e pedido de peso na Acaia
+function balInicia(){if(BAL.tipo==="fff0"&&BAL.fmt==="dot"){setTimeout(()=>balEnvia(3,6,[0]),500);setTimeout(()=>balEnvia(3,8,[1,0]),700)}
+  if(BAL.tipo==="acaia"||BAL.tipo==="acaia1"){setTimeout(()=>balEscreve(acaiaMsg(11,[0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x30,0x31,0x32,0x33,0x34])),300);setTimeout(()=>balEscreve(acaiaMsg(12,[9,0,1,1,2,2,5,3,4])),800)}
+  BAL.lidos=0;BAL.raw=[];BAL.semPeso=false;clearTimeout(BAL.tDiag);BAL.tDiag=setTimeout(()=>{if(BAL.on&&!BAL.lidos){BAL.semPeso=true;toast(`Conectei na balança (${balNomeMarca()}), mas não consegui ler o peso. Toque em "Copiar dados da balança" e me mande.`);balTela()}},6000)}
+// A Acaia desconecta se não receber sinal de vida a cada poucos segundos
+setInterval(()=>{if(BAL.on&&(BAL.tipo==="acaia"||BAL.tipo==="acaia1")){balEscreve(acaiaMsg(0,[2,0]));if(!BAL.lidos)balEscreve(acaiaMsg(12,[9,0,1,1,2,2,5,3,4]))}},3000);
+function balTara(){const t=BAL.tipo;
+  if(t==="fff0"){if(BAL.fmt==="varia")return balEscreve(new Uint8Array([0xfa,0x82,0x01,0x01,0x82]));if(BAL.fmt==="eureka")return balEscreve(new Uint8Array([0xaa,0x02,0x31,0x31]));return balEnvia(3,0x0d,[])}
+  if(t==="acaia"||t==="acaia1")return balEscreve(acaiaMsg(4,[0]));
+  if(t==="felicita")return balEscreve(new Uint8Array([0x54]));
+  if(t==="decent")return balEscreve(new Uint8Array([0x03,0x0f,0,0,0,0,0x0c]));
+  if(t==="bookoo")return balEscreve(new Uint8Array([0x03,0x0a,0x01,0x00,0x00,0x08]))}
+function balLido(w){if(!Number.isFinite(w)||Math.abs(w)>5000)return;BAL.w=Math.round(w*10)/10;BAL.lidos++;if(BAL.semPeso){BAL.semPeso=false;balTela()}balPeso()}
+function balRecebe(ev){const v=ev.target.value,r=new Uint8Array(v.buffer,v.byteOffset||0,v.byteLength);
+  if(BAL.raw.length<40)BAL.raw.push(bHex(r));const t=BAL.tipo;
+  if(t==="fff0"){
+    if(r[0]===0xfa){BAL.fmt="varia";if(r[1]===0x01&&r.length>=6){const raw=((r[3]&0x0f)<<16)|(r[4]<<8)|r[5];balLido((r[3]&0x10?-1:1)*raw/100)}return}
+    if(r[0]===0xaa){BAL.fmt="eureka";if(r[1]===0x09&&r[2]===0x41&&r.length>=9){balLido((r[6]?-1:1)*((r[8]<<8)|r[7])/10)}return}
+    let o=0;while(o<=r.length-8){if(r[o]!==0xa5||r[o+1]!==0x5a){o++;continue}BAL.fmt="dot";const op=r[o+2],id=r[o+3],len=(r[o+4]<<8)|r[o+5];if(len>r.length-(o+6))break;const d=r.slice(o+6,o+6+len);
+      if((op===1||op===2)&&id===1&&d.length>=4)balLido(((d[0]<<24)|(d[1]<<16)|(d[2]<<8)|d[3])/10);
+      o+=Math.max(8,6+len+2)}return}
+  if(t==="acaia"||t==="acaia1"){BAL.buf=[...BAL.buf,...r].slice(-80);const b=BAL.buf;
+    for(let o=0;o<=b.length-5;o++){if(b[o]!==0xef||b[o+1]!==0xdd||b[o+2]!==12)continue;const ty=b[o+4],p=b.slice(o+5);
+      const peso=q=>q.length>=6?(q[5]&2?-1:1)*(((q[3]<<24)|(q[2]<<16)|(q[1]<<8)|q[0])>>>0)/Math.pow(10,q[4]):null;
+      let w=null;if(ty===5)w=peso(p);else if(ty===11&&p.length>=9&&p[2]===5)w=peso(p.slice(3));
+      if(w!=null){balLido(w);BAL.buf=[];return}}return}
+  if(t==="felicita"){if(r.length>=9&&(r[2]===0x2b||r[2]===0x2d)){const dg=String.fromCharCode(...r.slice(3,9));if(/^\d{6}$/.test(dg))balLido((r[2]===0x2d?-1:1)*Number(dg)/100)}return}
+  if(t==="decent"){if(r[0]===0x03&&r[1]===0xce&&r.length>=4){let x=(r[2]<<8)|r[3];if(x&0x8000)x-=0x10000;balLido(x/10)}return}
+  if(t==="bookoo"){if(r[0]===0x03&&r[1]===0x0b&&r.length>=10)balLido((r[6]===0x2d?-1:1)*((r[7]<<16)|(r[8]<<8)|r[9])/100);return}}
 function balPeso(){const w=BAL.w,now=Date.now(),ant=BAL.ult;BAL.ult=w;$("bW").textContent=f(w,1)+" g";
   // Tara apertada na própria balança durante o preparo: o peso cai de repente para zero. A água já despejada continua contando.
   if(T.run&&ant!=null&&ant-BAL.base>3&&Math.abs(w)<0.3&&ant-w>3){BAL.base-=ant;toast("Tara da balança percebida: a água já despejada continua contando")}
@@ -1114,7 +1156,7 @@ function balAlvos(steps){let prev=0;return steps.map(x=>{if(!/\d+:\d\d/.test(x[0
   const cum=a?+a[1].replace(",","."):b?prev+ +b[1].replace(",","."):null;if(cum==null||cum<=prev)return null;prev=cum;return cum})}
 function balBox(w,alvo,dec,fx){const pct=Math.max(0,Math.min(100,w/alvo*100)),falta=alvo-w,ok=falta<=(dec?0.05:1),ovr=w>alvo+(dec?0.5:5);
   return `<div class="blive${ovr?" ovr":ok?" okk":""}"><div class="bw">${f(w,dec)}<small> / ${f(alvo,dec)} g</small></div><div class="bar"><i style="width:${pct}%"></i></div><div class="bf">${ovr?`Passou ${f(w-alvo,dec)} g`:ok?"No alvo":`Falta${falta>=2?"m":""} ${f(falta,dec)} g`}${fx!=null?`<span style="float:right">Fluxo <b style="color:#6aa9d6;font-family:var(--mono)">${f(fx,1)} g/s</b></span>`:""}</div></div>`}
-function balTela(){const on=BAL.on;$("bConn").hidden=on||!temBLE()||BAL.cap;$("bOn").hidden=!on;$("bTara").hidden=!on;
+function balTela(){const on=BAL.on;$("bConn").hidden=on||!temBLE()||BAL.cap;$("bOn").hidden=!on;$("bTara").hidden=!on;$("bDiag").hidden=!(on&&BAL.semPeso);
   {const esp=BAL.on&&!T.run&&BAL.fim&&Date.now()-BAL.fim<60000,pr=balPronto();$("bArm").hidden=!(pr||esp);
    $("bArm").textContent=esp?`Início automático volta em ${Math.ceil((60000-(Date.now()-BAL.fim))/1000)} s (pausa depois de encerrar).`:BAL.cand?"Despejo percebido: confirmando…":BAL.est==null?"Início automático: aguardando o peso parar na balança…":`Início automático pronto: comece a despejar a água. ${Math.abs(BAL.est)<0.5?"Balança zerada (0,0 g).":`Na balança agora: ${f(BAL.est,1)} g. Esse peso não entra na conta da água.`}`}
   document.querySelectorAll("#steps .blive").forEach(x=>x.remove());
@@ -1127,21 +1169,31 @@ const BLEN=()=>{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativ
 const temBLE=()=>!!(navigator.bluetooth||BLEN());
 const hexB=h=>{const t=String(h||"").replace(/[^0-9a-f]/gi,"");const o=new Uint8Array(t.length>>1);for(let i=0;i<o.length;i++)o[i]=parseInt(t.substr(i*2,2),16);return o};
 const bHex=a=>[...a].map(b=>b.toString(16).padStart(2,"0")).join(" ");
+const balUsa=(pf,nome)=>{BAL.tipo=pf.id;BAL.S=pf.S;BAL.N=pf.N;BAL.C=pf.C;BAL.fmt=pf.id==="fff0"?balFmtNome(nome):"";BAL.buf=[]};
+const balCaiu=()=>{BAL.on=false;BAL.cmd=null;BAL.cand=null;BAL.w=null;BAL.semPeso=false;toast("A balança desconectou");render()};
 async function balConectarNativo(P){
-  try{await P.initialize({androidNeverForLocation:true});const d=await P.requestDevice({optionalServices:[BAL.S]}),id=d.deviceId;
-    await P.addListener("disconnected|"+id,()=>{BAL.on=false;BAL.cmd=null;BAL.cand=null;BAL.w=null;toast("A balança desconectou");render()});
+  try{await P.initialize({androidNeverForLocation:true});const d=await P.requestDevice({optionalServices:BAL_SVCS}),id=d.deviceId;
+    await P.addListener("disconnected|"+id,balCaiu);
     await P.connect({deviceId:id});
+    // Descobre a marca pelos serviços que a balança oferece
+    let pf=null;try{const sv=(await P.getServices({deviceId:id})).services||[],lo=x=>String(x).toLowerCase();
+      pf=BALS.find(p=>sv.some(v=>lo(v.uuid)===p.S&&(v.characteristics||[]).some(c=>lo(c.uuid)===p.N)))}catch(e){}
+    if(!pf){toast("Não reconheci esta balança. As marcas aceitas são Timemore, Acaia, Felicita, Decent, Bookoo, Varia e Eureka");try{await P.disconnect({deviceId:id})}catch(e){}return}
+    balUsa(pf,d.name);
     await P.addListener(`notification|${id}|${BAL.S}|${BAL.N}`,ev=>{const b=hexB(ev&&ev.value);balRecebe({target:{value:new DataView(b.buffer)}})});
     await P.startNotifications({deviceId:id,service:BAL.S,characteristic:BAL.N});
-    BAL.cmd={writeValueWithoutResponse:q=>P.writeWithoutResponse({deviceId:id,service:BAL.S,characteristic:BAL.C,value:bHex(q)})};
-    BAL.dev={id};BAL.on=true;BAL.w=0;toast("Balança conectada");render();setTimeout(()=>balEnvia(3,6,[0]),500);setTimeout(()=>balEnvia(3,8,[1,0]),700)}
+    const S=BAL.S,C=BAL.C;BAL.cmd={writeValueWithoutResponse:q=>P.writeWithoutResponse({deviceId:id,service:S,characteristic:C,value:bHex(q)}),writeValue:q=>P.write({deviceId:id,service:S,characteristic:C,value:bHex(q)})};
+    BAL.dev={id,name:d.name};BAL.on=true;BAL.w=0;toast(balNomeMarca()+" conectada");render();balInicia()}
   catch(e){const m=(e&&(e.message||e.errorMessage))||"";if(!/cancel/i.test(m))toast("Não conectou a balança: "+(m||"tente de novo"))}}
 async function balConectar(){const P=BLEN();if(P)return balConectarNativo(P);if(!navigator.bluetooth)return;
-  try{const dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:"dot"},{namePrefix:"Dot"},{namePrefix:"DOT"},{namePrefix:"TES"},{namePrefix:"TIMEMORE"},{namePrefix:"Timemore"},{services:[BAL.S]}],optionalServices:[BAL.S]});
-    const srv=await dev.gatt.connect(),sv=await srv.getPrimaryService(BAL.S),nt=await sv.getCharacteristic(BAL.N);BAL.cmd=await sv.getCharacteristic(BAL.C);
+  try{const dev=await navigator.bluetooth.requestDevice({filters:[...BAL_NOMES.map(n=>({namePrefix:n})),...BAL_SVCS.map(s=>({services:[s]}))],optionalServices:BAL_SVCS});
+    const srv=await dev.gatt.connect();let pf=null,sv=null,nt=null,cm=null;
+    for(const p of BALS){try{sv=await srv.getPrimaryService(p.S);nt=await sv.getCharacteristic(p.N);cm=p.C===p.N?nt:await sv.getCharacteristic(p.C);pf=p;break}catch(e){}}
+    if(!pf){toast("Não reconheci esta balança. As marcas aceitas são Timemore, Acaia, Felicita, Decent, Bookoo, Varia e Eureka");try{dev.gatt.disconnect()}catch(e){}return}
+    balUsa(pf,dev.name);BAL.cmd=cm;
     nt.addEventListener("characteristicvaluechanged",balRecebe);await nt.startNotifications();BAL.dev=dev;BAL.on=true;BAL.w=0;
-    dev.addEventListener("gattserverdisconnected",()=>{BAL.on=false;BAL.cmd=null;BAL.cand=null;BAL.w=null;toast("A balança desconectou");render()});
-    toast("Balança conectada");render();setTimeout(()=>balEnvia(3,6,[0]),500);setTimeout(()=>balEnvia(3,8,[1,0]),700)}
+    dev.addEventListener("gattserverdisconnected",balCaiu);
+    toast(balNomeMarca()+" conectada");render();balInicia()}
   catch(e){if(!(e&&e.name==="NotFoundError"))toast("Não conectou a balança: "+((e&&(e.message||e.name))||"tente de novo"))}}
 // O toque em Conectar libera o som: assim os bipes tocam mesmo quando o temporizador inicia sozinho
 document.addEventListener("click",e=>{if(e.target.closest("#bCafe")&&BAL.on&&BAL.w!=null){BAL.cafeOk=BAL.w;BAL.cafeMed=BAL.w;BAL.est=BAL.w;BAL.cand=null;BAL.hist=[];BAL.fim=0;vibra(40);balTela()}
@@ -1150,9 +1202,11 @@ $("bConn").onclick=()=>{try{T.ac=T.ac||new (window.AudioContext||window.webkitAu
   try{const au=$("tAudio"),d=new Uint8Array(44+800);d.fill(128,44);const v=new DataView(d.buffer),w=(o,t)=>{for(let i=0;i<t.length;i++)d[o+i]=t.charCodeAt(i)};w(0,"RIFF");v.setUint32(4,836,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,800,true);
     if(!au.src){au.src=URL.createObjectURL(new Blob([d],{type:"audio/wav"}));const pr=au.play();if(pr&&pr.then)pr.then(()=>au.pause()).catch(()=>{})}}catch(e){}
   balConectar()};
+$("bDiag").onclick=()=>{const t=JSON.stringify({marca:balNomeMarca(),tipo:BAL.tipo,nome:BAL.dev&&BAL.dev.name||"",dados:BAL.raw});
+  const ok=()=>toast("Dados copiados: cole aqui na conversa com o Claude");try{navigator.clipboard.writeText(t).then(ok,()=>prompt("Copie e me mande:",t))}catch(e){prompt("Copie e me mande:",t)}};
 $("bTara").onclick=()=>{try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();T.ac.resume()}catch(e){}
   // Tara no meio do preparo não perde a água já despejada
-  if(T.run&&BAL.w!=null)BAL.base-=BAL.w;BAL.hist=[];BAL.est=null;BAL.cand=null;balEnvia(3,0x0d,[]);balTela()};
+  if(T.run&&BAL.w!=null)BAL.base-=BAL.w;BAL.hist=[];BAL.est=null;BAL.cand=null;balTara();balTela()};
 $("potes").addEventListener("click",e=>{const b=e.target.closest("[data-ppes]");if(!b||!BAL.on||BAL.w==null)return;const i=+b.dataset.ppes;loadPot();POT.t=POT.t||[];
   if(POT.t[i]==null){POT.t[i]=Math.round(BAL.w*10)/10;savePot();toast(`Tara do Pote ${i+1} guardada (${f(POT.t[i],1)} g). Agora coloque o pote com café e toque ⚖︎ de novo`);renderPotes();return}
   const g=Math.max(0,Math.round((BAL.w-POT.t[i])*10)/10);POT.g[i]=g;logPot(`peso pela balança: ${f(g,1)} g`,i);savePot();toast(`Pote ${i+1}: ${f(g,1)} g de café`);renderPotes()});
