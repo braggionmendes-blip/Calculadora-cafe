@@ -242,6 +242,8 @@ body:has(#tmr:not([hidden])) #appBar{display:none}
 /* 4) no Ajustes o botão fica no fim, depois do último item */
 #ajFim{width:100%;padding:13px;font-size:1rem;margin-top:4px}
 body[data-sub="aj"] #fixBtn{display:none!important}
+
+#pChipBtn{display:inline-flex;align-items:center;gap:8px}#pChipBtn svg{width:30px;height:30px}#pChipBtn span{font-size:.92rem}
 </style>
 
 <div id="appBar"><b>Calculadora de Café</b></div>
@@ -1587,6 +1589,18 @@ function avBadge(){const n=AVAL.filter(x=>x.pend).length,b=document.querySelecto
 {const r3=render;render=function(){r3();try{avBadge()}catch(e){}}}
 new MutationObserver(()=>{try{avBadge()}catch(e){}}).observe($("av"),{attributes:true,attributeFilter:["hidden"]});
 new MutationObserver(()=>{try{avBadge()}catch(e){}}).observe($("apr"),{attributes:true,attributeFilter:["hidden"]});
+
+// Acessório logo abaixo do método e peneira logo abaixo do moedor (os dois mudam a moagem)
+$("lMet").parentElement.after($("aBox"));$("lMoe").parentElement.after($("ajPen"));
+// Peneira: depois de escolher a trama, recolhe e mostra só a escolhida
+let pAberto=false;
+{const pk=$("pSelPk"),ch=document.createElement("div");ch.className="chipRow";ch.id="pChip";ch.innerHTML='<button class="btn" type="button" aria-pressed="true" id="pChipBtn"></button><button class="lnk" type="button" id="pTrocar">Trocar</button>';pk.before(ch);
+ $("pChipBtn").onclick=$("pTrocar").onclick=()=>{pAberto=true;pTela()};
+ pk.addEventListener("click",e=>{if(e.target.closest("[data-pv]")){pAberto=false;setTimeout(pTela,0)}});
+ $("pOn").addEventListener("change",e=>{pAberto=e.target.checked;pTela()})}
+function pTela(){const pk=$("pSelPk"),b=pk&&pk.querySelector(`[data-pv="${$("pSel").value}"]`);pk.hidden=!pAberto;$("pChip").hidden=pAberto;
+  if(b)$("pChipBtn").innerHTML=b.innerHTML}
+{const r4=render;render=function(){r4();try{pTela()}catch(e){}}}
 renderMetBtns();renderMoeBtns();
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
