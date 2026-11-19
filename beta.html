@@ -1879,7 +1879,12 @@ new MutationObserver(subTela).observe(document.body,{attributes:true,attributeFi
 function marcaSemTempo(){document.querySelectorAll("#steps li").forEach(li=>{const t=li.querySelector(".t");li.classList.toggle("semt",!t||!/\d+:\d\d/.test(t.textContent))})}
 {const r6=render;render=function(){r6();try{marcaSemTempo()}catch(e){}}}
 // Peso acumulado da balança no card do cronômetro
-function pesoTela(){const lig=BAL.on&&BAL.w!=null;$("tPeso").hidden=!T.run;$("tPeso").classList.toggle("off",!lig);$("tPeso").querySelector("small").textContent=lig?"Na balança":"Balança desconectada";if(lig){const v=Math.max(0,BAL.w-(BAL.base||0));$("tPesoV").textContent=f(v,v<100?1:0)+" g"}else $("tPesoV").textContent="-- g"}
+function alvoAgora(){try{const sts=T.steps||CUR,al=balAlvos(sts),e=decorrido(),pts=pontos();let at=null;for(const q of pts){if(q.t<=e)at=q;else break}
+  let i=at?at.i:sts.findIndex(x=>seg(x[0])!=null);for(let j=i;j>=0;j--)if(al[j]!=null)return al[j];return al.find(x=>x!=null)??null}catch(e){return null}}
+function pesoTela(){const b=balSel(),lig=BAL.on&&BAL.w!=null;$("tPeso").hidden=!T.run;$("tPeso").classList.toggle("off",false);
+  const sm=$("tPeso").querySelector("small");
+  if(lig){sm.textContent=`${b.n} · na balança`;const v=Math.max(0,BAL.w-(BAL.base||0));$("tPesoV").textContent=f(v,v<100?1:0)+" g"}
+  else{const al=alvoAgora();sm.textContent=`${b.n} · ${b.bt?"desconectada · ":""}alvo`;$("tPesoV").textContent=al!=null?f(al)+" g":"-- g"}}
 {const bp=balPeso;balPeso=function(){bp();try{pesoTela()}catch(e){}}}
 {const tk2=tick;tick=function(a){tk2(a);try{pesoTela()}catch(e){}}}
 
