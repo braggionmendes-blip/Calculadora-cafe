@@ -228,8 +228,23 @@ body:has(#tmr:not([hidden])) #fixBtn,body:has(.ola:not([hidden])) #fixBtn{displa
 
 body:not([data-pag="cafe"]) header .sub,body:not([data-pag="cafe"]) header #novoCafe,body:not([data-pag="cafe"]) header #avPend{display:none!important}
 body:not([data-pag="cafe"]) header h1{font-size:1.25rem;margin:0}
+
+#avPend,#avVer{display:none!important}
+#tabs button{position:relative}#tabs .bd{position:absolute;top:0;left:calc(50% + 8px);min-width:18px;height:18px;border-radius:9px;background:var(--accent);color:var(--accent-fg);font:700 .66rem/18px var(--display);padding:0 5px}
+/* 3) título preso no topo em todas as páginas */
+:root{--barH:calc(48px + env(safe-area-inset-top,0px))}
+#appBar{position:fixed;left:0;right:0;top:0;z-index:45;height:var(--barH);padding:env(safe-area-inset-top,0px) 16px 0;display:flex;align-items:center;justify-content:center;background:var(--bg);border-bottom:1px solid var(--line)}
+#appBar b{font:700 1.12rem var(--display)}
+body{padding-top:var(--barH)}header h1{display:none}body:not([data-pag="cafe"]) header{display:none!important}
+#prepTop{top:var(--barH)!important;padding-top:8px!important}
+html{scroll-padding-top:calc(var(--barH) + 150px)}
+body:has(#tmr:not([hidden])) #appBar{display:none}
+/* 4) no Ajustes o botão fica no fim, depois do último item */
+#ajFim{width:100%;padding:13px;font-size:1rem;margin-top:4px}
+body[data-sub="aj"] #fixBtn{display:none!important}
 </style>
 
+<div id="appBar"><b>Calculadora de Café</b></div>
 </head>
 <body>
 <div class="wrap">
@@ -420,7 +435,7 @@ body:not([data-pag="cafe"]) header h1{font-size:1.25rem;margin:0}
         <p class="cres" id="sdInfo"></p>
       </div>
     </div>
-    <button class="btn pri" id="ajPronto" type="button" style="padding:12px;font-size:1rem">Pronto</button>
+    <button class="btn pri" id="ajPronto" type="button" style="padding:12px;font-size:1rem">Pronto</button><button class="btn pri" id="ajFim" type="button">Pronto: ir para o passo a passo</button>
     <div class="chipRow" id="ajResumo" hidden style="align-items:center"><span id="ajTxt" style="font-size:.9rem;line-height:1.4"></span><button class="lnk" type="button" id="ajAjustar">Ajustar</button></div>
   </section>
 
@@ -1326,7 +1341,7 @@ function avDadosTela(){const x=avCtx||{},rs=resumoG(x.g);$("avDados").innerHTML=
   $("avG").hidden=!rs;$("avG").innerHTML=rs?grafico(x.g,x.al):""}
 function avTela(){$("avRows").innerHTML=AVC.map(([k,l])=>`<div class="rw"><span>${l}</span><span class="gr">${graos(avN[k]||0,k)}</span></div>`).join("");
   const md=avMedia(avN);$("avMed").textContent="média: "+(md==null?"--":f(md,1));$("avGeral").innerHTML=graos(md==null?0:Math.round(md),"g",true)}
-function avResumo(id){const L=AVAL.filter(x=>x.caf===id&&x.geral!=null);if(!L.length)return"";const u=L[L.length-1],md=L.reduce((a,b)=>a+b.geral,0)/L.length;
+function avResumo(id){return "";const L=AVAL.filter(x=>x.caf===id&&x.geral!=null);if(!L.length)return"";const u=L[L.length-1],md=L.reduce((a,b)=>a+b.geral,0)/L.length;
   return ` · Avaliação: última ${f(u.geral,1)} (${dataBR(u.d)}, ${u.met})`+(L.length>1?` · média ${f(md,1)} em ${L.length} preparos`:"")}
 function abrirAproveite(){const m=cur(),{c,a}=calc(m),nome=ISD(st.csel)?(st.csel==="descpo"?"Café em pó":"Café em grãos"):(st.cafe&&st.cafe.nome)||"Café";
   const vs=M.filter(x=>G(x)===G(m)).length>1,bt=document.querySelector(`#metodos button[data-v="${G(m)}"]`),met=(bt?bt.textContent:m.n)+(vs?" · "+vn(m):"");
@@ -1565,7 +1580,13 @@ new MutationObserver(prepFix).observe($("tStart"),{attributes:true,childList:tru
 {const siv=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(...a){try{const sb=this.closest&&this.closest("[data-sub]");if(sb&&document.body.dataset.sub!==sb.dataset.sub)irSub(sb.dataset.sub,true)}catch(e){}return siv.apply(this,a)}}
 // No "novo café", a ida ao Preparo começa pelos ajustes; quando não falta nada, vai ao passo a passo
 {const ip=irPag;irPag=function(pg,sem){const de=document.body.dataset.pag;ip(pg,sem);if(pg==="preparo"&&de!=="preparo"&&novoFalta().length)irSub("aj",true)}}
-{let falt=0;const r2=render;render=function(){r2();try{const n=novoFalta().length;if(falt>0&&n===0&&document.body.dataset.pag==="preparo"&&document.body.dataset.sub==="aj"){irSub("pp");toast("Tudo escolhido: siga o passo a passo")}falt=n}catch(e){}}}
+
+$("ajFim").onclick=()=>irSub("pp");
+// aviso de avaliação pendente no ícone da página Avaliar
+function avBadge(){const n=AVAL.filter(x=>x.pend).length,b=document.querySelector('#tabs [data-ir="avaliar"]');let d=b.querySelector(".bd");if(!n){if(d)d.remove();return}if(!d){d=document.createElement("span");d.className="bd";b.appendChild(d)}d.textContent=n}
+{const r3=render;render=function(){r3();try{avBadge()}catch(e){}}}
+new MutationObserver(()=>{try{avBadge()}catch(e){}}).observe($("av"),{attributes:true,attributeFilter:["hidden"]});
+new MutationObserver(()=>{try{avBadge()}catch(e){}}).observe($("apr"),{attributes:true,attributeFilter:["hidden"]});
 renderMetBtns();renderMoeBtns();
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
