@@ -464,7 +464,7 @@ body[data-pag="preparo"]{padding-bottom:calc(84px + env(safe-area-inset-bottom,0
     </div>
     <div class="facts" id="facts"></div>
     <p class="aviso" id="novoAviso" hidden></p>
-    <div class="sh"><h2>Passo a passo</h2><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="unk" for="tBipe"><input type="checkbox" id="tBipe"> Com bipe</label><button class="btn" id="bConn" type="button" hidden>Conectar balança</button><span class="bchip" id="bOn" hidden><i></i><span id="bW">0,0 g</span></span><button class="btn" id="bTara" type="button" hidden>Tara</button><button class="btn" id="bDiag" type="button" hidden>Copiar dados da balança</button><button class="btn pri" id="tStart" type="button">Iniciar temporizador</button></div></div>
+    <div class="sh"><h2>Passo a passo</h2><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="unk" for="tBipe"><input type="checkbox" id="tBipe"> Com bipe</label><button class="btn" id="bConn" type="button" hidden>Conectar balança</button><span class="bchip" id="bOn" hidden><i></i><span id="bW">0,0 g</span></span><button class="btn" id="bTara" type="button" hidden>Tara</button><button class="btn" id="bDiag" type="button" hidden>Copiar dados da balança</button><button class="btn pri" id="tStart" type="button">Bora fazer esse cafesoriussss</button></div></div>
     <p class="cres" id="bArm" hidden style="margin:-4px 0 0"></p>
     <div class="bprev" id="bPrev" hidden></div>
     <ol class="steps" id="steps"></ol>
@@ -1173,7 +1173,7 @@ async function iniciar(off){off=typeof off==="number"&&off>0?off:0;if(novoFalta(
   $("tmr").hidden=false;document.body.classList.add("timing");$("tPause").textContent="Pausar";$("tStart").hidden=true;
   clearInterval(tInt);tInt=setInterval(()=>tick(false),200);tick(false);
   document.querySelector("#steps").scrollIntoView({behavior:"smooth",block:"start"})}
-function encerrar(){try{BAL.hist=[];BAL.est=null;BAL.cand=null;BAL.fim=Date.now();BAL.cafeOk=null}catch(e){}T.pts=null;T.steps=null;setTimeout(render,0);try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src);$("tAudio").removeAttribute("src")}}catch(e){}T.au=null;T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").hidden=false;$("tStart").textContent="Iniciar temporizador";
+function encerrar(){try{BAL.hist=[];BAL.est=null;BAL.cand=null;BAL.fim=Date.now();BAL.cafeOk=null}catch(e){}T.pts=null;T.steps=null;setTimeout(render,0);try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src);$("tAudio").removeAttribute("src")}}catch(e){}T.au=null;T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").hidden=false;$("tStart").textContent="Bora fazer esse cafesoriussss";
   try{T.wl&&T.wl.release()}catch(e){}T.wl=null;document.querySelectorAll("#steps li").forEach(li=>li.classList.remove("on","ok"))}
 const setBipe=v=>{st.bipe=v;$("tBipe").checked=v;$("tSom").textContent=v?"Com bipe":"Sem bipe";if(T.au)T.au.muted=!v;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}};
 setBipe(st.bipe!==false);
