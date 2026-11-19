@@ -205,6 +205,11 @@ body[data-pag="cafe"] header[data-pag="cafe"]{display:block!important}
 .icPick{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
 .icPick button{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--fg);padding:5px;cursor:pointer}.icPick button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
 .uDel{display:flex;justify-content:space-between;align-items:center;font-size:.86rem;padding:4px 0}
+
+.pick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px}
+.pick button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px;border-radius:14px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 .72rem/1.15 var(--display);cursor:pointer;text-align:center}
+.pick button svg{width:40px;height:40px}.pick button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+label.unk.tg{display:flex;align-items:center;gap:10px}label.unk.tg svg{width:40px;height:40px;flex:none;color:var(--accent)}
 </style>
 
 </head>
@@ -645,7 +650,7 @@ const san=(x)=>{if(!x||typeof x!=="object"||x.desc)return null;const o={id:typeo
 const ISD=v=>v==="desc"||v==="descpo";
 // Novo preparo: método, moedor e café precisam ser escolhidos antes de liberar o temporizador
 let NOVO=null,abrirMet=false,abrirMoe=false,abrirRec=false,recPend=false;const cafOk=()=>{try{if(cur().cap)return true}catch(e){}return usoPote>=0&&POT.p[usoPote]===st.csel};
-const novoFalta=()=>(NOVO?[!NOVO.met&&"o método",!NOVO.moe&&"o moedor"].filter(Boolean):[]).concat(cafOk()?[]:["o café no pote (Usar no preparo)"]).concat(recPend?["o tipo de preparo"]:[]);
+const novoFalta=()=>(cafOk()?[]:["o café no pote (Usar no preparo)"]).concat(NOVO?[!NOVO.met&&"o método",!NOVO.moe&&"o moedor"].filter(Boolean):[]).concat(recPend?["o tipo de preparo"]:[]);
 const marca=k=>{if(NOVO){NOVO[k]=true;if(NOVO.met&&NOVO.moe)NOVO=null}};
 let CAF=null;try{CAF=JSON.parse(localStorage.getItem("calcCafes")||"null")}catch(e){}
 if(!Array.isArray(CAF)){CAF=[{...CAFE0,id:"c-tucano",nome:"Black Tucano Fruity"}];
@@ -936,8 +941,8 @@ function render(){
    if(vs.length>1){const h=(recPend?`<option value="">Escolha o tipo de preparo…</option>`:"")+vs.map(x=>`<option value="${x.id}">${vn(x)}</option>`).join("");if($("recVar").dataset.h!==h){$("recVar").innerHTML=h;$("recVar").dataset.h=h}$("recVar").value=recPend?"":m.id}}
   document.querySelectorAll("#moedores button").forEach(b=>b.setAttribute("aria-pressed",!(NOVO&&!NOVO.moe)&&b.dataset.v===st.moe));
   // Recolhe método e moedor já escolhidos; "Trocar" reabre
-  {const fm=!(NOVO&&!NOVO.met)&&!abrirMet&&!recPend,vs=M.filter(x=>G(x)===G(m)).length>1,bt=document.querySelector(`#metodos button[data-v="${G(m)}"]`);
-   $("metChip").hidden=!fm;$("metodos").hidden=fm;$("lRecVar").hidden=fm&&!abrirRec;$("recVar").hidden=fm&&!abrirRec;$("devBox").hidden=!$("devBox").dataset.on||(fm&&!abrirRec);
+  {const fm=!(NOVO&&!NOVO.met)&&!abrirMet,vs=M.filter(x=>G(x)===G(m)).length>1,bt=document.querySelector(`#metodos button[data-v="${G(m)}"]`);
+   $("metChip").hidden=!fm;$("metodos").hidden=fm;$("lRecVar").hidden=fm&&!abrirRec&&!recPend;$("recVar").hidden=fm&&!abrirRec&&!recPend;$("devBox").hidden=!$("devBox").dataset.on||(fm&&!abrirRec&&!recPend);
    if(fm)$("metChipBtn").innerHTML=svgI(icMet(m))+"<span>"+esc((bt?bt.textContent:m.n)+(vs?" · "+vn(m):""))+"</span>";
    const fo=!(NOVO&&!NOVO.moe)&&!abrirMoe,mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`);
    $("moeChip").hidden=!fo;$("moedores").hidden=fo;if(fo){const u=MOEU.find(x=>x.id===st.moe);$("moeChipBtn").innerHTML=svgI(GI[u?(u.ic||u.like):st.moe]||GI.k7)+"<span>"+esc(mb?mb.textContent:st.moe)+"</span>"}}
@@ -1019,7 +1024,7 @@ function render(){
   renderSaved();
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}
 }
-$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=g;const mv=M.filter(x=>G(x)===g).length>1;recPend=mv;abrirMet=mv;abrirRec=false;render()});
+$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=g;const mv=M.filter(x=>G(x)===g).length>1;recPend=mv;abrirMet=false;abrirRec=false;render()});
 $("k46s").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),s:b.dataset.v};render()});
 $("k46c").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),c:b.dataset.v};render()});
 $("devSel").addEventListener("change",e=>{const v=M.find(x=>G(x)===G(cur())&&x.dev===e.target.value);if(!v)return;st.met=v.id;st.gsel={...(st.gsel||{}),[G(v)]:v.id};render()});
@@ -1442,14 +1447,11 @@ function irPag(pg,sem){if(!["cafe","preparo","receitas","avaliar"].includes(pg))
 $("tabs").addEventListener("click",e=>{const b=e.target.closest("[data-ir]");if(b)irPag(b.dataset.ir)});
 // Quem rola até um ponto de outra página (assistente "Preparar um novo café", avisos) muda de página antes
 {const siv=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(...a){try{const pg=this.closest&&this.closest("[data-pag]");if(pg&&document.body.dataset.pag!==pg.dataset.pag)irPag(pg.dataset.pag,true)}catch(e){}return siv.apply(this,a)}}
-$("olaSim").addEventListener("click",()=>{if(document.body.dataset.pag==="cafe"||document.body.dataset.pag==="receitas"||document.body.dataset.pag==="avaliar")irPag("preparo")});
-$("novoCafe").addEventListener("click",()=>irPag("preparo"));
-// No "Preparar um novo café": escolhidos método e moedor, leva à página Café para escolher o pote
-let wiz=false;$("novoCafe").addEventListener("click",()=>{wiz=true});$("olaSim").addEventListener("click",()=>{wiz=true});
-{const vaiPote=()=>setTimeout(()=>{const fl=novoFalta();if(wiz&&fl.length===1&&!cafOk()){wiz=false;irPag("cafe");toast("Agora escolha o pote do café e toque em Usar no preparo");$("potGrid").scrollIntoView({behavior:"smooth",block:"center"})}},50);
- $("metodos").addEventListener("click",vaiPote);$("moedores").addEventListener("click",vaiPote);$("recVar").addEventListener("change",vaiPote)}
+
+let wiz=false;
+$("novoCafe").addEventListener("click",()=>{wiz=true;irPag("cafe")});$("olaSim").addEventListener("click",()=>{wiz=true;irPag("cafe")});
 // Café escolhido no pote durante o "novo café": volta ao Preparo
-$("potes").addEventListener("click",e=>{if(e.target.closest("[data-pusar]"))setTimeout(()=>{if(usoPote>=0&&!novoFalta().length)irPag("preparo")},80)});
+$("potes").addEventListener("click",e=>{if(e.target.closest("[data-pusar]"))setTimeout(()=>{if(usoPote>=0&&(wiz||!novoFalta().length)){wiz=false;irPag("preparo")}},80)});
 
 // ===== Potes em desenho =====
 const potSvg=(g,max)=>{const h=g==null?0:Math.max(3,Math.min(1,g/max)*34),y=54-h;
@@ -1512,6 +1514,17 @@ $("uLista").addEventListener("click",e=>{const b=e.target.closest("[data-udel]")
   if(uModo==="met"){METU=METU.filter(u=>u.id!==id);localStorage.setItem("calcMetU",JSON.stringify(METU));if(st.met===id)st.met="v60"}
   else{MOEU=MOEU.filter(u=>u.id!==id);localStorage.setItem("calcMoeU",JSON.stringify(MOEU));if(st.moe===id)st.moe="k7"}
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}try{sessionStorage.setItem("calcRecarga","1")}catch(e){}location.reload()});
+
+// ===== Desenhos: peneiras, acessórios e SimpleDrip =====
+const PI={"inox": "<path d=\"M12 20h34l-5 22a6 6 0 0 1-6 5H23a6 6 0 0 1-6-5z\"/><path d=\"M46 22h10\"/><path d=\"M17 28h28M19 35h24M21 41h20\" stroke-width=\"1.3\"/><path d=\"M24 20l2 27M31 20v27M38 20l-2 27\" stroke-width=\"1.3\"/>", "300": "<circle cx=\"32\" cy=\"32\" r=\"20\"/><circle cx=\"32\" cy=\"32\" r=\"17\" stroke-width=\"1.4\"/><path d=\"M18.5 15v34\" stroke-width=\"1.2\"/><path d=\"M15 18.5h34\" stroke-width=\"1.2\"/><path d=\"M23.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 23.0h34\" stroke-width=\"1.2\"/><path d=\"M27.5 15v34\" stroke-width=\"1.2\"/><path d=\"M15 27.5h34\" stroke-width=\"1.2\"/><path d=\"M32.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 32.0h34\" stroke-width=\"1.2\"/><path d=\"M36.5 15v34\" stroke-width=\"1.2\"/><path d=\"M15 36.5h34\" stroke-width=\"1.2\"/><path d=\"M41.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 41.0h34\" stroke-width=\"1.2\"/><path d=\"M45.5 15v34\" stroke-width=\"1.2\"/><path d=\"M15 45.5h34\" stroke-width=\"1.2\"/>", "400": "<circle cx=\"32\" cy=\"32\" r=\"20\"/><circle cx=\"32\" cy=\"32\" r=\"17\" stroke-width=\"1.4\"/><path d=\"M19.1 15v34\" stroke-width=\"1.2\"/><path d=\"M15 19.1h34\" stroke-width=\"1.2\"/><path d=\"M24.3 15v34\" stroke-width=\"1.2\"/><path d=\"M15 24.3h34\" stroke-width=\"1.2\"/><path d=\"M29.4 15v34\" stroke-width=\"1.2\"/><path d=\"M15 29.4h34\" stroke-width=\"1.2\"/><path d=\"M34.6 15v34\" stroke-width=\"1.2\"/><path d=\"M15 34.6h34\" stroke-width=\"1.2\"/><path d=\"M39.7 15v34\" stroke-width=\"1.2\"/><path d=\"M15 39.7h34\" stroke-width=\"1.2\"/><path d=\"M44.9 15v34\" stroke-width=\"1.2\"/><path d=\"M15 44.9h34\" stroke-width=\"1.2\"/>", "500": "<circle cx=\"32\" cy=\"32\" r=\"20\"/><circle cx=\"32\" cy=\"32\" r=\"17\" stroke-width=\"1.4\"/><path d=\"M20.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 20.0h34\" stroke-width=\"1.2\"/><path d=\"M26.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 26.0h34\" stroke-width=\"1.2\"/><path d=\"M32.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 32.0h34\" stroke-width=\"1.2\"/><path d=\"M38.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 38.0h34\" stroke-width=\"1.2\"/><path d=\"M44.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 44.0h34\" stroke-width=\"1.2\"/>", "600": "<circle cx=\"32\" cy=\"32\" r=\"20\"/><circle cx=\"32\" cy=\"32\" r=\"17\" stroke-width=\"1.4\"/><path d=\"M21.2 15v34\" stroke-width=\"1.2\"/><path d=\"M15 21.2h34\" stroke-width=\"1.2\"/><path d=\"M28.4 15v34\" stroke-width=\"1.2\"/><path d=\"M15 28.4h34\" stroke-width=\"1.2\"/><path d=\"M35.6 15v34\" stroke-width=\"1.2\"/><path d=\"M15 35.6h34\" stroke-width=\"1.2\"/><path d=\"M42.8 15v34\" stroke-width=\"1.2\"/><path d=\"M15 42.8h34\" stroke-width=\"1.2\"/>", "850": "<circle cx=\"32\" cy=\"32\" r=\"20\"/><circle cx=\"32\" cy=\"32\" r=\"17\" stroke-width=\"1.4\"/><path d=\"M23.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 23.0h34\" stroke-width=\"1.2\"/><path d=\"M32.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 32.0h34\" stroke-width=\"1.2\"/><path d=\"M41.0 15v34\" stroke-width=\"1.2\"/><path d=\"M15 41.0h34\" stroke-width=\"1.2\"/>"},AI={"": "<circle cx=\"32\" cy=\"32\" r=\"18\"/><path d=\"M19 45L45 19\"/>", "star": "<path d=\"M32 10l4.6 11.6 12.2-3.4-5.6 11.4 10 7.8-12.4 1.6.2 12.6L32 42.6l-9 8.4.2-12.6-12.4-1.6 10-7.8-5.6-11.4 12.2 3.4z\"/><circle cx=\"32\" cy=\"32\" r=\"4\"/>", "lotos": "<path d=\"M32 12c6 6 6 14 0 20-6-6-6-14 0-20z\"/><path d=\"M32 32c-2-9-10-14-18-12 0 8 7 14 18 12z\"/><path d=\"M32 32c2-9 10-14 18-12 0 8-7 14-18 12z\"/><path d=\"M14 40h36\"/><path d=\"M18 46h28\"/>"},SDI="<ellipse cx=\"32\" cy=\"12\" rx=\"16\" ry=\"4\"/><path d=\"M16 12v3c0 2 7 4 16 4s16-2 16-4v-3\"/><path d=\"M26 23v3M32 23v4M38 23v3\" stroke-width=\"2\"/><path d=\"M14 32h36L38 52h-12z\"/>";
+function montaPick(sel,itens){const el=$(sel);if(!el||el.dataset.pk)return;el.dataset.pk="1";el.hidden=true;const d=document.createElement("div");d.className="pick";d.id=sel+"Pk";
+  d.innerHTML=itens.map(([v,n,ic])=>`<button type="button" data-pv="${v}">${svgI(ic)}<span>${n}</span></button>`).join("");el.after(d);
+  d.addEventListener("click",e=>{const b=e.target.closest("[data-pv]");if(!b)return;el.value=b.dataset.pv;el.dispatchEvent(new Event("change",{bubbles:true}))})}
+const syncPick=sel=>{const el=$(sel),d=$(sel+"Pk");if(el&&d)d.querySelectorAll("[data-pv]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.pv===el.value))};
+montaPick("pSel",[["inox","Peneira inox (copo)",PI.inox],["300","Kit 300 µm",PI["300"]],["400","Kit 400 µm",PI["400"]],["500","Kit 500 µm",PI["500"]],["600","Kit 600 µm",PI["600"]],["850","Kit 850 µm",PI["850"]]]);
+montaPick("aSel",[["","Nenhum",AI[""]],["star","Starflower (+ CFS)",AI.star],["lotos","LOTOS",AI.lotos]]);
+{const L=$("pOn").parentElement;L.classList.add("tg");L.insertAdjacentHTML("afterbegin",svgI(PI["400"]));const S=$("sdOn").parentElement;S.classList.add("tg");S.insertAdjacentHTML("afterbegin",svgI(SDI))}
+{const r0=render;render=function(){r0();try{syncPick("pSel");syncPick("aSel")}catch(e){}}}
 renderMetBtns();renderMoeBtns();
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
 render();
