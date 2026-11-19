@@ -13,7 +13,7 @@
 <style>*,*::before,*::after{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 <title>Calculadora de Extração</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Fredoka:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Caveat+Brush&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 /* Layout: coluna única; escolhas no topo (método, moedor, quantidade, proporção), resultado lido como o visor de uma balança e a receita em linha do tempo */
 :root{
@@ -278,11 +278,19 @@ body.timing #steps,body.timing #tip,body.timing #tip~.tip,body.timing #bPrev,bod
 .tmr .bt{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-#appNome{font:700 1.05rem/1 "Fredoka","Familjen Grotesk",system-ui,sans-serif!important;background:var(--accent)!important;color:var(--accent-fg)!important;border:0!important;padding:6px 14px!important;letter-spacing:.02em;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+#appNome{font:400 1.35rem/1 "Caveat Brush","Familjen Grotesk",cursive!important;background:var(--accent)!important;color:var(--accent-fg)!important;border:0!important;padding:6px 14px!important;letter-spacing:.02em;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 /* 2) depois do Bora: só os cards */
 body.timing section[aria-label="Resultado"]>*:not(.read){display:none!important}
 #preOv .ib{width:44px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--chip);color:var(--fg);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}#preOv .ib svg{width:22px;height:22px}
 #preOv .lf{display:flex;gap:8px}
+
+/* 3) nas etapas Peneirar e Preparo: só os cards */
+body:has(#preOv:not([hidden])) section[aria-label="Resultado"]>*:not(.read){display:none!important}
+/* 4) xícara pronta só a partir do fim do preparo */
+.tmr .bt #tStop.cedo{display:none!important}
+/* 6) tipos de preparo do método em botões */
+#recPk{display:grid;gap:6px;margin-top:6px}#recPk button{text-align:left;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 .92rem var(--display);cursor:pointer}
+#recPk button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 </style>
 
 <div id="appBar"><b>Calculadora de Café</b><button type="button" id="appNome" class="nomeU" aria-label="Trocar o nome"></button></div>
@@ -1160,7 +1168,7 @@ function tick(sohTela){const e=decorrido(),pts=pontos();
   $("tClk").textContent=tm(Math.floor(e));
   let atual=null,prox=null;for(const p of pts){if(p.t<=e)atual=p;else{prox=p;break}}
   $("tNow").textContent=atual?atual.txt:"Prepare-se";
-  $("tNxt").innerHTML=prox?`Depois: ${esc(prox.txt)}`:"Último passo. Toque em Encerrar quando terminar.";
+  $("tNxt").innerHTML=prox?`Depois: ${esc(prox.txt)}`:"Último passo. Toque na xícara quando o café estiver pronto.";
   {const ia=atual?pts.indexOf(atual):-1,t0=atual?atual.t:0,fr=prox?Math.min(1,Math.max(0,(e-t0)/Math.max(1,prox.t-t0))):1;
    $("tRing").style.strokeDashoffset=(201.06*(1-fr)).toFixed(1);
    $("tEt").innerHTML=`<span>Etapa ${ia+1} de ${pts.length}</span>`+(prox?`<span>Próxima em <b>${tm(Math.ceil(prox.t-e))}</b></span>`:`<span>Última etapa</span>`)}
@@ -1187,7 +1195,7 @@ function descontaPote(){try{if(cur().cap)return;loadPot();
   const m=cur(),c=calc(m).c,pn=peneira(m,c),g=Math.round(((pn.on&&!pn.bloq&&pn.moer)?pn.moer:c)*10)/10;
   POT.g[i]=Math.round((POT.g[i]-g)*10)/10;const u=POT.u[i]||{n:0,g:0,ini:null};const dn=new Date(),p2=n=>String(n).padStart(2,"0");POT.u[i]={n:u.n+1,g:Math.round((u.g+g)*10)/10,ini:u.ini,last:`${p2(dn.getDate())}/${p2(dn.getMonth()+1)} ${p2(dn.getHours())}:${p2(dn.getMinutes())}`};logPot(`preparo −${f(g,1)} g → ${f(POT.g[i],1)} g`,i);savePot();ultDesc={i,t:Date.now()};
   potMsg(`Descontei ${f(g,1)} g do Pote ${i+1}: restam ${f(Math.max(0,POT.g[i]),1)} g`+(POT.g[i]<c?". Está acabando":""));renderPotes()}catch(e){potMsg("Erro ao descontar do pote: "+(e&&e.message||e))}}
-async function iniciar(off){off=typeof off==="number"&&off>0?off:0;if(novoFalta().length)return;$("tPote").textContent="";descontaPote();
+async function iniciar(off){off=typeof off==="number"&&off>0?off:0;if(novoFalta().length)return;$("tPote").textContent="";
   if(BAL.on&&BAL.w!=null&&!BAL.autoBase)BAL.base=Math.abs(BAL.w)<0.5?0:BAL.w;BAL.autoBase=false;BAL.bip=new Set();BAL.cand=null;BAL.rec=[];
   try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
   try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src)}}catch(e){}
@@ -1400,7 +1408,7 @@ function abrirAproveite(){const m=cur(),{c,a}=calc(m),nome=ISD(st.csel)?(st.csel
   const g=BAL.rec.length?balSerie():null,rs=resumoG(g),al=balAlvos(T.lastSteps||CUR).filter(x=>x!=null);avCtx.g=rs?g:null;avCtx.al=rs?al:null;
   $("aprG").hidden=!rs;$("aprKV").hidden=!rs;if(rs){$("aprG").innerHTML=grafico(g,al);$("aprKV").innerHTML=`Tempo total <b>${tm(rs.tt)}</b> · Água <b>${f(rs.tot)} g</b>${rs.fm?` · Fluxo médio <b>${f(rs.fm,1)} g/s</b>`:""}`}
   $("apr").hidden=false}
-$("tStop").onclick=()=>{const rodou=T.run;T.lastSteps=T.steps;encerrar();if(rodou)abrirAproveite()};
+$("tStop").onclick=()=>{const rodou=T.run;T.lastSteps=T.steps;if(rodou)descontaPote();encerrar();if(rodou)abrirAproveite()};
 const avPendente=()=>{if(!avCtx||avCtx.pid)return;const dn=new Date(),p2=n=>String(n).padStart(2,"0");const id="a-"+Date.now().toString(36);
   AVAL.push({id,pend:true,d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,h:`${p2(dn.getHours())}:${p2(dn.getMinutes())}`,caf:avCtx.caf,nome:avCtx.nome,met:avCtx.met,c:avCtx.c,a:avCtx.a,g:avCtx.g||null,al:avCtx.al||null,dados:avCtx.dados||""});avCtx.pid=id;saveAval();avPendTela()};
 function avPendTela(){const L=AVAL.filter(x=>x.pend).slice(-3).reverse();$("avPend").hidden=!L.length;
@@ -1698,7 +1706,7 @@ function tmrIcones(){icBtn("tVolta","volta","Voltar para o preparo");icBtn("tSom
 for(const id of ["tSom","tPause"])new MutationObserver(()=>{const b=$(id);if(!b.querySelector("svg"))tmrIcones()}).observe($(id),{childList:true,characterData:true,subtree:true});
 tmrIcones();
 $("tVolta").onclick=()=>{if(!T.run)return;encerrar();try{BAL.fim=0}catch(e){}preL=[];for(const x of CUR){if(seg(x[0])!=null)break;preL.push(x)}
-  if(preL.length){preI=preL.length-1;preTela()}toast("Voltamos para o preparo. O café do pote não é descontado de novo")};
+  if(preL.length){preI=preL.length-1;preTela()}toast("Voltamos para o preparo")};
 
 $("preVolta").innerHTML=svgI(TI.volta);$("preCn").innerHTML=svgI('<path d="M18 18l28 28M46 18L18 46"/>');
 $("preVolta").onclick=()=>{if(preI>0){preI--;preTela()}else{$("preOv").hidden=true;preI=-1}};
@@ -1794,6 +1802,20 @@ $("camIn").addEventListener("change",async e=>{const file=e.target.files&&e.targ
   catch(err){msg("Não consegui ler a foto: "+((err&&err.message)||err))}});
 $("cNome").addEventListener("input",()=>{camFeitos.nomeUsuario=true});
 $("cSel").addEventListener("change",()=>{camFeitos={};$("camMsg").textContent="Tire uma foto da frente e outra do verso: o app preenche os campos abaixo. Confira antes de cadastrar."});
+
+// Encerrar vira a xícara pronta e só aparece quando chega o tempo do fim do preparo
+TI.xicara='<path d="M12 28h34v8a14 14 0 0 1-14 14h-6a14 14 0 0 1-14-14z"/><path d="M46 31h4a6 6 0 0 1 0 12h-6"/><path d="M8 54h44"/><path d="M22 12c-3 4 3 6 0 10M30 10c-3 4 3 6 0 10M38 12c-3 4 3 6 0 10"/>';
+{const ti0=tmrIcones;tmrIcones=function(){ti0();icBtn("tStop","xicara","Encerrar: café pronto")}}tmrIcones();
+function fimInicio(){const L=T.steps||CUR;let t=null;for(const x of L){const v=seg(x[0]);if(v!=null)t=v}return t}
+{const tk=tick;tick=function(a){tk(a);try{const ft=fimInicio();$("tStop").classList.toggle("cedo",T.run&&ft!=null&&decorrido()<ft)}catch(e){}}}
+// Tipos de preparo do método: lista de botões no lugar da caixa de seleção
+{const d=document.createElement("div");d.id="recPk";$("recVar").after(d);
+ d.addEventListener("click",e=>{const b=e.target.closest("[data-rv]");if(!b)return;const s=$("recVar");s.value=b.dataset.rv;s.dispatchEvent(new Event("change",{bubbles:true}))})}
+function recPkTela(){const s=$("recVar"),d=$("recPk");if(!s||!d)return;const vis=!s.hidden;s.style.display="none";d.hidden=!vis;if(!vis)return;
+  const ops=[...s.options].filter(o=>o.value);const h=ops.map(o=>`<button type="button" data-rv="${o.value}" aria-pressed="${!recPend&&o.value===s.value}">${esc(o.textContent)}</button>`).join("");if(d.dataset.h!==h){d.innerHTML=h;d.dataset.h=h}
+  if(recPend)$("metChipBtn").innerHTML=svgI(icMet(cur()))+"<span>"+esc(cur().n.replace(/\s·.*$/,""))+" · escolha o tipo abaixo</span>"}
+{const r5=render;render=function(){r5();try{recPkTela()}catch(e){}}}
+$("metodos").addEventListener("click",e=>{if(e.target.closest("button")&&recPend)setTimeout(()=>{try{$("recPk").scrollIntoView({behavior:"smooth",block:"center"})}catch(_){}},60)});
 renderMetBtns();renderMoeBtns();
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
