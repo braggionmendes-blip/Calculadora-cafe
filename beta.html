@@ -13,7 +13,7 @@
 <style>*,*::before,*::after{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 <title>Calculadora de Extração</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Fredoka:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 /* Layout: coluna única; escolhas no topo (método, moedor, quantidade, proporção), resultado lido como o visor de uma balança e a receita em linha do tempo */
 :root{
@@ -277,6 +277,12 @@ body.timing #steps,body.timing #tip,body.timing #tip~.tip,body.timing #bPrev,bod
 .tmr .bt .btn.ic{width:52px;height:46px;padding:8px;display:inline-flex;align-items:center;justify-content:center}.tmr .bt .btn.ic svg{width:26px;height:26px}
 .tmr .bt{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+#appNome{font:700 1.05rem/1 "Fredoka","Familjen Grotesk",system-ui,sans-serif!important;background:var(--accent)!important;color:var(--accent-fg)!important;border:0!important;padding:6px 14px!important;letter-spacing:.02em;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+/* 2) depois do Bora: só os cards */
+body.timing section[aria-label="Resultado"]>*:not(.read){display:none!important}
+#preOv .ib{width:44px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--chip);color:var(--fg);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}#preOv .ib svg{width:22px;height:22px}
+#preOv .lf{display:flex;gap:8px}
 </style>
 
 <div id="appBar"><b>Calculadora de Café</b><button type="button" id="appNome" class="nomeU" aria-label="Trocar o nome"></button></div>
@@ -487,7 +493,7 @@ body.timing #steps,body.timing #tip,body.timing #tip~.tip,body.timing #bPrev,bod
     </div>
     <div class="facts" id="facts"></div>
     <p class="aviso" id="novoAviso" hidden></p>
-    <div class="sh"><h2>Passo a passo</h2><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="unk" for="tBipe"><input type="checkbox" id="tBipe"> Com bipe</label><button class="btn" id="bConn" type="button" hidden>Conectar balança</button><span class="bchip" id="bOn" hidden><i></i><span id="bW">0,0 g</span></span><button class="btn" id="bTara" type="button" hidden>Tara</button><button class="btn" id="bDiag" type="button" hidden>Copiar dados da balança</button><button class="btn pri" id="tStart" type="button">Bora fazer esse cafesoriussss</button></div></div>
+    <div class="sh"><h2>Passo a passo</h2><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><label class="unk" for="tBipe"><input type="checkbox" id="tBipe"> Com bipe</label><button class="btn" id="bConn" type="button" hidden>Conectar balança</button><span class="bchip" id="bOn" hidden><i></i><span id="bW">0,0 g</span></span><button class="btn" id="bTara" type="button" hidden>Tara</button><button class="btn" id="bDiag" type="button" hidden>Copiar dados da balança</button><button class="btn pri" id="tStart" type="button">Bora fazer esse café</button></div></div>
     <p class="cres" id="bArm" hidden style="margin:-4px 0 0"></p>
     <div class="bprev" id="bPrev" hidden></div>
     <ol class="steps" id="steps"></ol>
@@ -536,7 +542,7 @@ body.timing #steps,body.timing #tip,body.timing #tip~.tip,body.timing #bPrev,bod
   <button type="button" data-ir="receitas"><svg class="ico" viewBox="0 0 64 64"><path d="M16 8h28l6 6v42H16z"/><path d="M22 22h22M22 30h22M22 38h14"/></svg>Receitas</button>
   <button type="button" data-ir="avaliar"><svg class="ico" viewBox="0 0 64 64"><path d="M32 8l7 15 16 2-12 11 3 16-14-8-14 8 3-16L9 25l16-2z"/></svg>Avaliar</button>
 </nav>
-<div id="preOv" hidden role="dialog" aria-modal="true" aria-labelledby="preT"><div class="cx"><span class="k" id="preK"></span><span class="t" id="preT"></span><span class="x" id="preX"></span><div class="rw"><button type="button" class="cn" id="preCn">Cancelar</button><button type="button" class="nx" id="preNx"></button></div></div></div>
+<div id="preOv" hidden role="dialog" aria-modal="true" aria-labelledby="preT"><div class="cx"><span class="k" id="preK"></span><span class="t" id="preT"></span><span class="x" id="preX"></span><div class="rw"><span class="lf"><button type="button" class="ib" id="preVolta" aria-label="Voltar"></button><button type="button" class="ib" id="preCn" aria-label="Fechar"></button></span><button type="button" class="nx" id="preNx"></button></div></div></div>
 <audio id="tAudio" preload="auto" playsinline></audio>
 <div class="tmr" id="tmr" hidden role="timer" aria-live="polite">
   <div class="in">
@@ -1196,7 +1202,7 @@ async function iniciar(off){off=typeof off==="number"&&off>0?off:0;if(novoFalta(
   $("tmr").hidden=false;document.body.classList.add("timing");$("tPause").textContent="Pausar";$("tStart").hidden=true;
   clearInterval(tInt);tInt=setInterval(()=>tick(false),200);tick(false);
   document.querySelector("#steps").scrollIntoView({behavior:"smooth",block:"start"})}
-function encerrar(){try{BAL.hist=[];BAL.est=null;BAL.cand=null;BAL.fim=Date.now();BAL.cafeOk=null}catch(e){}T.pts=null;T.steps=null;setTimeout(render,0);try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src);$("tAudio").removeAttribute("src")}}catch(e){}T.au=null;T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").hidden=false;$("tStart").textContent="Bora fazer esse cafesoriussss";
+function encerrar(){try{BAL.hist=[];BAL.est=null;BAL.cand=null;BAL.fim=Date.now();BAL.cafeOk=null}catch(e){}T.pts=null;T.steps=null;setTimeout(render,0);try{if(T.au){T.au.pause();URL.revokeObjectURL(T.au.src);$("tAudio").removeAttribute("src")}}catch(e){}T.au=null;T.run=false;clearInterval(tInt);$("tmr").hidden=true;document.body.classList.remove("timing");$("tStart").hidden=false;$("tStart").textContent="Bora fazer esse café";
   try{T.wl&&T.wl.release()}catch(e){}T.wl=null;document.querySelectorAll("#steps li").forEach(li=>li.classList.remove("on","ok"))}
 const setBipe=v=>{st.bipe=v;$("tBipe").checked=v;$("tSom").textContent=v?"Com bipe":"Sem bipe";if(T.au)T.au.muted=!v;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}};
 setBipe(st.bipe!==false);
@@ -1610,7 +1616,7 @@ function prepTopo(){const m=cur(),k=calc(m),u=MOEU.find(x=>x.id===st.moe);$("ptI
   const caf=ISD(st.csel)?"Café desconhecido":(st.cafe&&st.cafe.nome)||"Sem café";
   $("ptT").textContent=`${m.n}${m.grp||M.filter(x=>G(x)===G(m)).length>1?" · "+vn(m):""} · ${caf}${usoPote>=0?" · Pote "+(usoPote+1):""}`;
   const mg=$("moag")&&$("moag").value;$("ptS").textContent=(m.cap?"Cápsula":`${f(k.c,1)} g`)+` : ${f(k.a)} g · ${GN[st.moe]||st.moe}${mg&&!m.cap?" "+mg:""}${m.temp?" · "+m.temp:""}`}
-function prepFix(){const b=$("fixBtn"),t=$("tStart");if(document.body.dataset.sub==="pp"){b.textContent=t.textContent;b.disabled=t.disabled;b.hidden=t.hidden}else{b.textContent="Pronto: ir para o passo a passo";b.disabled=false;b.hidden=false}}
+function prepFix(){const b=$("fixBtn"),t=$("tStart");if(document.body.dataset.sub==="pp"){b.textContent=t.textContent==="Bora fazer esse café"?`Bora fazer esse café, ${st.nome||"cafezeiro"}!`:t.textContent;b.disabled=t.disabled;b.hidden=t.hidden}else{b.textContent="Pronto: ir para o passo a passo";b.disabled=false;b.hidden=false}}
 $("fixBtn").onclick=()=>{if(document.body.dataset.sub==="pp")comecar();else irSub("pp")};
 {const r1=render;render=function(){st.ajF=false;r1();try{prepTopo();prepFix()}catch(e){}}}
 new MutationObserver(prepFix).observe($("tStart"),{attributes:true,childList:true,characterData:true,subtree:true});
@@ -1690,6 +1696,9 @@ for(const id of ["tSom","tPause"])new MutationObserver(()=>{const b=$(id);if(!b.
 tmrIcones();
 $("tVolta").onclick=()=>{if(!T.run)return;encerrar();try{BAL.fim=0}catch(e){}preL=[];for(const x of CUR){if(seg(x[0])!=null)break;preL.push(x)}
   if(preL.length){preI=preL.length-1;preTela()}toast("Voltamos para o preparo. O café do pote não é descontado de novo")};
+
+$("preVolta").innerHTML=svgI(TI.volta);$("preCn").innerHTML=svgI('<path d="M18 18l28 28M46 18L18 46"/>');
+$("preVolta").onclick=()=>{if(preI>0){preI--;preTela()}else{$("preOv").hidden=true;preI=-1}};
 renderMetBtns();renderMoeBtns();
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
