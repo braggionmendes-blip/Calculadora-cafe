@@ -242,11 +242,24 @@ body:has(#tmr:not([hidden])) #appBar{display:none}
 /* 4) no Ajustes o botão fica no fim, depois do último item */
 #ajFim{width:100%;padding:13px;font-size:1rem;margin-top:4px}
 body[data-sub="aj"] #fixBtn{display:none!important}
+body:has(#preOv:not([hidden])) #tabs{display:none}
 
 #pChipBtn{display:inline-flex;align-items:center;gap:8px}#pChipBtn svg{width:30px;height:30px}#pChipBtn span{font-size:.92rem}
+
+#appBar{gap:8px}#appNome{border:1px solid var(--line);background:var(--chip);color:var(--accent);font:600 .82rem var(--display);border-radius:999px;padding:3px 10px;cursor:pointer;max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 2) Iniciar temporizador logo abaixo de Ajustes / Passo a passo */
+#fixBtn{position:static!important;width:100%;margin-top:8px!important;box-shadow:none!important;max-width:none!important}
+body[data-pag="preparo"]{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
+/* 3) etapas sem tempo antes do cronômetro */
+#preOv{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+#preOv .cx{width:100%;max-width:520px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;display:grid;gap:10px}
+#preOv .k{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}#preOv .t{font:700 1.3rem var(--display);color:var(--accent)}#preOv .x{font-size:1rem;line-height:1.45}
+#preOv .nx{justify-self:end;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:999px;padding:7px 14px;font:600 .88rem var(--display);cursor:pointer}
+#preOv .cn{justify-self:start;background:none;border:0;color:var(--muted);font:500 .85rem var(--display);cursor:pointer;padding:4px 0}
+#preOv .rw{display:flex;justify-content:space-between;align-items:center}
 </style>
 
-<div id="appBar"><b>Calculadora de Café</b></div>
+<div id="appBar"><b>Calculadora de Café</b><button type="button" id="appNome" class="nomeU" aria-label="Trocar o nome"></button></div>
 </head>
 <body>
 <div class="wrap">
@@ -341,7 +354,7 @@ body[data-sub="aj"] #fixBtn{display:none!important}
     </div>
   </section>
   <div id="prepTop" data-pag="preparo"><div class="sum"><span class="mi" id="ptIc"></span><span style="min-width:0"><b id="ptT"></b><small id="ptS"></small></span></div>
-    <div id="subSeg" role="group" aria-label="Parte do preparo"><button type="button" data-sub-ir="aj">1. Ajustes</button><button type="button" data-sub-ir="pp">2. Passo a passo</button></div></div>
+    <div id="subSeg" role="group" aria-label="Parte do preparo"><button type="button" data-sub-ir="aj">1. Ajustes</button><button type="button" data-sub-ir="pp">2. Passo a passo</button></div><button class="btn pri" id="fixBtn" type="button"></button></div>
   <section class="panel" aria-label="Escolhas" data-pag="preparo" data-sub="aj">
     <div>
       <span class="lbl" id="lMet">Método</span>
@@ -494,13 +507,13 @@ body[data-sub="aj"] #fixBtn{display:none!important}
   <p class="cres" id="uDica" style="margin:0;font-size:.8rem"></p>
   <div style="display:flex;gap:8px"><button class="btn" id="uCanc" type="button" style="flex:1;padding:12px">Cancelar</button><button class="btn pri" id="uOk" type="button" style="flex:2;padding:12px">Salvar</button></div>
   <div id="uLista"></div></div></div>
-<button class="btn pri" id="fixBtn" type="button"></button>
 <nav id="tabs" aria-label="Páginas">
   <button type="button" data-ir="cafe"><svg class="ico" viewBox="0 0 64 64"><path d="M12 24h34v14a14 14 0 0 1-14 14h-6a14 14 0 0 1-14-14z"/><path d="M46 28h4a6 6 0 0 1 0 12h-5"/><path d="M24 8c-3 4 3 6 0 10M34 8c-3 4 3 6 0 10"/></svg>Café</button>
   <button type="button" data-ir="preparo"><svg class="ico" viewBox="0 0 64 64"><path d="M12 16h40L36 42h-8z"/><path d="M20 18l10 22M44 18L34 40M32 17v23"/><path d="M8 16h48"/><path d="M50 22c5 0 6 3 6 6s-2 5-5 5"/><path d="M26 42h12v4H26z"/><path d="M18 52h28"/></svg>Preparo</button>
   <button type="button" data-ir="receitas"><svg class="ico" viewBox="0 0 64 64"><path d="M16 8h28l6 6v42H16z"/><path d="M22 22h22M22 30h22M22 38h14"/></svg>Receitas</button>
   <button type="button" data-ir="avaliar"><svg class="ico" viewBox="0 0 64 64"><path d="M32 8l7 15 16 2-12 11 3 16-14-8-14 8 3-16L9 25l16-2z"/></svg>Avaliar</button>
 </nav>
+<div id="preOv" hidden role="dialog" aria-modal="true" aria-labelledby="preT"><div class="cx"><span class="k" id="preK"></span><span class="t" id="preT"></span><span class="x" id="preX"></span><div class="rw"><button type="button" class="cn" id="preCn">Cancelar</button><button type="button" class="nx" id="preNx"></button></div></div></div>
 <audio id="tAudio" preload="auto" playsinline></audio>
 <div class="tmr" id="tmr" hidden role="timer" aria-live="polite">
   <div class="in">
@@ -1575,7 +1588,7 @@ function prepTopo(){const m=cur(),k=calc(m),u=MOEU.find(x=>x.id===st.moe);$("ptI
   $("ptT").textContent=`${m.n}${m.grp||M.filter(x=>G(x)===G(m)).length>1?" · "+vn(m):""} · ${caf}${usoPote>=0?" · Pote "+(usoPote+1):""}`;
   const mg=$("moag")&&$("moag").value;$("ptS").textContent=(m.cap?"Cápsula":`${f(k.c,1)} g`)+` : ${f(k.a)} g · ${GN[st.moe]||st.moe}${mg&&!m.cap?" "+mg:""}${m.temp?" · "+m.temp:""}`}
 function prepFix(){const b=$("fixBtn"),t=$("tStart");if(document.body.dataset.sub==="pp"){b.textContent=t.textContent;b.disabled=t.disabled;b.hidden=t.hidden}else{b.textContent="Pronto: ir para o passo a passo";b.disabled=false;b.hidden=false}}
-$("fixBtn").onclick=()=>{if(document.body.dataset.sub==="pp")$("tStart").click();else irSub("pp")};
+$("fixBtn").onclick=()=>{if(document.body.dataset.sub==="pp")comecar();else irSub("pp")};
 {const r1=render;render=function(){st.ajF=false;r1();try{prepTopo();prepFix()}catch(e){}}}
 new MutationObserver(prepFix).observe($("tStart"),{attributes:true,childList:true,characterData:true,subtree:true});
 // Quem rola até um ponto da outra parte do Preparo troca a parte antes
@@ -1601,6 +1614,21 @@ let pAberto=false;
 function pTela(){const pk=$("pSelPk"),b=pk&&pk.querySelector(`[data-pv="${$("pSel").value}"]`);pk.hidden=!pAberto;$("pChip").hidden=pAberto;
   if(b)$("pChipBtn").innerHTML=b.innerHTML}
 {const r4=render;render=function(){r4();try{pTela()}catch(e){}}}
+
+// Nome do usuário no topo
+{const nt=()=>{$("appNome").textContent=st.nome||"cafezeiro"};nt();new MutationObserver(nt).observe($("nomeDlg"),{attributes:true,attributeFilter:["hidden"]});$("appNome").onclick=()=>pedirNome()}
+// Preparar um novo café: tudo sem seleção (acessório, peneira e SimpleDrip também)
+{const limpa=()=>{st.acc="";st.pen.on=false;st.sd.on=false;pAberto=false;render()};$("novoCafe").addEventListener("click",limpa);$("olaSim").addEventListener("click",limpa)}
+// Iniciar: primeiro as etapas sem tempo (peneirar, preparo...), cada uma com o botão da próxima; depois o cronômetro
+let preI=-1,preL=[];
+function preTela(){const s0=preL[preI],nx=preL[preI+1];$("preK").textContent=`Antes de começar · ${preI+1} de ${preL.length}`;$("preT").textContent=s0[0];$("preX").textContent=s0[1];
+  $("preNx").textContent=nx?`${nx[0]} ›`:`Iniciar o tempo ›`;$("preOv").hidden=false}
+function comecar(){if($("tStart").disabled)return;preL=[];for(const x of CUR){if(seg(x[0])!=null)break;preL.push(x)}
+  if(!preL.length){$("tStart").click();return}preI=0;preTela()}
+$("preNx").onclick=()=>{if(preI<preL.length-1){preI++;preTela()}else{$("preOv").hidden=true;preI=-1;$("tStart").click()}};
+$("preCn").onclick=()=>{$("preOv").hidden=true;preI=-1};
+// Se a balança iniciar o cronômetro sozinha, fecha as etapas de antes
+new MutationObserver(()=>{if(!$("tmr").hidden&&!$("preOv").hidden){$("preOv").hidden=true;preI=-1}}).observe($("tmr"),{attributes:true,attributeFilter:["hidden"]});
 renderMetBtns();renderMoeBtns();
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
