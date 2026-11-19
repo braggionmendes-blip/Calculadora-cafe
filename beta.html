@@ -234,7 +234,7 @@ body:not([data-pag="cafe"]) header h1{font-size:1.25rem;margin:0}
 /* 3) título preso no topo em todas as páginas */
 :root{--barH:calc(48px + env(safe-area-inset-top,0px))}
 #appBar{position:fixed;left:0;right:0;top:0;z-index:45;height:var(--barH);padding:env(safe-area-inset-top,0px) 16px 0;display:flex;align-items:center;justify-content:center;background:var(--bg);border-bottom:1px solid var(--line)}
-#appBar b{font:700 1.12rem var(--display)}
+#appBar b{font:400 1.7rem/1 "Caveat Brush","Familjen Grotesk",cursive;letter-spacing:.01em}
 body{padding-top:var(--barH)}header h1{display:none}body:not([data-pag="cafe"]) header{display:none!important}
 #prepTop{top:var(--barH)!important;padding-top:8px!important}
 html{scroll-padding-top:calc(var(--barH) + 150px)}
@@ -288,9 +288,6 @@ body.timing section[aria-label="Resultado"]>*:not(.read){display:none!important}
 body:has(#preOv:not([hidden])) section[aria-label="Resultado"]>*:not(.read){display:none!important}
 /* 4) xícara pronta só a partir do fim do preparo */
 .tmr .bt #tStop.cedo{display:none!important}
-/* 6) tipos de preparo do método em botões */
-#recPk{display:grid;gap:6px;margin-top:6px}#recPk button{text-align:left;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 .92rem var(--display);cursor:pointer}
-#recPk button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 </style>
 
 <div id="appBar"><b>Calculadora de Café</b><button type="button" id="appNome" class="nomeU" aria-label="Trocar o nome"></button></div>
@@ -1034,7 +1031,7 @@ function render(){
   document.querySelectorAll("#moedores button").forEach(b=>b.setAttribute("aria-pressed",!(NOVO&&!NOVO.moe)&&b.dataset.v===st.moe));
   // Recolhe método e moedor já escolhidos; "Trocar" reabre
   {const fm=!(NOVO&&!NOVO.met)&&!abrirMet,vs=M.filter(x=>G(x)===G(m)).length>1,bt=document.querySelector(`#metodos button[data-v="${G(m)}"]`);
-   $("metChip").hidden=!fm;$("metodos").hidden=fm;$("lRecVar").hidden=fm&&!abrirRec&&!recPend;$("recVar").hidden=fm&&!abrirRec&&!recPend;$("devBox").hidden=!$("devBox").dataset.on||(fm&&!abrirRec&&!recPend);
+   $("metChip").hidden=!fm;$("metodos").hidden=fm;$("lRecVar").hidden=!vs;$("recVar").hidden=!vs;$("devBox").hidden=!$("devBox").dataset.on;
    if(fm)$("metChipBtn").innerHTML=svgI(icMet(m))+"<span>"+esc((bt?bt.textContent:m.n)+(vs?" · "+vn(m):""))+"</span>";
    const fo=!(NOVO&&!NOVO.moe)&&!abrirMoe,mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`);
    $("moeChip").hidden=!fo;$("moedores").hidden=fo;if(fo){const u=MOEU.find(x=>x.id===st.moe);$("moeChipBtn").innerHTML=svgI(GI[u?(u.ic||u.like):st.moe]||GI.k7)+"<span>"+esc(mb?mb.textContent:st.moe)+"</span>"}}
@@ -1116,7 +1113,7 @@ function render(){
   renderSaved();
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}
 }
-$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=g;const mv=M.filter(x=>G(x)===g).length>1;recPend=mv;abrirMet=false;abrirRec=false;render()});
+$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=l&&M.some(x=>x.id===l&&G(x)===g)?l:g;recPend=false;abrirMet=false;abrirRec=false;render()});
 $("k46s").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),s:b.dataset.v};render()});
 $("k46c").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),c:b.dataset.v};render()});
 $("devSel").addEventListener("change",e=>{const v=M.find(x=>G(x)===G(cur())&&x.dev===e.target.value);if(!v)return;st.met=v.id;st.gsel={...(st.gsel||{}),[G(v)]:v.id};render()});
@@ -1625,7 +1622,7 @@ $("subSeg").addEventListener("click",e=>{const b=e.target.closest("[data-sub-ir]
 $("prepTop").appendChild($("novoAviso"));
 function prepTopo(){const m=cur(),k=calc(m),u=MOEU.find(x=>x.id===st.moe);$("ptIc").innerHTML=svgI(icMet(m));
   const caf=ISD(st.csel)?"Café desconhecido":(st.cafe&&st.cafe.nome)||"Sem café";
-  $("ptT").textContent=`${m.n}${m.grp||M.filter(x=>G(x)===G(m)).length>1?" · "+vn(m):""} · ${caf}${usoPote>=0?" · Pote "+(usoPote+1):""}`;
+  const bN=(M.find(x=>x.id===G(m))||m).n;$("ptT").textContent=`${bN}${M.filter(x=>G(x)===G(m)).length>1?" · "+vn(m):""} · ${caf}${usoPote>=0?" · Pote "+(usoPote+1):""}`;
   const mg=$("moag")&&$("moag").value;$("ptS").textContent=(m.cap?"Cápsula":`${f(k.c,1)} g`)+` : ${f(k.a)} g · ${GN[st.moe]||st.moe}${mg&&!m.cap?" "+mg:""}${m.temp?" · "+m.temp:""}`}
 function prepFix(){const b=$("fixBtn"),t=$("tStart");if(document.body.dataset.sub==="pp"){b.textContent=t.textContent==="Bora fazer esse café"?`Bora fazer esse café, ${st.nome||"cafezeiro"}!`:t.textContent;b.disabled=t.disabled;b.hidden=t.hidden}else{b.textContent="Pronto: ir para o passo a passo";b.disabled=false;b.hidden=false}}
 $("fixBtn").onclick=()=>{if(document.body.dataset.sub==="pp")comecar();else irSub("pp")};
@@ -1808,14 +1805,6 @@ TI.xicara='<path d="M12 28h34v8a14 14 0 0 1-14 14h-6a14 14 0 0 1-14-14z"/><path 
 {const ti0=tmrIcones;tmrIcones=function(){ti0();icBtn("tStop","xicara","Encerrar: café pronto")}}tmrIcones();
 function fimInicio(){const L=T.steps||CUR;let t=null;for(const x of L){const v=seg(x[0]);if(v!=null)t=v}return t}
 {const tk=tick;tick=function(a){tk(a);try{const ft=fimInicio();$("tStop").classList.toggle("cedo",T.run&&ft!=null&&decorrido()<ft)}catch(e){}}}
-// Tipos de preparo do método: lista de botões no lugar da caixa de seleção
-{const d=document.createElement("div");d.id="recPk";$("recVar").after(d);
- d.addEventListener("click",e=>{const b=e.target.closest("[data-rv]");if(!b)return;const s=$("recVar");s.value=b.dataset.rv;s.dispatchEvent(new Event("change",{bubbles:true}))})}
-function recPkTela(){const s=$("recVar"),d=$("recPk");if(!s||!d)return;const vis=!s.hidden;s.style.display="none";d.hidden=!vis;if(!vis)return;
-  const ops=[...s.options].filter(o=>o.value);const h=ops.map(o=>`<button type="button" data-rv="${o.value}" aria-pressed="${!recPend&&o.value===s.value}">${esc(o.textContent)}</button>`).join("");if(d.dataset.h!==h){d.innerHTML=h;d.dataset.h=h}
-  if(recPend)$("metChipBtn").innerHTML=svgI(icMet(cur()))+"<span>"+esc(cur().n.replace(/\s·.*$/,""))+" · escolha o tipo abaixo</span>"}
-{const r5=render;render=function(){r5();try{recPkTela()}catch(e){}}}
-$("metodos").addEventListener("click",e=>{if(e.target.closest("button")&&recPend)setTimeout(()=>{try{$("recPk").scrollIntoView({behavior:"smooth",block:"center"})}catch(_){}},60)});
 renderMetBtns();renderMoeBtns();
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
