@@ -257,6 +257,26 @@ body[data-pag="preparo"]{padding-bottom:calc(84px + env(safe-area-inset-bottom,0
 #preOv .nx{justify-self:end;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:999px;padding:7px 14px;font:600 .88rem var(--display);cursor:pointer}
 #preOv .cn{justify-self:start;background:none;border:0;color:var(--muted);font:500 .85rem var(--display);cursor:pointer;padding:4px 0}
 #preOv .rw{display:flex;justify-content:space-between;align-items:center}
+
+/* Balança com desenho */
+#balCard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:10px}
+#balCard .tp{display:flex;align-items:center;gap:12px}#balCard .bi{width:64px;height:64px;flex:none;color:var(--muted);position:relative}#balCard .bi svg{width:64px;height:64px}
+#balCard.on{border-color:#3f7a4c;background:color-mix(in srgb,var(--surface) 82%,#2f7d4f)}#balCard.on .bi{color:#58b26c}
+#balCard .wf{position:absolute;right:-8px;top:-8px;width:22px;height:22px;color:#58b26c}#balCard:not(.on) .wf{display:none}#balCard .wf svg{width:22px;height:22px;display:block}
+#balCard .nm{font-weight:700}#balCard .stt{font-size:.8rem;color:var(--muted)}#balCard .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#balCard .acts .lnk{margin-left:auto}
+#balPick .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#balPick button,#balPick .addT{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:14px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 .72rem/1.15 var(--display);cursor:pointer;min-height:86px;justify-content:center}
+#balPick button svg,#balPick .addT svg{width:44px;height:44px}#balPick em{font-style:normal;font-size:.62rem;color:var(--muted)}
+#balPick button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}#balPick button[aria-pressed="true"] em{color:inherit}
+#balPick .addT{border:1.5px dashed var(--accent);color:var(--accent);background:transparent}
+#balNova{display:grid;gap:8px;background:var(--chip);border-radius:12px;padding:10px}
+/* Durante o preparo: só os cards e os detalhes; etapas recolhidas */
+body.timing #steps,body.timing #tip,body.timing #tip~.tip,body.timing #bPrev,body.timing section[aria-label="Resultado"] .sh h2{display:none!important}
+/* Botões do cronômetro com desenho */
+.tmr .bt .btn.ic{width:52px;height:46px;padding:8px;display:inline-flex;align-items:center;justify-content:center}.tmr .bt .btn.ic svg{width:26px;height:26px}
+.tmr .bt{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 
 <div id="appBar"><b>Calculadora de Café</b><button type="button" id="appNome" class="nomeU" aria-label="Trocar o nome"></button></div>
@@ -456,6 +476,9 @@ body[data-pag="preparo"]{padding-bottom:calc(84px + env(safe-area-inset-bottom,0
 
 
   <section aria-label="Resultado" style="display:grid;gap:12px" data-pag="preparo" data-sub="pp">
+    <div id="balCard"><div class="tp"><span class="bi" id="balIc"></span><span style="flex:1;min-width:0"><span class="nm" id="balNm" style="display:block"></span><span class="stt" id="balSt" style="display:block"></span></span></div>
+      <div class="acts" id="balActs"><button class="lnk" type="button" id="balTrocar">Trocar</button></div>
+      <div id="balPick" hidden></div></div>
     <div class="read">
       <div class="cell"><span class="lbl" id="lCafe">Café</span><div class="big" id="oCafe"></div><div class="note" id="oCafeN"></div></div>
       <div class="cell"><span class="lbl" id="lAgua">Água</span><div class="big" id="oAgua"></div><div class="note" id="oAguaN"></div></div>
@@ -522,7 +545,7 @@ body[data-pag="preparo"]{padding-bottom:calc(84px + env(safe-area-inset-bottom,0
     <div class="now" id="tNow"></div>
     <div class="nxt" id="tNxt"></div>
     <div class="nxt" id="tPote" style="opacity:.85;font-size:.82rem"></div>
-    <div class="bt"><button class="btn" id="tSom" type="button">Com bipe</button><button class="btn" id="tPause" type="button">Pausar</button><button class="btn" id="tStop" type="button">Encerrar</button></div>
+    <div class="bt"><button class="btn" id="tVolta" type="button">Voltar</button><button class="btn" id="tSom" type="button">Com bipe</button><button class="btn" id="tPause" type="button">Pausar</button><button class="btn" id="tStop" type="button">Encerrar</button></div>
   </div>
 </div>
 
@@ -1629,6 +1652,44 @@ $("preNx").onclick=()=>{if(preI<preL.length-1){preI++;preTela()}else{$("preOv").
 $("preCn").onclick=()=>{$("preOv").hidden=true;preI=-1};
 // Se a balança iniciar o cronômetro sozinha, fecha as etapas de antes
 new MutationObserver(()=>{if(!$("tmr").hidden&&!$("preOv").hidden){$("preOv").hidden=true;preI=-1}}).observe($("tmr"),{attributes:true,attributeFilter:["hidden"]});
+
+// ===== Balanças com desenho =====
+const BI={"dot": "<ellipse cx=\"32\" cy=\"27\" rx=\"24\" ry=\"9\"/><path d=\"M8 27v8c0 5 11 9 24 9s24-4 24-9v-8\"/><ellipse cx=\"32\" cy=\"26\" rx=\"16\" ry=\"5\" stroke-width=\"1.5\"/><rect x=\"27\" y=\"37\" width=\"10\" height=\"4\" rx=\"1\" stroke-width=\"1.6\"/>", "quad": "<path d=\"M14 22h36l6 8H8z\"/><path d=\"M8 30h48v12H8z\"/><rect x=\"26\" y=\"33\" width=\"12\" height=\"6\" rx=\"1\" stroke-width=\"1.6\"/><path d=\"M18 26h28\" stroke-width=\"1.3\"/>", "mchef": "<path d=\"M12 20h40l4 10H8z\"/><path d=\"M8 30h48v14a3 3 0 0 1-3 3H11a3 3 0 0 1-3-3z\"/><rect x=\"18\" y=\"34\" width=\"16\" height=\"7\" rx=\"1.5\" stroke-width=\"1.6\"/><circle cx=\"42\" cy=\"37.5\" r=\"2\"/><circle cx=\"49\" cy=\"37.5\" r=\"2\"/>", "acaia": "<rect x=\"8\" y=\"24\" width=\"48\" height=\"22\" rx=\"4\"/><rect x=\"24\" y=\"30\" width=\"16\" height=\"7\" rx=\"1.5\"/><circle cx=\"16\" cy=\"40\" r=\"1.5\"/><circle cx=\"48\" cy=\"40\" r=\"1.5\"/>", "felicita": "<rect x=\"9\" y=\"22\" width=\"46\" height=\"26\" rx=\"10\"/><rect x=\"23\" y=\"30\" width=\"18\" height=\"8\" rx=\"4\"/>", "decent": "<path d=\"M10 28h44v16a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z\"/><path d=\"M10 28l4-6h36l4 6\"/><rect x=\"25\" y=\"34\" width=\"14\" height=\"7\" rx=\"1.5\"/>", "bookoo": "<rect x=\"12\" y=\"20\" width=\"40\" height=\"30\" rx=\"5\"/><rect x=\"22\" y=\"40\" width=\"20\" height=\"6\" rx=\"1.5\"/><circle cx=\"32\" cy=\"30\" r=\"6\"/>", "varia": "<rect x=\"10\" y=\"26\" width=\"44\" height=\"20\" rx=\"3\"/><rect x=\"20\" y=\"31\" width=\"24\" height=\"7\" rx=\"1.5\"/><path d=\"M14 46v4M50 46v4\"/>", "eureka": "<circle cx=\"32\" cy=\"34\" r=\"18\"/><circle cx=\"32\" cy=\"32\" r=\"10\" stroke-width=\"1.6\"/><rect x=\"25\" y=\"44\" width=\"14\" height=\"5\" rx=\"1.5\"/>"},TI={"som": "<path d=\"M10 24h10l12-10v36L20 40H10z\"/><path d=\"M40 24a10 10 0 0 1 0 16M46 18a18 18 0 0 1 0 28\"/>", "mudo": "<path d=\"M10 24h10l12-10v36L20 40H10z\"/><path d=\"M42 24l14 16M56 24L42 40\"/>", "pausa": "<path d=\"M22 14v36M42 14v36\" stroke-width=\"6\"/>", "play": "<path d=\"M20 12l30 20-30 20z\" fill=\"currentColor\"/>", "stop": "<rect x=\"16\" y=\"16\" width=\"32\" height=\"32\" rx=\"4\" fill=\"currentColor\"/>", "volta": "<path d=\"M26 18L12 32l14 14\"/><path d=\"M12 32h28a12 12 0 0 1 0 24h-6\"/>"};
+const wfI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9a11 11 0 0 1 16 0M7.5 12.5a6 6 0 0 1 9 0"/><circle cx="12" cy="16.5" r="1.6" fill="currentColor"/></svg>';
+const BAL0=[{id:"dot",n:"Timemore Dot",bt:true,ic:"dot"},{id:"icoffee",n:"iCoffee",bt:false,ic:"quad"},{id:"mchef",n:"MasterChef",bt:false,ic:"mchef"}];
+const MARCAS=[["dot","Timemore"],["acaia","Acaia"],["felicita","Felicita"],["decent","Decent"],["bookoo","Bookoo"],["varia","Varia AKU"],["eureka","Eureka Precisa"]];
+var BALU=[];try{const x=JSON.parse(localStorage.getItem("calcBalU")||"[]");if(Array.isArray(x))BALU=x}catch(e){}
+const balLista=()=>[...BAL0,...BALU];const balSel=()=>balLista().find(b=>b.id===st.bal)||BAL0[0];let balAberto=false,balNovaOn=false;
+const saveBalU=()=>{try{localStorage.setItem("calcBalU",JSON.stringify(BALU))}catch(e){}};
+// Conectar, Tara e o peso passam para dentro do card
+{const a=$("balActs");a.prepend($("bDiag"));a.prepend($("bTara"));a.prepend($("bConn"));a.prepend($("bOn"))}
+function balCardTela(){const b=balSel();$("balCard").classList.toggle("on",!!BAL.on);$("balIc").innerHTML=svgI(BI[b.ic]||BI.quad)+`<span class="wf">${wfI}</span>`;$("balNm").textContent=b.n;
+  $("balSt").textContent=BAL.on?"Conectada pelo Bluetooth":b.bt?(temBLE()?"Desconectada · toque em Conectar":"Para conectar, abra no Bluefy ou no app"):"Sem Bluetooth · pese de olho na balança";
+  if(!b.bt){$("bConn").hidden=true}
+  $("balPick").hidden=!balAberto;$("balTrocar").textContent=balAberto?"Fechar":"Trocar";if(balAberto)balPickTela()}
+function balPickTela(){const L=balLista(),bt=b=>`<button type="button" data-bl="${b.id}" aria-pressed="${b.id===balSel().id}">${svgI(BI[b.ic]||BI.quad)}<span>${esc(b.n)}</span><em>${b.bt?"Bluetooth":"sem Bluetooth"}</em></button>`;
+  $("balPick").innerHTML=`<span class="lbl">Minhas balanças</span><div class="grid3">${L.map(bt).join("")}<div class="addT" role="button" tabindex="0" id="balAdd">${svgI('<path d="M32 18v28M18 32h28"/>')}<span>Adicionar balança</span></div></div>`+
+   (balNovaOn?`<div id="balNova" style="margin-top:8px"><label class="lbl" for="balNN">Nome</label><input class="txt" id="balNN" maxlength="30" placeholder="ex.: Hario V60 Drip Scale"><label class="unk"><input type="checkbox" id="balNB"> Tem Bluetooth (uma das marcas abaixo)</label><span class="lbl">Formato</span><div class="pick" id="balNF">${[["quad","Quadrada"],["dot","Redonda"],["mchef","Cozinha"]].map(([k,n],i)=>`<button type="button" data-bf="${k}" aria-pressed="${i===0}">${svgI(BI[k])}<span>${n}</span></button>`).join("")}</div><div style="display:flex;gap:8px"><button class="btn" type="button" id="balNC" style="flex:1">Cancelar</button><button class="btn pri" type="button" id="balNOk" style="flex:2">Salvar balança</button></div></div>`:"")+
+   `<span class="lbl" style="margin-top:10px">Marcas que o app conecta</span><div class="grid3">${MARCAS.map(([k,n])=>`<button type="button" data-bm="${k}">${svgI(BI[k])}<span>${n}</span><em>Bluetooth</em></button>`).join("")}</div>`+
+   (BALU.length?`<span class="lbl" style="margin-top:10px">Excluir balança adicionada</span>${BALU.map(u=>`<div class="uDel"><span>${esc(u.n)}</span><button class="lnk" type="button" data-bdel="${u.id}">Excluir</button></div>`).join("")}`:"")}
+$("balTrocar").onclick=()=>{balAberto=!balAberto;balNovaOn=false;balCardTela()};
+$("balPick").addEventListener("click",e=>{const t=e.target;let b;
+  if(b=t.closest("[data-bl]")){st.bal=b.dataset.bl;balAberto=false;try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(_){}balCardTela();return}
+  if(t.closest("#balAdd")){balNovaOn=true;balPickTela();setTimeout(()=>{try{$("balNN").focus()}catch(_){}},50);return}
+  if(b=t.closest("[data-bf]")){$("balNF").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));return}
+  if(t.closest("#balNC")){balNovaOn=false;balPickTela();return}
+  if(t.closest("#balNOk")){const n=$("balNN").value.trim();if(!n){toast("Dê um nome à balança");return}const fb=$("balNF").querySelector('[aria-pressed="true"]');const id="b"+Date.now().toString(36);
+    BALU.push({id,n,bt:$("balNB").checked,ic:fb?fb.dataset.bf:"quad"});saveBalU();st.bal=id;balNovaOn=false;balAberto=false;balCardTela();toast("Balança adicionada");return}
+  if(b=t.closest("[data-bm]")){const k=b.dataset.bm,nm=(MARCAS.find(x=>x[0]===k)||[])[1];let u=balLista().find(x=>x.ic===k&&x.bt);if(!u){u={id:"b"+Date.now().toString(36),n:nm,bt:true,ic:k};BALU.push(u);saveBalU()}st.bal=u.id;balAberto=false;balCardTela();return}
+  if(b=t.closest("[data-bdel]")){if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="Toque de novo para excluir";return}BALU=BALU.filter(x=>x.id!==b.dataset.bdel);saveBalU();if(!balLista().some(x=>x.id===st.bal))st.bal="dot";balPickTela();balCardTela()}});
+{const bt0=balTela;balTela=function(){bt0();try{balCardTela()}catch(e){}}}
+// ===== Cronômetro: botões com desenho e Voltar para o preparo =====
+function icBtn(id,ic,txt){const b=$(id);if(!b)return;b.classList.add("ic");b.setAttribute("aria-label",txt);b.title=txt;b.innerHTML=svgI(TI[ic])+`<span class="vh">${txt}</span>`}
+function tmrIcones(){icBtn("tVolta","volta","Voltar para o preparo");icBtn("tSom",st.bipe===false?"mudo":"som",st.bipe===false?"Sem bipe":"Com bipe");icBtn("tPause",T.pausa?"play":"pausa",T.pausa?"Continuar":"Pausar");icBtn("tStop","stop","Encerrar")}
+for(const id of ["tSom","tPause"])new MutationObserver(()=>{const b=$(id);if(!b.querySelector("svg"))tmrIcones()}).observe($(id),{childList:true,characterData:true,subtree:true});
+tmrIcones();
+$("tVolta").onclick=()=>{if(!T.run)return;encerrar();try{BAL.fim=0}catch(e){}preL=[];for(const x of CUR){if(seg(x[0])!=null)break;preL.push(x)}
+  if(preL.length){preI=preL.length-1;preTela()}toast("Voltamos para o preparo. O café do pote não é descontado de novo")};
 renderMetBtns();renderMoeBtns();
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
