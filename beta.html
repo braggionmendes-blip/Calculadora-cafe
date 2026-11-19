@@ -176,7 +176,7 @@ html{scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 body:has(#tmr:not([hidden])) #tabs,body:has(.ola:not([hidden])) #tabs{display:none}
 body[data-pag] [data-pag]{display:none!important}
 body[data-pag="cafe"] [data-pag="cafe"],body[data-pag="preparo"] [data-pag="preparo"],body[data-pag="receitas"] [data-pag="receitas"],body[data-pag="avaliar"] [data-pag="avaliar"]{display:grid!important}
-body[data-pag="cafe"] header[data-pag="cafe"]{display:block!important}
+body[data-pag="cafe"] header[data-pag="cafe"],body[data-pag="preparo"] #prepTop{display:block!important}
 #tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:6px 4px calc(8px + env(safe-area-inset-bottom,0px))}
 #tabs button{flex:1;background:none;border:0;color:var(--muted);font:500 .72rem var(--display);display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;cursor:pointer}
 #tabs button svg{width:26px;height:26px}#tabs button[aria-current="page"]{color:var(--accent)}
@@ -210,6 +210,21 @@ body[data-pag="cafe"] header[data-pag="cafe"]{display:block!important}
 .pick button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px;border-radius:14px;border:1px solid var(--line);background:var(--chip);color:var(--fg);font:500 .72rem/1.15 var(--display);cursor:pointer;text-align:center}
 .pick button svg{width:40px;height:40px}.pick button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 label.unk.tg{display:flex;align-items:center;gap:10px}label.unk.tg svg{width:40px;height:40px;flex:none;color:var(--accent)}
+
+/* Preparo em duas partes, com resumo preso no topo e botão preso embaixo */
+#prepTop{position:sticky;top:0;z-index:30;background:var(--bg);margin:0 -2px;padding:calc(6px + env(safe-area-inset-top,0px)) 2px 8px;border-bottom:1px solid var(--line)}
+#prepTop .sum{display:flex;align-items:center;gap:10px}#prepTop .mi{width:44px;height:44px;flex:none;border-radius:12px;background:var(--chip);color:var(--accent);display:flex;align-items:center;justify-content:center}#prepTop .mi svg{width:32px;height:32px}
+#prepTop b{display:block;font-size:.95rem;line-height:1.2}#prepTop small{display:block;color:var(--muted);font-size:.76rem;line-height:1.3}
+#subSeg{display:flex;background:var(--chip);border:1px solid var(--line);border-radius:12px;padding:3px;margin-top:8px}
+#subSeg button{flex:1;border:0;background:none;padding:8px 0;border-radius:9px;font:600 .86rem var(--display);color:var(--muted);cursor:pointer}#subSeg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+#prepTop .aviso{margin:8px 0 0}
+body[data-sub="aj"] [data-sub="pp"],body[data-sub="pp"] [data-sub="aj"]{display:none!important}
+#fixBtn{position:fixed;left:16px;right:16px;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:39;max-width:588px;margin:0 auto;padding:14px;font-size:1.02rem;box-shadow:0 -6px 22px rgba(0,0,0,.35)}
+body:not([data-pag="preparo"]) #fixBtn{display:none}
+body[data-pag="preparo"]{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+html{scroll-padding-top:150px}
+body:has(#tmr:not([hidden])) #fixBtn,body:has(.ola:not([hidden])) #fixBtn{display:none}
+#ajPronto,#ajResumo,#tStart{display:none!important}
 </style>
 
 </head>
@@ -305,7 +320,9 @@ label.unk.tg{display:flex;align-items:center;gap:10px}label.unk.tg svg{width:40p
       <p class="cres" id="pDica" style="margin-top:8px;font-size:.82rem">Pote vazio recebe a sugestão do café mais antigo pela data de torra, desde que já tenha 7 dias de descanso. Toque em Acabou quando o café terminar: ele sai das sugestões.</p>
     </div>
   </section>
-  <section class="panel" aria-label="Escolhas" data-pag="preparo">
+  <div id="prepTop" data-pag="preparo"><div class="sum"><span class="mi" id="ptIc"></span><span style="min-width:0"><b id="ptT"></b><small id="ptS"></small></span></div>
+    <div id="subSeg" role="group" aria-label="Parte do preparo"><button type="button" data-sub-ir="aj">1. Ajustes</button><button type="button" data-sub-ir="pp">2. Passo a passo</button></div></div>
+  <section class="panel" aria-label="Escolhas" data-pag="preparo" data-sub="aj">
     <div>
       <span class="lbl" id="lMet">Método</span>
       <div class="chipRow" id="metChip" hidden><button class="btn" type="button" aria-pressed="true" id="metChipBtn"></button><button class="lnk" type="button" id="metTrocar">Trocar</button></div>
@@ -405,7 +422,7 @@ label.unk.tg{display:flex;align-items:center;gap:10px}label.unk.tg svg{width:40p
   </section>
 
 
-  <section aria-label="Resultado" style="display:grid;gap:12px" data-pag="preparo">
+  <section aria-label="Resultado" style="display:grid;gap:12px" data-pag="preparo" data-sub="pp">
     <div class="read">
       <div class="cell"><span class="lbl" id="lCafe">Café</span><div class="big" id="oCafe"></div><div class="note" id="oCafeN"></div></div>
       <div class="cell"><span class="lbl" id="lAgua">Água</span><div class="big" id="oAgua"></div><div class="note" id="oAguaN"></div></div>
@@ -457,6 +474,7 @@ label.unk.tg{display:flex;align-items:center;gap:10px}label.unk.tg svg{width:40p
   <p class="cres" id="uDica" style="margin:0;font-size:.8rem"></p>
   <div style="display:flex;gap:8px"><button class="btn" id="uCanc" type="button" style="flex:1;padding:12px">Cancelar</button><button class="btn pri" id="uOk" type="button" style="flex:2;padding:12px">Salvar</button></div>
   <div id="uLista"></div></div></div>
+<button class="btn pri" id="fixBtn" type="button"></button>
 <nav id="tabs" aria-label="Páginas">
   <button type="button" data-ir="cafe"><svg class="ico" viewBox="0 0 64 64"><path d="M12 24h34v14a14 14 0 0 1-14 14h-6a14 14 0 0 1-14-14z"/><path d="M46 28h4a6 6 0 0 1 0 12h-5"/><path d="M24 8c-3 4 3 6 0 10M34 8c-3 4 3 6 0 10"/></svg>Café</button>
   <button type="button" data-ir="preparo"><svg class="ico" viewBox="0 0 64 64"><path d="M12 16h40L36 42h-8z"/><path d="M20 18l10 22M44 18L34 40M32 17v23"/><path d="M8 16h48"/><path d="M50 22c5 0 6 3 6 6s-2 5-5 5"/><path d="M26 42h12v4H26z"/><path d="M18 52h28"/></svg>Preparo</button>
@@ -1525,7 +1543,27 @@ montaPick("pSel",[["inox","Peneira inox (copo)",PI.inox],["300","Kit 300 µm",PI
 montaPick("aSel",[["","Nenhum",AI[""]],["star","Starflower (+ CFS)",AI.star],["lotos","LOTOS",AI.lotos]]);
 {const L=$("pOn").parentElement;L.classList.add("tg");L.insertAdjacentHTML("afterbegin",svgI(PI["400"]));const S=$("sdOn").parentElement;S.classList.add("tg");S.insertAdjacentHTML("afterbegin",svgI(SDI))}
 {const r0=render;render=function(){r0();try{syncPick("pSel");syncPick("aSel")}catch(e){}}}
+
+// ===== Preparo em duas partes =====
+function irSub(sub,sem){document.body.dataset.sub=sub==="pp"?"pp":"aj";document.querySelectorAll("#subSeg [data-sub-ir]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.subIr===document.body.dataset.sub));
+  try{sessionStorage.setItem("calcSub",document.body.dataset.sub)}catch(e){}prepFix();if(!sem)scrollTo(0,0)}
+$("subSeg").addEventListener("click",e=>{const b=e.target.closest("[data-sub-ir]");if(b)irSub(b.dataset.subIr)});
+$("prepTop").appendChild($("novoAviso"));
+function prepTopo(){const m=cur(),k=calc(m),u=MOEU.find(x=>x.id===st.moe);$("ptIc").innerHTML=svgI(icMet(m));
+  const caf=ISD(st.csel)?"Café desconhecido":(st.cafe&&st.cafe.nome)||"Sem café";
+  $("ptT").textContent=`${m.n}${m.grp||M.filter(x=>G(x)===G(m)).length>1?" · "+vn(m):""} · ${caf}${usoPote>=0?" · Pote "+(usoPote+1):""}`;
+  const mg=$("moag")&&$("moag").value;$("ptS").textContent=(m.cap?"Cápsula":`${f(k.c,1)} g`)+` : ${f(k.a)} g · ${GN[st.moe]||st.moe}${mg&&!m.cap?" "+mg:""}${m.temp?" · "+m.temp:""}`}
+function prepFix(){const b=$("fixBtn"),t=$("tStart");if(document.body.dataset.sub==="pp"){b.textContent=t.textContent;b.disabled=t.disabled;b.hidden=t.hidden}else{b.textContent="Pronto: ir para o passo a passo";b.disabled=false;b.hidden=false}}
+$("fixBtn").onclick=()=>{if(document.body.dataset.sub==="pp")$("tStart").click();else irSub("pp")};
+{const r1=render;render=function(){r1();try{prepTopo();prepFix()}catch(e){}}}
+new MutationObserver(prepFix).observe($("tStart"),{attributes:true,childList:true,characterData:true,subtree:true});
+// Quem rola até um ponto da outra parte do Preparo troca a parte antes
+{const siv=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(...a){try{const sb=this.closest&&this.closest("[data-sub]");if(sb&&document.body.dataset.sub!==sb.dataset.sub)irSub(sb.dataset.sub,true)}catch(e){}return siv.apply(this,a)}}
+// No "novo café", a ida ao Preparo começa pelos ajustes; quando não falta nada, vai ao passo a passo
+{const ip=irPag;irPag=function(pg,sem){const de=document.body.dataset.pag;ip(pg,sem);if(pg==="preparo"&&de!=="preparo"&&novoFalta().length)irSub("aj",true)}}
+{let falt=0;const r2=render;render=function(){r2();try{const n=novoFalta().length;if(falt>0&&n===0&&document.body.dataset.pag==="preparo"&&document.body.dataset.sub==="aj"){irSub("pp");toast("Tudo escolhido: siga o passo a passo")}falt=n}catch(e){}}}
 renderMetBtns();renderMoeBtns();
+{let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
 render();
 </script>
