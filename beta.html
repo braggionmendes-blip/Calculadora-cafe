@@ -1453,7 +1453,7 @@ $("potes").addEventListener("input",e=>{const el=e.target.closest("[data-pg]");i
   const o=$("poteSel").options[i+1];if(o)o.textContent=`Pote ${i+1} · ${potNome(POT.p[i])}${v!=null?" · "+f(v)+" g":""}`});
 $("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pg]");if(el){loadPot();logPot("peso informado: "+(POT.g[+el.dataset.pg]??"vazio")+" g",+el.dataset.pg);savePot();setTimeout(renderPotes,0)}});
 $("potes").addEventListener("click",e=>{const pi=e.target.closest("[data-pind]");if(pi){const[i,j]=pi.dataset.pind.split(":").map(Number);const v=POT.p[i],k=CAF.find(c=>c.id===v);if(!k)return;const r=rankMetodos(k)[j];if(!r)return;
-    marca("caf");marca("met");st.csel=v;cEdit=false;cDelArm=false;st.cafe={...k};st.met=r.g;const mv=M.filter(x=>G(x)===r.g).length>1;recPend=mv;abrirMet=mv;abrirRec=false;render();toast(mv?"Agora escolha o tipo de preparo":"Café do pote e método selecionados");return}
+    marca("caf");marca("met");st.csel=v;cEdit=false;cDelArm=false;st.cafe={...k};{const l=(st.gsel||{})[r.g];st.met=r.id&&M.some(x=>x.id===r.id)?r.id:l&&M.some(x=>x.id===l&&G(x)===r.g)?l:r.g;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:st.met}}recPend=false;abrirMet=false;abrirRec=false;render();toast("Café do pote e método selecionados");return}
   const u=e.target.closest("[data-pusar]"),fm=e.target.closest("[data-pfim]"),po=e.target.closest("[data-ppor]");
   if(po||fm)loadPot();
   if(po){logPot("recebeu "+potNome(po.dataset.id),+po.dataset.ppor);POT.g[+po.dataset.ppor]=null;POT.u[+po.dataset.ppor]=null;POT.p[+po.dataset.ppor]=po.dataset.id;savePot();potArm=-1;render();return}
