@@ -327,6 +327,9 @@ body.timing section[aria-label="Resultado"]>*:not(.read){display:none!important}
       </div>
     </div>
     <div class="cf" id="cFields">
+      <div id="camBox"><span class="lbl">Ler a embalagem com a câmera</span>
+        <div class="pick" id="camPick" style="grid-template-columns:1fr 1fr"><button type="button" data-cam="frente"><svg class="ico" viewBox="0 0 64 64"><path d="M8 22h12l4-6h16l4 6h12v28H8z"/><circle cx="32" cy="35" r="9"/></svg><span>Foto da frente</span></button><button type="button" data-cam="verso"><svg class="ico" viewBox="0 0 64 64"><path d="M8 22h12l4-6h16l4 6h12v28H8z"/><circle cx="32" cy="35" r="9"/><path d="M44 44l6 6" /></svg><span>Foto do verso</span></button></div>
+        <input type="file" id="camIn" accept="image/*" hidden><p class="cres" id="camMsg" style="margin:6px 0 0;font-size:.84rem">Tire uma foto da frente e outra do verso: o app preenche os campos abaixo. Confira antes de cadastrar.</p></div>
       <div class="cf2">
         <div><label class="lbl" for="cNome">Nome</label><input class="txt" id="cNome" type="text" maxlength="60" placeholder="Ex.: Aurora"></div>
         <div><label class="lbl" for="cOrig">Origem</label><input class="txt" id="cOrig" type="text" maxlength="60" placeholder="Ex.: Sul de Minas"></div>
@@ -1699,6 +1702,98 @@ $("tVolta").onclick=()=>{if(!T.run)return;encerrar();try{BAL.fim=0}catch(e){}pre
 
 $("preVolta").innerHTML=svgI(TI.volta);$("preCn").innerHTML=svgI('<path d="M18 18l28 28M46 18L18 46"/>');
 $("preVolta").onclick=()=>{if(preI>0){preI--;preTela()}else{$("preOv").hidden=true;preI=-1}};
+
+// ===== Cadastro pela câmera: lê o texto das fotos (Tesseract, no próprio aparelho) e preenche os campos =====
+// Lê o texto de uma foto de embalagem (linhas do OCR com posição) e devolve os dados do café.
+// lines: [{text, bbox:{x0,y0,x1,y1}, words:[{text,bbox}]}]
+function lerRotulo(lines){
+  const norm=t=>String(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+  const limpa=t=>String(t||"").replace(/[|_~«»“”"]+/g," ").replace(/\s+/g," ").replace(/^[\s:;.,\-–]+|[\s:;.,\-–]+$/g,"").trim();
+  // 1) cada linha vira segmentos (colunas), separados por espaços grandes entre palavras
+  const L=[];
+  for(const ln of lines){const ws=(ln.words||[]).filter(w=>w.text&&w.text.trim());if(!ws.length)continue;
+    const h=Math.max(1,(ln.bbox.y1-ln.bbox.y0));const segs=[];let cur=null;
+    for(const w of ws){if(cur&&w.bbox.x0-cur.x1>h*1.6){segs.push(cur);cur=null}
+      if(!cur)cur={x0:w.bbox.x0,x1:w.bbox.x1,text:w.text};else{cur.x1=w.bbox.x1;cur.text+=" "+w.text}}
+    if(cur)segs.push(cur);L.push({y:ln.bbox.y0,h,segs,text:segs.map(s=>s.text).join("  ")})}
+  L.sort((a,b)=>a.y-b.y);
+  const full=L.map(l=>l.text).join("\n"),nf=norm(full);
+  // 2) chaves "rótulo: valor", com o valor na mesma linha ou na linha de baixo, na mesma coluna
+  const KEYS=[["processo",/^(processo|processamento|preparo)\b/],["produtor",/^(produtor(es|a)?|cafeicultor)\b/],["sitio",/^(sitio|fazenda|sitio e fazenda|propriedade)\b/],
+    ["variedade",/^(variedade|cultivar|varietal|variedades)\b/],["origem",/^(origem|regiao|regioes|local|location\/local|cidade)\b/],["altitude",/^altitude\b/],
+    ["torra",/^(torra|ponto de torra|roast)\b/],["acidez",/^acidez\b/],["corpo",/^corpo\b/],["docura",/^docura\b/],["aroma",/^(fragrancia|aroma)\b/],
+    ["sabor",/^(sabor|notas|notas sensoriais|perfil)\b/],["final",/^(finalizacao|retrogosto|final)\b/],["especie",/^especie\b/],["colheita",/^(colheita|safra)\b/]];
+  const kv={};
+  const ov=(a,b)=>Math.max(0,Math.min(a.x1,b.x1)-Math.max(a.x0,b.x0));
+  for(let i=0;i<L.length;i++)for(const sg of L[i].segs){const t=norm(sg.text).replace(/^[^a-z]+/,"");
+    for(const [k,re] of KEYS){const m=t.match(re);if(!m)continue;
+      let v=limpa(sg.text.slice(sg.text.length-(t.length-m[0].length)).replace(/^\s*[:\-]/,""));
+      if(!v&&L[i+1]){let best=null,bo=0;for(const s2 of L[i+1].segs){const o=ov(sg,s2);if(o>bo){bo=o;best=s2}}if(!best&&L[i+1].segs.length===1)best=L[i+1].segs[0];if(best)v=limpa(best.text)}
+      if(v&&!kv[k])kv[k]=v;break}}
+  const r={};
+  // 3) pontuação
+  {let m=full.match(/(\d{2}(?:[.,]\d{1,2})?)\s*(?:pontos|pts|points)\b/i);if(m&&+m[1].replace(",",".")>=78&&+m[1].replace(",",".")<=100)r.pontos=+m[1].replace(",",".");
+   if(r.pontos==null)for(const l of L){const mm=l.text.match(/\b(8\d(?:[.,][05]{1,2})?|9\d(?:[.,][05])?)\b\s*$/);if(mm&&/[a-z]{3}/i.test(l.text)){r.pontos=+mm[1].replace(",",".");break}}}
+  // 4) processo
+  const PROC=[["anaerob","Fermentado anaeróbico"],["fermentado","Fermentado"],["cereja descascad","Cereja descascado"],["semi-lavado","Semi-lavado"],["semi lavado","Semi-lavado"],["lavado","Lavado"],["despolpado","Despolpado"],["honey","Honey"],["natural","Natural"]];
+  {const src=norm(kv.processo||"");let p=PROC.find(([k])=>src.includes(k));if(!p)p=PROC.find(([k])=>nf.includes(k));if(p){r.processo=p[1];if(p[1]==="Natural"&&/fermentad/.test(src))r.processo="Natural fermentado"}}
+  // 5) variedade
+  const VAR=["Catuaí Amarelo","Catuaí Vermelho","Bourbon Amarelo","Bourbon Vermelho","Bourbon Laranja","Bourbon Rosa","Mundo Novo","Arara","Paraíso","Topázio","Obatã","Catucaí","Acaiá","Icatu","Catiguá","Siriema","Tupi","Geisha (Gesha)","Typica","Caturra","Pacamara","Sidra","Bourbon","Conilon","Robusta"];
+  {const src=kv.variedade||"";const n=norm(src);const hits=VAR.filter(v=>n.includes(norm(v.replace(" (Gesha)",""))));
+   if(/&| e /.test(src)&&hits.length>1)r.tipo="Blend (várias variedades)";else if(hits.length)r.tipo=hits[0];else if(src)r.tipo=limpa(src);
+   if(!r.tipo){const h2=VAR.filter(v=>nf.includes(norm(v.replace(" (Gesha)",""))));if(/\bblend\b/.test(nf)&&h2.length>1)r.tipo="Blend (várias variedades)";else if(h2.length)r.tipo=h2[0]}
+   if(!r.tipo&&/\bblend\b/.test(nf))r.tipo="Blend (várias variedades)"}
+  // 6) altitude
+  {const s=kv.altitude||full;const m=s.match(/(\d[\d.,]{2,5})\s*(?:m\b|metros|msnm)/i)||(kv.altitude||"").match(/(\d[\d.,]{2,5})/);
+   if(m){const n=+m[1].replace(/[.,](?=\d{3}\b)/g,"").replace(",",".");if(n>=300&&n<=3000)r.altitude=n.toLocaleString("pt-BR")+" m"}}
+  // 7) produtor e propriedade
+  {let p=kv.produtor||"";if(/sobre os produtores/i.test(p))p="";if(kv.sitio&&!/^(e|and)$/i.test(kv.sitio))p=p?p+" · "+kv.sitio:kv.sitio;if(p)r.produtor=p.slice(0,80)}
+  // 8) origem
+  {let o=kv.origem||"";if(o)r.origem=limpa(o).replace(/municipality of/i,"").slice(0,60)}
+  // 9) nível de torra
+  {const s=norm((kv.torra||"")+" "+full);let t=null;
+   if(/torra\s*(media[- ]?clara)|media[- ]clara/.test(s))t="Média-clara";else if(/media[- ]escura/.test(s))t="Média-escura";
+   else if(/torra\s*:?\s*clara|clara\b/.test(norm(kv.torra||""))||/torra\s*clara/.test(s))t="Clara";else if(/torra\s*:?\s*media|^media/.test(norm(kv.torra||""))||/torra\s*media/.test(s))t="Média";
+   else if(/torra\s*:?\s*escura/.test(s))t="Escura";if(t)r.torra=t}
+  // 10) data da torra (fabricação)
+  {const ds=[...full.matchAll(/(\d{1,2})\s*[\/.\-]\s*(\d{1,2})\s*[\/.\-]\s*(\d{2,4})/g)].map(m=>{let a=+m[3];if(a<100)a+=2000;return{d:+m[1],m:+m[2],a,i:m.index}}).filter(x=>x.d>=1&&x.d<=31&&x.m>=1&&x.m<=12&&x.a>=2020&&x.a<=2035);
+   const pre=x=>norm(full.slice(Math.max(0,x.i-25),x.i));let x=ds.find(x=>/(fab|torra|torrado|roast)/.test(pre(x)))||ds.find(x=>!/(val|venc)/.test(pre(x)));
+   if(x){const p2=n=>String(n).padStart(2,"0");r.data=`${x.a}-${p2(x.m)}-${p2(x.d)}`}}
+  // 11) características (0 a 10) a partir das palavras do rótulo
+  {const ac=norm(kv.acidez||"");if(ac)r.acidez=/media[- ]alta|alta|brilhante|vibrante|citrica|intensa/.test(ac)?8:/baixa|suave|delicada|leve/.test(ac)?5:/media|moderada|agradavel|equilibrada/.test(ac)?7:null;
+   const co=norm(kv.corpo||"");if(co){const f=(co.match(/denso|cremos|intens|encorpad|aveludad|licoros/g)||[]).length;r.corpo=f>=2?9:f===1?8:/medio|sedoso|redondo/.test(co)?7:/leve|delicado|baixo/.test(co)?5:null}
+   const doceTxt=norm((kv.docura||"")+" "+(kv.sabor||"")+" "+(kv.aroma||""));const dz=(doceTxt.match(/doce|mel\b|melado|melaco|caramel|rapadura|acucar|mascavo|chocolate|licor/g)||[]).length;
+   if(kv.docura){const d=norm(kv.docura);r.docura=/alta|intensa|muito/.test(d)?9:/media/.test(d)?7:/baixa/.test(d)?5:8}else if(dz)r.docura=dz>=3?9:8;
+   const ar=norm((kv.aroma||"")+" "+(kv.sabor||""));const az=(ar.match(/floral|frut|intens|citric|mel\b|chocolate|caramel|especiar|guarana|pessego|jabuticaba|laranja/g)||[]).length;if(az)r.aroma=az>=3?9:8;
+   for(const k of ["acidez","corpo","docura","aroma"])if(r[k]==null)delete r[k]}
+  // 12) nome: as linhas de letra maior que não são informação técnica
+  {const NAO=/(arabica|torra|pontos|cafe especial|exportacao|\bgrao\b|\bpo\b|\bkg\b|\d+\s?g\b|pull tab|zipper|specialty|association|acucares|dispensa|processo|produtor|origem|variedade|cultivar|processamento|caracteristicas|colheita|finalizacao|altitude|especie|fragrancia|sabor|acidez|corpo|validade|fab|val|sugestao|location|beans|ground|cafe bao|mantiqueira|cristina|instagram|whatsapp|www|\.com|cnpj)/;
+   const cand=L.filter(l=>{const t=norm(l.text);const letras=(t.match(/[a-z]/g)||[]).length;return letras>=3&&t.length<=40&&!NAO.test(t)});
+   cand.sort((a,b)=>b.h-a.h);const top=cand.slice(0,3).filter(c=>c.h>=cand[0].h*0.5).sort((a,b)=>a.y-b.y);
+   const tit=t=>{t=limpa(t).replace(/\s+\d{2}(?:[.,]\d)?\s*$/,"");if(t===t.toLowerCase())t=t.replace(/^(\p{L})/u,c=>c.toUpperCase());return t===t.toUpperCase()?t.toLowerCase().replace(/(^|\s)(\p{L})/gu,(m,a,b)=>a+b.toUpperCase()).replace(/\b(E|De|Do|Da|Dos|Das)\b/g,w=>w.toLowerCase()).replace(/^(\p{L})/u,c=>c.toUpperCase()):t};
+   if(top.length)r.nome=top.map(c=>tit(c.text)).filter(Boolean).join(" ").slice(0,60)}
+  return r}
+
+
+let camLado="frente",camW=null,camFeitos={};
+function carregaTess(){return new Promise((ok,er)=>{if(window.Tesseract)return ok();const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";sc.onload=()=>ok();sc.onerror=()=>er(new Error("sem internet para baixar o leitor"));document.head.appendChild(sc)})}
+function fotoCanvas(file){return new Promise((ok,er)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,2200/Math.max(im.naturalWidth,im.naturalHeight));const c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(im.src);ok(c)};im.onerror=()=>er(new Error("não abri a foto"));im.src=URL.createObjectURL(file)})}
+$("camPick").addEventListener("click",e=>{const b=e.target.closest("[data-cam]");if(!b)return;camLado=b.dataset.cam;$("camIn").value="";$("camIn").click()});
+$("camIn").addEventListener("change",async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;const msg=t=>{$("camMsg").textContent=t};
+  try{msg(`Preparando o leitor (na primeira vez baixa uns 15 MB)…`);await carregaTess();
+    if(!camW)camW=await Tesseract.createWorker("por",1,{logger:m=>{if(m.status==="recognizing text")msg(`Lendo a foto ${camLado==="frente"?"da frente":"do verso"}… ${Math.round(m.progress*100)}%`)}});
+    const cv=await fotoCanvas(file);msg(`Lendo a foto ${camLado==="frente"?"da frente":"do verso"}…`);
+    const {data}=await camW.recognize(cv,{},{blocks:true,text:true});
+    const lines=(data.blocks||[]).flatMap(b=>b.paragraphs||[]).flatMap(p=>p.lines||[]);
+    const r=lerRotulo(lines);const k=st.cafe,feitos=[];
+    const NOMES={nome:"nome",origem:"origem",tipo:"tipo",processo:"processo",pontos:"pontuação",produtor:"produtor",altitude:"altitude",data:"data da torra",torra:"torra",corpo:"corpo",docura:"doçura",acidez:"acidez",aroma:"aroma"};
+    for(const f of Object.keys(NOMES)){if(r[f]==null||r[f]==="")continue;const vazio=k[f]==null||k[f]==="";const frenteManda=f==="nome"&&camLado==="frente"&&!camFeitos.nomeUsuario;
+      if(vazio||frenteManda){k[f]=r[f];feitos.push(NOMES[f])}}
+    camFeitos[camLado]=true;render();
+    msg(feitos.length?`Foto ${camLado==="frente"?"da frente":"do verso"}: preenchi ${feitos.join(", ")}. Confira e corrija o que precisar${camFeitos.frente&&camFeitos.verso?"":camLado==="frente"?". Agora tire a foto do verso":". Falta a foto da frente"}.`:`Não consegui ler dados nesta foto. Tente com mais luz, a embalagem reta e o texto ocupando a foto.`)}
+  catch(err){msg("Não consegui ler a foto: "+((err&&err.message)||err))}});
+$("cNome").addEventListener("input",()=>{camFeitos.nomeUsuario=true});
+$("cSel").addEventListener("change",()=>{camFeitos={};$("camMsg").textContent="Tire uma foto da frente e outra do verso: o app preenche os campos abaixo. Confira antes de cadastrar."});
 renderMetBtns();renderMoeBtns();
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
