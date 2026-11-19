@@ -176,7 +176,7 @@ html{scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 body:has(#tmr:not([hidden])) #tabs,body:has(.ola:not([hidden])) #tabs{display:none}
 body[data-pag] [data-pag]{display:none!important}
 body[data-pag="cafe"] [data-pag="cafe"],body[data-pag="preparo"] [data-pag="preparo"],body[data-pag="receitas"] [data-pag="receitas"],body[data-pag="avaliar"] [data-pag="avaliar"]{display:grid!important}
-body[data-pag="cafe"] header[data-pag="cafe"],body[data-pag="preparo"] #prepTop{display:block!important}
+body[data-pag="preparo"] #prepTop{display:block!important}
 #tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:6px 4px calc(8px + env(safe-area-inset-bottom,0px))}
 #tabs button{flex:1;background:none;border:0;color:var(--muted);font:500 .72rem var(--display);display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;cursor:pointer}
 #tabs button svg{width:26px;height:26px}#tabs button[aria-current="page"]{color:var(--accent)}
@@ -225,13 +225,16 @@ body[data-pag="preparo"]{padding-bottom:calc(150px + env(safe-area-inset-bottom,
 html{scroll-padding-top:150px}
 body:has(#tmr:not([hidden])) #fixBtn,body:has(.ola:not([hidden])) #fixBtn{display:none}
 #ajPronto,#ajResumo,#tStart{display:none!important}
+
+body:not([data-pag="cafe"]) header .sub,body:not([data-pag="cafe"]) header #novoCafe,body:not([data-pag="cafe"]) header #avPend{display:none!important}
+body:not([data-pag="cafe"]) header h1{font-size:1.25rem;margin:0}
 </style>
 
 </head>
 <body>
 <div class="wrap">
-  <header data-pag="cafe">
-    <h1>Calculadora de extração</h1>
+  <header>
+    <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
     <p class="sub" style="font-size:.78rem;margin-top:4px">Versão de teste 92 · 18/11/2026 · Páginas e desenhos de métodos, moedores, potes, receitas e avaliações</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
@@ -816,7 +819,8 @@ const accOf=m=>CONE.includes(m.id)&&ACC[st.acc]?st.acc:"";
 // Timemore SimpleDrip: chuveiro de 13 furos, 250 ml, apoiado sobre o coador
 st.sd=Object.assign({on:false,t200:null},st.sd||{});
 const SDM=["v60","b75","fluire","origami","melitta","pano","chemex"];
-const sdOn=m=>st.sd.on&&SDM.includes(m.id);
+const sdOk=m=>SDM.includes(m.id)||SDM.includes(G(m))||SDM.includes(m.like);
+const sdOn=m=>st.sd.on&&sdOk(m);
 function comSimpleDrip(steps){const t200=Number(st.sd.t200)||40,rate=200/t200;let prev=0,shift=0;const out=steps.map(x=>[x[0],x[1]]);
   const idx=out.map((x,i)=>seg(x[0])!=null?i:-1).filter(i=>i>=0);
   const mv=(lbl,d)=>lbl.replace(/(\d+):(\d\d)/g,(_,mm,ss)=>tm(+mm*60+ +ss+d));
@@ -995,7 +999,7 @@ function render(){
    $("aInfo").textContent=ac?ACC[ac].info+(ac==="star"?` Moagem ${pfmt(aj.accOff)} na sugestão. Se o escoamento terminar bem antes do previsto, afine mais um pouco.`:""):"";
    if(ac){const k0=steps.findIndex(x=>x[0]==="Preparo");const st0=["Preparo",ACC[ac].passo];if(k0>=0)steps.splice(k0,1,[steps[k0][0],ACC[ac].passo+". "+steps[k0][1]]);else steps=[st0,...steps]}}
   if(sdOn(m)){steps=comSimpleDrip(steps);const k0=steps.findIndex(x=>x[0]==="Preparo");const tx="Apoie o SimpleDrip centralizado sobre o coador";if(k0>=0)steps[k0]=[steps[k0][0],steps[k0][1]+". "+tx];else steps=[["Preparo",tx],...steps]}
-  $("sdBox").hidden=!SDM.includes(m.id);$("sdOn").checked=st.sd.on;$("sdOpts").hidden=!st.sd.on;
+  $("sdBox").hidden=!sdOk(m);$("sdOn").checked=st.sd.on;$("sdOpts").hidden=!st.sd.on;
   if(document.activeElement!==$("sdT"))$("sdT").value=st.sd.t200||"";
   $("sdInfo").textContent=sdOn(m)?`Despeje cada etapa no SimpleDrip, não direto no café. ${st.sd.t200?"Tempo medido":"Tempo estimado (meça para mais precisão)"}: 200 ml em ${Number(st.sd.t200)||40} s. Os horários e os bipes já consideram esse escoamento; etapas acima de 240 g são feitas em duas vezes (capacidade de 250 ml).${["v60","origami"].includes(m.id)?" No V60-02 e no Origami a base dele é pequena: confira se fica firme antes de despejar.":""}`:"";
   if(pn.on&&!pn.bloq)steps=[["Peneirar",`Moa ${f(pn.moer,1)} g, ponha na peneira (${pn.um} µm), tampe e agite de um lado para o outro por ${pn.seg} s. Descarte o pó que passou (≈ ${f(pn.fino,1)} g) e use os ${f(c,1)} g que ficaram`],...steps];
@@ -1034,7 +1038,7 @@ function render(){
     const mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`),ac=accOf(m),pr=[];
     pr.push(pv?`Moer ${f(pn.moer,1)} g · peneira ${pc(pn.perda)}%`:m.cap?"1 cápsula":`Café ${f(c,1)} g`);
     if(!m.cap){pr.push(`1:${rfmt(m,r)}`);pr.push(`${mb?mb.textContent:st.moe} ${pfmt(gv)}`)}
-    if(ac)pr.push(ACC[ac].n);if(SDM.includes(m.id))pr.push(sdOn(m)?"com SimpleDrip":"sem SimpleDrip");
+    if(ac)pr.push(ACC[ac].n);if(sdOk(m))pr.push(sdOn(m)?"com SimpleDrip":"sem SimpleDrip");
     $("ajTxt").textContent=pr.join(" · ")}}
   {const cp=!!m.cap;if(cp){$("oCafeN").textContent="";$("oAguaN").textContent=""}$("ratio").parentElement.hidden=cp||!!st.ajF;$("lMoagIn").parentElement.hidden=cp||!!st.ajF;$("moedores").parentElement.hidden=cp;$("pOn").parentElement.hidden=cp;if(cp){$("pBox").hidden=true;$("base").hidden=true;$("oCafe").innerHTML="1<small>cápsula</small>";$("oMoag").textContent="—";$("oFaixa").textContent="Cápsula: não usa moedor"}
    if(m.tank||cp){$("lAgua").textContent="Água no reservatório";$("oAgua").innerHTML=f(a)+"<small>ml</small>";$("lQtd").textContent=cp?"Água no reservatório (ml)":"Café no cesto"}}
@@ -1555,7 +1559,7 @@ function prepTopo(){const m=cur(),k=calc(m),u=MOEU.find(x=>x.id===st.moe);$("ptI
   const mg=$("moag")&&$("moag").value;$("ptS").textContent=(m.cap?"Cápsula":`${f(k.c,1)} g`)+` : ${f(k.a)} g · ${GN[st.moe]||st.moe}${mg&&!m.cap?" "+mg:""}${m.temp?" · "+m.temp:""}`}
 function prepFix(){const b=$("fixBtn"),t=$("tStart");if(document.body.dataset.sub==="pp"){b.textContent=t.textContent;b.disabled=t.disabled;b.hidden=t.hidden}else{b.textContent="Pronto: ir para o passo a passo";b.disabled=false;b.hidden=false}}
 $("fixBtn").onclick=()=>{if(document.body.dataset.sub==="pp")$("tStart").click();else irSub("pp")};
-{const r1=render;render=function(){r1();try{prepTopo();prepFix()}catch(e){}}}
+{const r1=render;render=function(){st.ajF=false;r1();try{prepTopo();prepFix()}catch(e){}}}
 new MutationObserver(prepFix).observe($("tStart"),{attributes:true,childList:true,characterData:true,subtree:true});
 // Quem rola até um ponto da outra parte do Preparo troca a parte antes
 {const siv=Element.prototype.scrollIntoView;Element.prototype.scrollIntoView=function(...a){try{const sb=this.closest&&this.closest("[data-sub]");if(sb&&document.body.dataset.sub!==sb.dataset.sub)irSub(sb.dataset.sub,true)}catch(e){}return siv.apply(this,a)}}
