@@ -13,7 +13,7 @@
 <style>*,*::before,*::after{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 <title>Calculadora de Extração</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Caveat+Brush&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Permanent+Marker&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 /* Layout: coluna única; escolhas no topo (método, moedor, quantidade, proporção), resultado lido como o visor de uma balança e a receita em linha do tempo */
 :root{
@@ -234,7 +234,7 @@ body:not([data-pag="cafe"]) header h1{font-size:1.25rem;margin:0}
 /* 3) título preso no topo em todas as páginas */
 :root{--barH:calc(48px + env(safe-area-inset-top,0px))}
 #appBar{position:fixed;left:0;right:0;top:0;z-index:45;height:var(--barH);padding:env(safe-area-inset-top,0px) 16px 0;display:flex;align-items:center;justify-content:center;background:var(--bg);border-bottom:1px solid var(--line)}
-#appBar b{font:400 1.7rem/1 "Caveat Brush","Familjen Grotesk",cursive;letter-spacing:.01em}
+#appBar b{font:700 1.12rem var(--display)}
 body{padding-top:var(--barH)}header h1{display:none}body:not([data-pag="cafe"]) header{display:none!important}
 #prepTop{top:var(--barH)!important;padding-top:8px!important}
 html{scroll-padding-top:calc(var(--barH) + 150px)}
@@ -278,7 +278,7 @@ body.timing #steps,body.timing #tip,body.timing #tip~.tip,body.timing #bPrev,bod
 .tmr .bt{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-#appNome{font:400 1.35rem/1 "Caveat Brush","Familjen Grotesk",cursive!important;background:var(--accent)!important;color:var(--accent-fg)!important;border:0!important;padding:6px 14px!important;letter-spacing:.02em;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+#appNome{font:400 1.25rem/1 "Permanent Marker","Familjen Grotesk",cursive!important;text-transform:uppercase;transform:rotate(-4deg);background:var(--accent)!important;color:var(--accent-fg)!important;border:0!important;padding:6px 14px!important;letter-spacing:.02em;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 /* 2) depois do Bora: só os cards */
 body.timing section[aria-label="Resultado"]>*:not(.read){display:none!important}
 #preOv .ib{width:44px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--chip);color:var(--fg);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}#preOv .ib svg{width:22px;height:22px}
@@ -288,6 +288,8 @@ body.timing section[aria-label="Resultado"]>*:not(.read){display:none!important}
 body:has(#preOv:not([hidden])) section[aria-label="Resultado"]>*:not(.read){display:none!important}
 /* 4) xícara pronta só a partir do fim do preparo */
 .tmr .bt #tStop.cedo{display:none!important}
+
+.tmr .bt .btn.ic{width:auto;min-width:64px;height:auto;flex-direction:column;gap:3px;padding:7px 8px}.tmr .bt .btn.ic .cap{font:600 .68rem/1 var(--display);white-space:nowrap}
 </style>
 
 <div id="appBar"><b>Calculadora de Café</b><button type="button" id="appNome" class="nomeU" aria-label="Trocar o nome"></button></div>
@@ -1698,8 +1700,8 @@ $("balPick").addEventListener("click",e=>{const t=e.target;let b;
   if(b=t.closest("[data-bdel]")){if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="Toque de novo para excluir";return}BALU=BALU.filter(x=>x.id!==b.dataset.bdel);saveBalU();if(!balLista().some(x=>x.id===st.bal))st.bal="dot";balPickTela();balCardTela()}});
 {const bt0=balTela;balTela=function(){bt0();try{balCardTela()}catch(e){}}}
 // ===== Cronômetro: botões com desenho e Voltar para o preparo =====
-function icBtn(id,ic,txt){const b=$(id);if(!b)return;b.classList.add("ic");b.setAttribute("aria-label",txt);b.title=txt;b.innerHTML=svgI(TI[ic])+`<span class="vh">${txt}</span>`}
-function tmrIcones(){icBtn("tVolta","volta","Voltar para o preparo");icBtn("tSom",st.bipe===false?"mudo":"som",st.bipe===false?"Sem bipe":"Com bipe");icBtn("tPause",T.pausa?"play":"pausa",T.pausa?"Continuar":"Pausar");icBtn("tStop","stop","Encerrar")}
+function icBtn(id,ic,txt,cap){const b=$(id);if(!b)return;b.classList.add("ic");b.setAttribute("aria-label",txt);b.title=txt;b.innerHTML=svgI(TI[ic])+`<span class="cap">${cap||txt}</span>`}
+function tmrIcones(){icBtn("tVolta","volta","Voltar para o preparo","Voltar");icBtn("tSom",st.bipe===false?"mudo":"som",st.bipe===false?"Sem bipe":"Com bipe");icBtn("tPause",T.pausa?"play":"pausa",T.pausa?"Continuar":"Pausar");icBtn("tStop","stop","Encerrar")}
 for(const id of ["tSom","tPause"])new MutationObserver(()=>{const b=$(id);if(!b.querySelector("svg"))tmrIcones()}).observe($(id),{childList:true,characterData:true,subtree:true});
 tmrIcones();
 $("tVolta").onclick=()=>{if(!T.run)return;encerrar();try{BAL.fim=0}catch(e){}preL=[];for(const x of CUR){if(seg(x[0])!=null)break;preL.push(x)}
@@ -1802,7 +1804,7 @@ $("cSel").addEventListener("change",()=>{camFeitos={};$("camMsg").textContent="T
 
 // Encerrar vira a xícara pronta e só aparece quando chega o tempo do fim do preparo
 TI.xicara='<path d="M12 28h34v8a14 14 0 0 1-14 14h-6a14 14 0 0 1-14-14z"/><path d="M46 31h4a6 6 0 0 1 0 12h-6"/><path d="M8 54h44"/><path d="M22 12c-3 4 3 6 0 10M30 10c-3 4 3 6 0 10M38 12c-3 4 3 6 0 10"/>';
-{const ti0=tmrIcones;tmrIcones=function(){ti0();icBtn("tStop","xicara","Encerrar: café pronto")}}tmrIcones();
+{const ti0=tmrIcones;tmrIcones=function(){ti0();icBtn("tStop","xicara","Encerrar: café pronto","Café pronto")}}tmrIcones();
 function fimInicio(){const L=T.steps||CUR;let t=null;for(const x of L){const v=seg(x[0]);if(v!=null)t=v}return t}
 {const tk=tick;tick=function(a){tk(a);try{const ft=fimInicio();$("tStop").classList.toggle("cedo",T.run&&ft!=null&&decorrido()<ft)}catch(e){}}}
 renderMetBtns();renderMoeBtns();
