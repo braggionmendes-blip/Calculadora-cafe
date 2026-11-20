@@ -337,6 +337,15 @@ body.timing[data-vd="1"] section[aria-label="Resultado"]{gap:6px}
 #bOn.bchip i{display:none}
 #bOn.bchip::before{content:"";position:absolute;inset:-2px -6px;z-index:-1;background:color-mix(in srgb,#2f9e5b 22%,transparent);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 60' preserveAspectRatio='none'%3E%3Cpath d='M9 14C30 6 70 9 104 7c18-1 34-2 47 3 4 6 1 10 4 15-3 4 2 9-1 14 2 6-2 10-6 12-26 2-58 0-92 3-18 1-34 0-46-3-4-5 0-9-3-13 3-5-1-9 2-14-2-5 0-9 4-10z'/%3E%3Cpath d='M2 22c10-2 18 0 22-1M140 46c8 1 14-1 18 1M3 44c6 0 9 2 14 1' stroke='black' stroke-width='3' fill='none'/%3E%3C/svg%3E") center/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 60' preserveAspectRatio='none'%3E%3Cpath d='M9 14C30 6 70 9 104 7c18-1 34-2 47 3 4 6 1 10 4 15-3 4 2 9-1 14 2 6-2 10-6 12-26 2-58 0-92 3-18 1-34 0-46-3-4-5 0-9-3-13 3-5-1-9 2-14-2-5 0-9 4-10z'/%3E%3Cpath d='M2 22c10-2 18 0 22-1M140 46c8 1 14-1 18 1M3 44c6 0 9 2 14 1' stroke='black' stroke-width='3' fill='none'/%3E%3C/svg%3E") center/100% 100% no-repeat}
 @media (prefers-color-scheme:dark){#bOn.bchip{color:#6cc08b}}
+.escOp{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:center;text-align:left;padding:12px;border-radius:12px;border:2px solid transparent;background:var(--soft);color:var(--fg);font:inherit;cursor:pointer}
+.escOp small{color:var(--muted);font-size:.8rem}.escOp b{font-size:.95rem}
+.escR{width:22px;height:22px;border-radius:50%;border:2px solid var(--accent);display:grid;place-items:center}
+.escOp[aria-pressed="true"]{border-color:var(--accent)}.escOp[aria-pressed="true"] .escR::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.escGr{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.escGr button{display:grid;justify-items:center;align-content:start;gap:4px;padding:10px 4px;font-size:.78rem;line-height:1.15}.escGr button svg{width:34px;height:34px}
+.escGr button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.escIt{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:var(--soft)}
+.escMd{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff}
+body.escGrupo #potPanel{display:none!important}
 </style>
 
 <div id="appBar"><b>Calculadora de Café</b><button type="button" id="appNome" class="nomeU" aria-label="Trocar o nome"></button></div>
@@ -346,7 +355,7 @@ body.timing[data-vd="1"] section[aria-label="Resultado"]{gap:6px}
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 97 · 19/11/2026 · Correção do nome da iCoffee no passo a passo</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 98 · 20/11/2026 · Escolher o café dos potes pelo grupo de preparo ou pelo pote</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -371,6 +380,7 @@ body.timing[data-vd="1"] section[aria-label="Resultado"]{gap:6px}
     <div>
       <label class="lbl" for="cSel">Café</label>
       <select class="txt" id="cSel"></select><button class="addL" id="addCafe" type="button" style="margin-top:8px">+ Cadastrar café</button>
+      <div id="escBox" style="display:grid;gap:8px;margin-top:10px"><span class="lbl" style="margin:0">Ou escolha o café dos potes</span><button type="button" class="escOp" data-esc="g"><span class="escR"></span><span><b>Escolher pelo grupo</b><br><small>os 3 melhores dos potes para o tipo de preparo</small></span></button><button type="button" class="escOp" data-esc="p"><span class="escR"></span><span><b>Escolher pelo pote</b><br><small>toque no pote que quer usar</small></span></button><div id="escG" hidden style="display:grid;gap:10px"></div><p id="escP" hidden class="cres" style="margin:0;font-size:.85rem">Os potes aparecem logo abaixo. Toque em um pote cheio e depois em Usar.</p></div>
       <p class="cres" id="cResumo" style="margin-top:8px"></p>
       <button class="lnk" id="avVer" type="button" hidden style="margin-top:-2px">Ver avaliações</button>
       <div id="cIndBox" hidden style="margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--soft)"><span class="lbl" style="margin-bottom:6px">Métodos para este café, do mais ao menos indicado</span><div id="cIndList" style="display:grid;gap:8px"></div><details style="margin-top:8px"><summary style="font-size:.84rem;cursor:pointer">Ver os demais métodos</summary><div id="cIndRest" style="display:grid;gap:8px;margin-top:8px"></div></details></div>
@@ -425,7 +435,7 @@ body.timing[data-vd="1"] section[aria-label="Resultado"]{gap:6px}
     </div>
   </section>
 
-  <section class="panel" aria-label="Potes" data-pag="cafe">
+  <section class="panel" aria-label="Potes" data-pag="cafe" id="potPanel">
     <div>
       <span class="lbl">Meus potes de café aberto</span>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><label for="pN" style="font-size:.9rem">Quantidade de potes</label><select class="txt" id="pN" style="width:auto;min-width:80px"></select></div>
@@ -1037,7 +1047,7 @@ const PERF={v60:{c:3,b:1,i:0,d:2,e:0},b75:{c:3,b:1,i:0,d:3,e:0},origami:{c:2,b:2
   espresso:{c:0,b:3,i:0,d:2,e:3},me26:{c:0,b:3,i:0,d:2,e:3},turco:{c:0,b:3,i:1,d:0,e:1}};
 // Métodos que o Jeff tem
 const MEUS=["v60","b75","origami","melitta","pano","fluire","switch","prensa","me26"];
-PERF.wacaco={c:2,b:2,i:2,d:2,e:0};PERF.portatil={c:0,b:3,i:0,d:2,e:3};MEUS.push("wacaco","aeropress","portatil");
+PERF.wacaco={c:2,b:2,i:2,d:2,e:0};PERF.portatil={c:0,b:3,i:0,d:2,e:3};MEUS.push("wacaco","aeropress","portatil","moka");
 
 const ROT={c:"clareza para acidez e aromas",b:"corpo",i:"imersão, que extrai melhor café menos fresco",d:"doçura",e:"concentração (espresso)"};
 function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,co=k.corpo,d=k.docura,ar=k.aroma,dd=dias(k.data),tx=(k.nome+" "+k.processo+" "+k.tipo).toLowerCase();
@@ -1921,6 +1931,30 @@ document.addEventListener("click",e=>{if(e.target.closest("#fixBtn,#preNx,#preVo
 {const sm=som;som=function(...a){try{if(T.ac&&T.ac.state!=="running")T.ac.resume()}catch(_){}return sm.apply(this,a)}}
 
 {const bp0=balPronto;balPronto=function(){return armado&&bp0()}}
+// Escolher o café dos potes pelo grupo de preparo (os 3 melhores) ou pelo pote; começa sem nada marcado
+let escPor="",escGrp="";
+const GRUPOS=[["esp","Espressos","espresso",["espresso","me26","portatil","wacaco"]],["coa","Coados","v60",["v60","b75","origami","melitta","pano","fluire","switch","chemex","clever","coador"]],["ita","Italiana","moka",["moka"]],["pre","Prensa francesa","prensa",["prensa","aeropress"]]];
+function escTop(gk){const gr=GRUPOS.find(x=>x[0]===gk);if(!gr)return[];const vis=new Set(),out=[];
+  for(let i=0;i<POT.n;i++){const v=POT.p[i];if(!v||ISD(v)||vis.has(v))continue;const k=CAF.find(c=>c.id===v);if(!k||k.fim)continue;vis.add(v);
+    const rk=rankMetodos(k);const j=rk.findIndex(r=>gr[3].includes(r.g));if(j<0)continue;out.push({i,j,k,r:rk[j]})}
+  return out.sort((a,b)=>b.r.nota-a.r.nota).slice(0,3)}
+function renderEsc(){if(!$("escBox"))return;document.querySelectorAll(".escOp").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.esc===escPor)));
+  document.body.classList.toggle("escGrupo",escPor==="g");$("escP").hidden=escPor!=="p";$("escG").hidden=escPor!=="g";if(escPor!=="g")return;
+  const gr=GRUPOS.find(x=>x[0]===escGrp);let h=`<div class="escGr">${GRUPOS.map(g=>`<button class="btn" type="button" data-escg="${g[0]}" aria-pressed="${g[0]===escGrp}">${svgI(icMet(M.find(m=>m.id===g[2])||M[0]))}<span>${g[1]}</span></button>`).join("")}</div>`;
+  if(!gr)h+=`<p class="cres" style="margin:0;font-size:.85rem">Toque no tipo de preparo.</p>`;
+  else{const t=escTop(escGrp);h+=`<span class="lbl" style="margin:4px 0 0">${t.length===1?"O melhor":"Os "+(t.length||3)+" melhores"} dos potes para ${gr[1].toLowerCase()}</span>`;
+    if(!t.length)h+=`<p class="cres" style="margin:0">Nenhum pote com café.</p>`;
+    h+=t.map((x,n)=>{const m=M.find(y=>y.id===x.r.id)||M.find(y=>y.id===x.r.g)||{n:x.r.g},d=dias(x.k.data);
+      return `<div class="escIt"><span class="escMd" style="background:${["#b8860b","#8c8c8c","#a0522d"][n]}">${n+1}</span><div style="font-size:.9rem;line-height:1.3"><b>${esc(x.k.nome)}</b> · ${x.r.nota}%<br><span style="color:var(--muted);font-size:.8rem">Pote ${x.i+1} · ${esc(x.r.why)}${d!=null&&d>=0?`, ${d} dia${d===1?"":"s"} de torra`:""}<br>Melhor método: <b>${esc(m.n)}</b></span></div><button class="btn" type="button" data-escu="${x.i}:${x.j}" style="padding:8px 12px">Usar</button></div>`}).join("")}
+  $("escG").innerHTML=h}
+$("escBox").addEventListener("click",e=>{const o=e.target.closest("[data-esc]");if(o){escPor=escPor===o.dataset.esc?"":o.dataset.esc;renderEsc();if(escPor==="p")setTimeout(()=>$("potPanel").scrollIntoView({behavior:"smooth",block:"start"}),50);return}
+  const g=e.target.closest("[data-escg]");if(g){escGrp=g.dataset.escg;renderEsc();return}
+  const u=e.target.closest("[data-escu]");if(u){const[i,j]=u.dataset.escu.split(":").map(Number);const v=POT.p[i],k=CAF.find(c=>c.id===v);if(!k)return;const r=rankMetodos(k)[j];if(!r)return;
+    marca("caf");marca("met");st.csel=v;cEdit=false;cDelArm=false;st.cafe={...k};{const l=(st.gsel||{})[r.g];st.met=r.id&&M.some(x=>x.id===r.id)?r.id:l&&M.some(x=>x.id===l&&G(x)===r.g)?l:r.g;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:st.met}}
+    recPend=false;abrirMet=false;abrirRec=false;escPor="";escGrp="";renderEsc();render();toast("Café do pote e método selecionados");irPag("preparo")}});
+{const zera=()=>{escPor="";escGrp="";renderEsc()};$("novoCafe").addEventListener("click",zera);$("olaSim").addEventListener("click",zera)}
+{const rp=renderPotes;renderPotes=function(...a){const x=rp.apply(this,a);try{renderEsc()}catch(e){}return x}}
+renderEsc();
 renderMetBtns();renderMoeBtns();
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
