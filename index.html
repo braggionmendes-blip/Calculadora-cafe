@@ -366,7 +366,7 @@ body:not(.escPote) #potPanel{display:none!important}
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 109 · 21/11/2026 · No trabalho: lista que você edita (AeroPress da iCoffee incluída)</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 110 · 21/11/2026 · Local escolhido fica marcado; tipos de preparo sem método no local somem</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -1949,13 +1949,16 @@ function escMoe(gk,r,k){const m=M.find(y=>y.id===r.id)||M.find(y=>y.id===r.g);if
   return{id,n:GN[id]||id,v:gv}}return null}
 function rankEsc(k){const rk=rankMetodos(k);if(MODO==="casa"){const fo=FORA_CASA();return rk.map(r=>{if(!fo.includes(r.id))return r;const al=idsG(r.g).find(id=>!fo.includes(id)&&!(M.find(x=>x.id===id)||{}).cap);return al?{...r,id:al,k46:undefined}:null})}if(!viag())return rk;const ok=kitIds();
   return rk.map(r=>{const al=ok.filter(id=>{const m=M.find(x=>x.id===id);return m&&G(m)===r.g&&!m.cap});if(!al.length)return null;return al.includes(r.id)?r:{...r,id:al[0],k46:undefined}})}
+function grpTem(gr){try{if(viag())return kitIds().some(id=>{const m=M.find(x=>x.id===id);return m&&!m.cap&&gr[3].includes(G(m))});
+  const fo=MODO==="casa"?FORA_CASA():[];return M.some(m=>!m.cap&&gr[3].includes(G(m))&&MEUS.includes(G(m))&&!fo.includes(m.id))}catch(e){return true}}
 function escTop(gk){const gr=GRUPOS.find(x=>x[0]===gk);if(!gr)return[];const vis=new Set(),out=[];
   for(let i=0;i<POT.n;i++){const v=POT.p[i];if(!v||ISD(v)||vis.has(v))continue;const k=CAF.find(c=>c.id===v);if(!k||k.fim)continue;vis.add(v);
     const rk=rankEsc(k);const j=rk.findIndex(r=>r&&gr[3].includes(r.g));if(j<0)continue;out.push({i,j,k,r:rk[j]})}
   return out.sort((a,b)=>b.r.nota-a.r.nota).slice(0,3)}
-function renderEsc(){if(!$("escBox"))return;document.querySelectorAll(".escOp").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.esc===escPor)));
+function renderEsc(){if(!$("escBox"))return;document.querySelectorAll(".escOp[data-esc]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.esc===escPor)));
   document.body.classList.toggle("escPote",escPor==="p");$("escP").hidden=true;$("escG").hidden=escPor!=="g";if(escPor!=="g")return;
-  const gr=GRUPOS.find(x=>x[0]===escGrp);let h=`<div class="escGr">${GRUPOS.map(g=>`<button class="btn" type="button" data-escg="${g[0]}" aria-pressed="${g[0]===escGrp}">${svgI(icMet(M.find(m=>m.id===g[2])||M[0]))}<span>${g[1]}</span></button>`).join("")}</div>`;
+  const GV=GRUPOS.filter(grpTem);if(!GV.some(x=>x[0]===escGrp))escGrp="";
+  const gr=GRUPOS.find(x=>x[0]===escGrp);let h=`<div class="escGr" style="grid-template-columns:repeat(${Math.max(1,GV.length)},minmax(0,1fr))">${GV.map(g=>`<button class="btn" type="button" data-escg="${g[0]}" aria-pressed="${g[0]===escGrp}">${svgI(icMet(M.find(m=>m.id===g[2])||M[0]))}<span>${g[1]}</span></button>`).join("")}</div>`;
   if(!gr)h+=`<p class="cres" style="margin:0;font-size:.85rem">Toque no tipo de preparo.</p>`;
   else{const t=escTop(escGrp);h+=`<span class="lbl" style="margin:4px 0 0">${t.length===1?"O melhor":"Os "+(t.length||3)+" melhores"} dos potes para ${gr[1].toLowerCase()}</span>`;
     if(!t.length)h+=`<p class="cres" style="margin:0">${viag()&&!kitIds().some(id=>{const m=M.find(x=>x.id===id);return m&&gr[3].includes(G(m))&&!m.cap})?(MODO==="trabalho"?"O que está no trabalho":"Seu kit de viagem")+" não tem método deste grupo.":"Nenhum pote com café."}</p>`;
