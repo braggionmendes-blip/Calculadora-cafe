@@ -348,7 +348,7 @@ body.timing[data-vd="1"] section[aria-label="Resultado"]{gap:6px}
 .escIt{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:var(--soft)}
 .escMd{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff}
 body:not(.escPote) #potPanel{display:none!important}
-.modoCs .escOp{padding:10px 8px;gap:4px}.modoCs .escI{width:42px;height:42px}.modoCs .escI svg{width:28px;height:28px}
+.modoCs{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.modoCs .escOp{padding:10px 4px;gap:4px}.modoCs .escOp b{font-size:.88rem}.modoCs .escI{width:42px;height:42px}.modoCs .escI svg{width:28px;height:28px}
 .kitG{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .kitG button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:14px;min-height:84px;font:500 .72rem/1.15 var(--display);text-align:center;border:2px solid var(--line,#ddd);background:var(--soft);color:var(--fg);cursor:pointer}
 .kitG button svg{width:38px;height:38px}
@@ -366,7 +366,7 @@ body:not(.escPote) #potPanel{display:none!important}
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 107 · 21/11/2026 · Em casa / Em viagem, com kit de viagem escolhido por você</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 108 · 21/11/2026 · Card No trabalho (prensa portátil i Cafilas, Fluire 01 e Mongdio) e prensa Bialetti 350 ml em casa</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -389,7 +389,7 @@ body:not(.escPote) #potPanel{display:none!important}
   <div class="ola av" id="avHist" hidden role="dialog" aria-modal="true" aria-labelledby="avHT"><div class="cx"><p id="avHT">Avaliações do café</p><div id="avHL" style="display:grid;gap:10px"></div><button class="btn" id="avHF" type="button" style="padding:12px">Fechar</button></div></div>
   <section class="panel" aria-label="Café" id="cafePanel" data-pag="cafe">
     <div>
-      <div id="modoBox" style="display:grid;gap:10px;margin-bottom:14px"><span class="lbl" style="margin:0">Onde você vai fazer o café?</span><div class="escCs modoCs"><button type="button" class="escOp" data-modo="casa"><span class="escI" id="modoIc"></span><b>Em casa</b><small>todos os métodos e moedores</small></button><button type="button" class="escOp" data-modo="viagem"><span class="escI" id="modoIv"></span><b>Em viagem</b><small>só o seu kit de viagem</small></button></div><div id="kitBox" hidden style="display:grid;gap:10px"></div></div>
+      <div id="modoBox" style="display:grid;gap:10px;margin-bottom:14px"><span class="lbl" style="margin:0">Onde você vai fazer o café?</span><div class="escCs modoCs"><button type="button" class="escOp" data-modo="casa"><span class="escI" id="modoIc"></span><b>Em casa</b></button><button type="button" class="escOp" data-modo="trabalho"><span class="escI" id="modoIt"></span><b>No trabalho</b></button><button type="button" class="escOp" data-modo="viagem"><span class="escI" id="modoIv"></span><b>Em viagem</b></button></div><div id="kitBox" hidden style="display:grid;gap:10px"></div></div>
       <label class="lbl" for="cSel">Café</label>
       <select class="txt" id="cSel"></select><button class="addL" id="addCafe" type="button" style="margin-top:8px">+ Cadastrar café</button>
       <div id="escBox" style="display:grid;gap:8px;margin-top:10px"><span class="lbl" style="margin:0">Ou escolha o café dos potes</span><div class="escCs"><button type="button" class="escOp" data-esc="g"><span class="escI" id="escIg"></span><b>Pelo tipo de preparo</b><small>os 3 melhores para espresso, coado, moka ou prensa</small></button><button type="button" class="escOp" data-esc="p"><span class="escI" id="escIp"></span><b>Pelo pote</b><small>veja seus potes e toque no café que quer usar</small></button></div><div id="escG" hidden style="display:grid;gap:10px"></div><p id="escP" hidden class="cres" style="margin:0;font-size:.85rem">Os potes aparecem logo abaixo. Toque em um pote cheio e depois em Usar.</p></div>
@@ -1944,10 +1944,10 @@ document.addEventListener("click",e=>{if(e.target.closest("#fixBtn,#preNx,#preVo
 let escPor="",escGrp="";
 const GRUPOS=[["esp","Espressos","espresso",["espresso","me26","portatil"]],["coa","Coados","v60",["wacaco","v60","b75","origami","melitta","pano","fluire","switch","chemex","clever","coador"]],["ita","Italiana","moka",["moka"]],["pre","Prensa francesa","prensa",["prensa","aeropress"]]];
 const MOEPREF={esp:["hibrew","pro","k7","r3"],coa:["k7","r3","pro","mongdio","hibrew","icoffee","oster"],ita:["hibrew","k7","pro","r3"],pre:["k7","oster","r3","pro","hibrew"]};
-function escMoe(gk,r,k){const m=M.find(y=>y.id===r.id)||M.find(y=>y.id===r.g);if(!m||m.cap||!m.g)return null;for(const id of (viag()?[KIT.moe]:MOEPREF[gk]||[])){const v=m.g[id];if(!v||v[3])continue;let gv=v[2];
+function escMoe(gk,r,k){const m=M.find(y=>y.id===r.id)||M.find(y=>y.id===r.g);if(!m||m.cap||!m.g)return null;for(const id of (viag()?[K().moe]:(MOEPREF[gk]||[]).filter(x=>!(MODO==="casa"&&FORA_MOE.includes(x))))){const v=m.g[id];if(!v||v[3])continue;let gv=v[2];
   if(k){const sv={cafe:st.cafe,moe:st.moe,csel:st.csel};try{st.cafe={...k};st.csel=k.id;st.moe=id;gv=st.gr[gKey(m)]??Math.max(0,v[2]+ajuste(m).off)}catch(e){}finally{st.cafe=sv.cafe;st.moe=sv.moe;st.csel=sv.csel}}
   return{id,n:GN[id]||id,v:gv}}return null}
-function rankEsc(k){const rk=rankMetodos(k);if(!viag())return rk;const ok=kitIds();
+function rankEsc(k){const rk=rankMetodos(k);if(MODO==="casa"){const fo=FORA_CASA();return rk.map(r=>fo.includes(r.id)?(r.id==="pViagem"?{...r,id:"prensa"}:null):(r.g==="fluire"?null:r))}if(!viag())return rk;const ok=kitIds();
   return rk.map(r=>{const al=ok.filter(id=>{const m=M.find(x=>x.id===id);return m&&G(m)===r.g&&!m.cap});if(!al.length)return null;return al.includes(r.id)?r:{...r,id:al[0],k46:undefined}})}
 function escTop(gk){const gr=GRUPOS.find(x=>x[0]===gk);if(!gr)return[];const vis=new Set(),out=[];
   for(let i=0;i<POT.n;i++){const v=POT.p[i];if(!v||ISD(v)||vis.has(v))continue;const k=CAF.find(c=>c.id===v);if(!k||k.fim)continue;vis.add(v);
@@ -1958,7 +1958,7 @@ function renderEsc(){if(!$("escBox"))return;document.querySelectorAll(".escOp").
   const gr=GRUPOS.find(x=>x[0]===escGrp);let h=`<div class="escGr">${GRUPOS.map(g=>`<button class="btn" type="button" data-escg="${g[0]}" aria-pressed="${g[0]===escGrp}">${svgI(icMet(M.find(m=>m.id===g[2])||M[0]))}<span>${g[1]}</span></button>`).join("")}</div>`;
   if(!gr)h+=`<p class="cres" style="margin:0;font-size:.85rem">Toque no tipo de preparo.</p>`;
   else{const t=escTop(escGrp);h+=`<span class="lbl" style="margin:4px 0 0">${t.length===1?"O melhor":"Os "+(t.length||3)+" melhores"} dos potes para ${gr[1].toLowerCase()}</span>`;
-    if(!t.length)h+=`<p class="cres" style="margin:0">${viag()&&!kitIds().some(id=>{const m=M.find(x=>x.id===id);return m&&gr[3].includes(G(m))&&!m.cap})?"Seu kit de viagem não tem método deste grupo.":"Nenhum pote com café."}</p>`;
+    if(!t.length)h+=`<p class="cres" style="margin:0">${viag()&&!kitIds().some(id=>{const m=M.find(x=>x.id===id);return m&&gr[3].includes(G(m))&&!m.cap})?OPT[MODO].t+" não tem método deste grupo.":"Nenhum pote com café."}</p>`;
     h+=t.map((x,n)=>{const m=M.find(y=>y.id===x.r.id)||M.find(y=>y.id===x.r.g)||{n:x.r.g},d=dias(x.k.data);
       return `<div class="escIt"><span class="escMd" style="background:${["#b8860b","#8c8c8c","#a0522d"][n]}">${n+1}</span><div style="font-size:.9rem;line-height:1.3"><b>${esc(x.k.nome)}</b> · ${x.r.nota}%<br><span style="color:var(--muted);font-size:.8rem">Pote ${x.i+1} · ${esc(x.r.why)}${d!=null&&d>=0?`, ${d} dia${d===1?"":"s"} de torra`:""}<br>Melhor método: <b>${esc(m.n)}</b>${(mo=>mo?`<br>Moedor: <b>${esc(mo.n)}</b> no ${f(mo.v)}`:"")(escMoe(escGrp,x.r,x.k))}</span></div><button class="btn" type="button" data-escu="${x.i}:${x.j}" style="padding:8px 12px">Usar</button></div>`}).join("")}
   $("escG").innerHTML=h}
@@ -1979,57 +1979,75 @@ renderEsc();
  for(const k of Object.keys(st.gr||{}))if(/^epIcof\|/.test(k)){st.gr[k.replace("epIcof|","portatil|")]=st.gr[k];delete st.gr[k];mud=true}
  if(Array.isArray(REC)){let r2=false;for(const r of REC)if(MAP[r.met]){r.met=fx(r.met);r2=true}if(r2)saveRec()}
  if(mud)try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}}
-// Em casa / Em viagem: na viagem, só o kit escolhido pelo Jeff (até 2 métodos, 1 de espresso, 1 moedor). Recomendações com linha tracejada; a escolha é sempre dele
-let MODO="casa",KIT={met:[],esp:"",moe:""},kitAberto=false;
-try{const m=localStorage.getItem("calcModo");if(m==="viagem")MODO="viagem";const k=JSON.parse(localStorage.getItem("calcKit")||"null");if(k&&typeof k==="object")KIT={met:Array.isArray(k.met)?k.met.slice(0,2):[],esp:k.esp||"",moe:k.moe||""}}catch(e){}
-const saveModo=()=>{try{localStorage.setItem("calcModo",MODO);localStorage.setItem("calcKit",JSON.stringify(KIT))}catch(e){}};
-const idsDev=d=>M.filter(x=>G(x)==="wacaco"&&x.dev===d).map(x=>x.id);
-const KITM=[["joinout","Kit Joinout",()=>["joinout"]],["prestina","Wacaco Prestina",()=>idsDev("Prestina")],["cuppamoka","Wacaco Cuppamoka",()=>idsDev("Cuppamoka")],["pipamoka","Wacaco Pipamoka",()=>idsDev("Pipamoka")],["aeropress","AeroPress",()=>M.filter(x=>G(x)==="aeropress").map(x=>x.id)],["pViagem","Prensa de viagem i Cafilas",()=>["pViagem"]],["moka","Moka",()=>["moka"]]];
-const KITE=[["me26","i Cafilas ME2604",()=>M.filter(x=>G(x)==="me26").map(x=>x.id)],["portatil","iCoffee Barista",()=>M.filter(x=>G(x)==="portatil").map(x=>x.id)]];
-const KITG=[["r3","Blade R3"],["pro","R3 Pro"]];
-const KITREC=["joinout","aeropress","portatil","pro"];
-const kitOk=()=>KIT.met.length>0&&!!KIT.esp&&!!KIT.moe;
-const viag=()=>MODO==="viagem"&&kitOk();
-const kitItens=()=>[...KITM.filter(x=>KIT.met.includes(x[0])),...KITE.filter(x=>x[0]===KIT.esp)];
+// Em casa / No trabalho / Em viagem. Trabalho e viagem usam um kit escolhido pelo Jeff; recomendações com linha tracejada, a escolha é sempre dele.
+// Prensa portátil i Cafilas, Fluire 01 e Mongdio ficam no trabalho: não aparecem em casa, mas podem ir na viagem.
+{const pb=M.find(x=>x.id==="prensa");if(pb&&!M.some(x=>x.id==="pBialetti"))M.push({...pb,id:"pBialetti",grp:"prensa",rn:"Bialetti 350 ml",n:"Prensa francesa",q:300,
+  tip:"Prensa Bialetti de 350 ml: até 300 ml de água deixam espaço para o café e a crosta sem transbordar ao encaixar o êmbolo. Beba logo ou passe para outra jarra, porque o café continua extraindo em contato com o pó."})}
+let MODO="casa",KITS={viagem:{met:[],esp:"",moe:""},trabalho:{met:[],esp:"",moe:""}},kitAberto=false;
+try{const m=localStorage.getItem("calcModo");if(["viagem","trabalho"].includes(m))MODO=m;
+  const ks=JSON.parse(localStorage.getItem("calcKits")||"null"),k1=JSON.parse(localStorage.getItem("calcKit")||"null"),lim=k=>({met:Array.isArray(k&&k.met)?k.met.slice(0,2):[],esp:(k&&k.esp)||"",moe:(k&&k.moe)||""});
+  if(ks&&typeof ks==="object"){KITS.viagem=lim(ks.viagem);KITS.trabalho=lim(ks.trabalho)}else if(k1)KITS.viagem=lim(k1)}catch(e){}
+const K=()=>KITS[MODO]||{met:[],esp:"",moe:""};
+const saveModo=()=>{try{localStorage.setItem("calcModo",MODO);localStorage.setItem("calcKits",JSON.stringify(KITS))}catch(e){}};
+const idsDev=d=>M.filter(x=>G(x)==="wacaco"&&x.dev===d).map(x=>x.id),idsG=g=>M.filter(x=>G(x)===g).map(x=>x.id);
+const ITM={joinout:["Kit Joinout",()=>["joinout"]],prestina:["Wacaco Prestina",()=>idsDev("Prestina")],cuppamoka:["Wacaco Cuppamoka",()=>idsDev("Cuppamoka")],pipamoka:["Wacaco Pipamoka",()=>idsDev("Pipamoka")],
+  aeropress:["AeroPress",()=>idsG("aeropress")],pViagem:["Prensa portátil i Cafilas",()=>["pViagem"]],moka:["Moka",()=>["moka"]],fluire01:["Fluire 01",()=>idsG("fluire")],
+  me26:["i Cafilas ME2604",()=>idsG("me26")],portatil:["iCoffee Barista",()=>idsG("portatil")]};
+const MOEN={r3:"Blade R3",pro:"R3 Pro",mongdio:"Mongdio HB-991"};
+const OPT={viagem:{t:"Seu kit de viagem",leg:"Monte o kit que vai levar.",m:["joinout","prestina","cuppamoka","pipamoka","aeropress","pViagem","fluire01","moka"],e:["me26","portatil"],g:["r3","pro","mongdio"],rec:["joinout","aeropress","portatil","pro"]},
+  trabalho:{t:"Seu kit do trabalho",leg:"Escolha o que vai usar no trabalho.",m:["pViagem","fluire01"],e:[],g:["mongdio"],rec:["pViagem","fluire01","mongdio"]}};
+// fica no trabalho: fora da casa
+const FORA_CASA=()=>["pViagem",...idsG("fluire")],FORA_MOE=["mongdio"];
+const kitOk=()=>{const o=OPT[MODO],k=K();return !!o&&k.met.length>0&&!!k.moe&&(!o.e.length||!!k.esp)};
+const viag=()=>MODO!=="casa"&&kitOk();
+const kitItens=()=>{const k=K();return [...k.met,...(k.esp?[k.esp]:[])].filter(x=>ITM[x]).map(x=>[x,ITM[x][0],ITM[x][1]])};
 const kitIds=()=>kitItens().flatMap(x=>x[2]());
 const kitDe=id=>kitItens().find(x=>x[2]().includes(id));
 const icKit=ids=>{const m=M.find(x=>x.id===ids[0]);return svgI(icMet(m||M[0]))};
 const moeCasa=m=>{const g=G(m);if(["moka","me26","portatil","espresso"].includes(g))return["hibrew"];if(g==="prensa")return["k7","oster"];return["k7"]};
 function renderKit(){document.querySelectorAll("[data-modo]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.modo===MODO)));
-  const kb=$("kitBox");kb.hidden=MODO!=="viagem";if(MODO!=="viagem")return;
-  if(kitOk()&&!kitAberto){const nm=[...KITM.filter(x=>KIT.met.includes(x[0])).map(x=>x[1]),...KITE.filter(x=>x[0]===KIT.esp).map(x=>x[1])].join(", ");
-    kb.innerHTML=`<div class="kitRes"><span><b>Seu kit de viagem</b><br>${esc(nm)} · moedor ${esc((KITG.find(x=>x[0]===KIT.moe)||[,""])[1])}</span><button class="lnk" type="button" id="kitTrocar">Trocar kit</button></div>`;return}
-  const bt=(k,n,ids,on,rec,attr)=>`<button type="button" ${attr}="${k}" aria-pressed="${on}" class="${rec?"rec":""}">${ids?icKit(ids):svgI(GI[k]||GI.k7)}<span>${esc(n)}</span></button>`;
-  kb.innerHTML=`<p class="kitLeg">Monte o kit que vai levar. A linha tracejada marca a recomendação, mas a escolha é sua.</p>
-   <span class="lbl" style="margin:0">Métodos (até 2) · ${KIT.met.length}/2</span><div class="kitG">${KITM.map(([k,n,f])=>bt(k,n,f(),KIT.met.includes(k),KITREC.includes(k),"data-km")).join("")}</div>
-   <span class="lbl" style="margin:0">Espresso (1)</span><div class="kitG">${KITE.map(([k,n,f])=>bt(k,n,f(),KIT.esp===k,KITREC.includes(k),"data-ke")).join("")}</div>
-   <span class="lbl" style="margin:0">Moedor (1)</span><div class="kitG">${KITG.map(([k,n])=>bt(k,n,null,KIT.moe===k,KITREC.includes(k),"data-kg")).join("")}</div>
-   ${kitOk()?`<button class="btn pri" type="button" id="kitPronto">Pronto</button>`:`<p class="kitLeg">Escolha pelo menos um método, uma máquina de espresso e o moedor.</p>`}`}
-function aplicaModo(){if(viag()){if(KIT.moe&&st.moe!==KIT.moe){st.moe=KIT.moe;marca("moe")}if(!kitIds().includes(st.met))abrirMet=true}
+  const kb=$("kitBox"),o=OPT[MODO],k=K();kb.hidden=!o;if(!o)return;
+  if(kitOk()&&!kitAberto){const nm=kitItens().map(x=>x[1]).join(", ");
+    kb.innerHTML=`<div class="kitRes"><span><b>${o.t}</b><br>${esc(nm)} · moedor ${esc(MOEN[k.moe]||"")}</span><button class="lnk" type="button" id="kitTrocar">Trocar kit</button></div>`;return}
+  const bt=(id,n,ids,on,attr)=>`<button type="button" ${attr}="${id}" aria-pressed="${on}" class="${o.rec.includes(id)?"rec":""}">${ids?icKit(ids):svgI(GI[id]||GI.k7)}<span>${esc(n)}</span></button>`;
+  kb.innerHTML=`<p class="kitLeg">${o.leg} A linha tracejada marca a recomendação, mas a escolha é sua.</p>
+   <span class="lbl" style="margin:0">Métodos (até 2) · ${k.met.length}/2</span><div class="kitG">${o.m.map(id=>bt(id,ITM[id][0],ITM[id][1](),k.met.includes(id),"data-km")).join("")}</div>
+   ${o.e.length?`<span class="lbl" style="margin:0">Espresso (1)</span><div class="kitG">${o.e.map(id=>bt(id,ITM[id][0],ITM[id][1](),k.esp===id,"data-ke")).join("")}</div>`:""}
+   <span class="lbl" style="margin:0">Moedor (1)</span><div class="kitG">${o.g.map(id=>bt(id,MOEN[id],null,k.moe===id,"data-kg")).join("")}</div>
+   ${kitOk()?`<button class="btn pri" type="button" id="kitPronto">Pronto</button>`:`<p class="kitLeg">Escolha pelo menos um método${o.e.length?", uma máquina de espresso":""} e o moedor.</p>`}`}
+function aplicaModo(){if(viag()){const k=K();if(k.moe&&st.moe!==k.moe){st.moe=k.moe;marca("moe")}if(!kitIds().includes(st.met))abrirMet=true}
+  else if(MODO==="casa"){if(FORA_CASA().includes(st.met))abrirMet=true;if(FORA_MOE.includes(st.moe))abrirMoe=true}
   renderMetBtns();renderMoeBtns();renderKit();render();try{renderEsc()}catch(e){}}
-$("modoBox").addEventListener("click",e=>{const t=e.target;let b;
-  if(b=t.closest("[data-modo]")){MODO=b.dataset.modo;if(MODO==="viagem"&&!kitOk())kitAberto=true;saveModo();aplicaModo();return}
+$("modoBox").addEventListener("click",e=>{const t=e.target;let b;const k=K();
+  if(b=t.closest("[data-modo]")){MODO=b.dataset.modo;if(MODO!=="casa"&&!kitOk())kitAberto=true;else kitAberto=false;saveModo();aplicaModo();return}
   if(t.closest("#kitTrocar")){kitAberto=true;renderKit();return}
   if(t.closest("#kitPronto")){kitAberto=false;saveModo();aplicaModo();return}
-  if(b=t.closest("[data-km]")){const k=b.dataset.km,i=KIT.met.indexOf(k);if(i>=0)KIT.met.splice(i,1);else if(KIT.met.length>=2){toast("No máximo dois métodos: desmarque um antes");return}else KIT.met.push(k);saveModo();renderKit();return}
-  if(b=t.closest("[data-ke]")){KIT.esp=KIT.esp===b.dataset.ke?"":b.dataset.ke;saveModo();renderKit();return}
-  if(b=t.closest("[data-kg]")){KIT.moe=KIT.moe===b.dataset.kg?"":b.dataset.kg;saveModo();renderKit();return}});
-{const rm=renderMetBtns;renderMetBtns=function(){rm();if(!viag())return;
-  $("metodos").innerHTML=`<span class="grp">Seu kit de viagem</span>`+kitItens().map(([k,n,f])=>`<button type="button" data-kit="${k}">${icKit(f())}<span>${esc(n)}</span></button>`).join("")}}
+  if(b=t.closest("[data-km]")){const id=b.dataset.km,i=k.met.indexOf(id);if(i>=0)k.met.splice(i,1);else if(k.met.length>=2){toast("No máximo dois métodos: desmarque um antes");return}else k.met.push(id);saveModo();renderKit();return}
+  if(b=t.closest("[data-ke]")){k.esp=k.esp===b.dataset.ke?"":b.dataset.ke;saveModo();renderKit();return}
+  if(b=t.closest("[data-kg]")){k.moe=k.moe===b.dataset.kg?"":b.dataset.kg;saveModo();renderKit();return}});
+{const rm=renderMetBtns;renderMetBtns=function(){rm();
+  if(MODO==="casa"){const b=document.querySelector('#metodos button[data-v="fluire"]');if(b)b.remove();return}
+  if(!viag())return;
+  $("metodos").innerHTML=`<span class="grp">${OPT[MODO].t}</span>`+kitItens().map(([k,n,f])=>`<button type="button" data-kit="${k}">${icKit(f())}<span>${esc(n)}</span></button>`).join("")}}
 $("metodos").addEventListener("click",e=>{const b=e.target.closest("[data-kit]");if(!b)return;e.stopImmediatePropagation();
   const it=kitItens().find(x=>x[0]===b.dataset.kit);if(!it)return;const ids=it[2](),g=G(M.find(x=>x.id===ids[0])),l=(st.gsel||{})[g];
   marca("met");st.met=ids.includes(l)?l:(ids.find(id=>!(M.find(x=>x.id===id)||{}).cap)||ids[0]);recPend=false;abrirMet=false;abrirRec=false;render()},true);
-{const rmo=renderMoeBtns;renderMoeBtns=function(){rmo();if(!viag())return;document.querySelectorAll("#moedores button").forEach(b=>{if(b.dataset.v!==KIT.moe)b.remove()});const a=$("moedores").querySelector(".addT");if(a)a.remove();document.querySelectorAll("#moedores .grp").forEach(g=>g.remove())}}
+{const rmo=renderMoeBtns;renderMoeBtns=function(){rmo();
+  if(MODO==="casa"){document.querySelectorAll("#moedores button").forEach(b=>{if(FORA_MOE.includes(b.dataset.v))b.remove()});return}
+  if(!viag())return;const km=K().moe;document.querySelectorAll("#moedores button").forEach(b=>{if(b.dataset.v!==km)b.remove()});const a=$("moedores").querySelector(".addT");if(a)a.remove();document.querySelectorAll("#moedores .grp").forEach(g=>g.remove())}}
 {const r8=render;render=function(){r8();try{const m=cur();
-  if(!viag()){const rc=moeCasa(m);document.querySelectorAll("#moedores button").forEach(b=>b.classList.toggle("rec",rc.includes(b.dataset.v)))}
-  else{const ok=kitIds();[...$("recVar").options].forEach(o=>{if(o.value&&!ok.includes(o.value))o.remove()});$("recVar").dataset.h="";
-    const nv=[...$("recVar").options].filter(o=>o.value).length;if(nv<2){$("recVar").hidden=true;$("lRecVar").hidden=true}
+  const filtra=ok=>{[...$("recVar").options].forEach(o=>{if(o.value&&!ok(o.value))o.remove()});$("recVar").dataset.h="";
+    const nv=[...$("recVar").options].filter(o=>o.value).length;if(nv<2){$("recVar").hidden=true;$("lRecVar").hidden=true}};
+  if(!viag()){const rc=moeCasa(m);document.querySelectorAll("#moedores button").forEach(b=>b.classList.toggle("rec",rc.includes(b.dataset.v)));
+    if(MODO==="casa"){const fo=FORA_CASA();filtra(v=>!fo.includes(v))}}
+  else{const ok=kitIds();filtra(v=>ok.includes(v));
     const ds=[...$("devSel").options];ds.forEach(o=>{if(!M.some(x=>x.dev===o.value&&ok.includes(x.id)))o.remove()});$("devSel").dataset.h="";if($("devSel").options.length<2)$("devBox").hidden=true;
     {const it=kitDe(m.id),bt=$("metChipBtn");if(it&&bt&&!$("metChip").hidden){const vs=it[2]().length>1;bt.innerHTML=svgI(icMet(m))+"<span>"+esc(it[1]+(vs?" · "+vn(m):""))+"</span>"}}}
   }catch(e){}}}
 $("modoIc").innerHTML=svgI('<path d="M10 30L32 12l22 18"/><path d="M16 26v24h32V26"/><path d="M28 50V38h8v12"/>');
+$("modoIt").innerHTML=svgI('<rect x="10" y="14" width="44" height="28" rx="3"/><path d="M26 42v8M38 42v8M20 50h24"/><path d="M40 22h6v6"/>');
 $("modoIv").innerHTML=svgI('<rect x="10" y="20" width="44" height="30" rx="5"/><path d="M24 20v-6h16v6"/><path d="M10 32h44"/><path d="M20 50v4M44 50v4"/>');
-renderMetBtns();renderMoeBtns();renderKit();if(viag()){if(KIT.moe)st.moe=KIT.moe}
+renderMetBtns();renderMoeBtns();renderKit();if(viag()){if(K().moe)st.moe=K().moe}
 
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
