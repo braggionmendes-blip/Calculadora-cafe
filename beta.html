@@ -331,16 +331,49 @@ body.timing[data-vd="1"] section[aria-label="Resultado"]{gap:6px}
 #tPeso.off b{opacity:.55}
 /* 4) excluir avaliação pendente */
 .it .del{flex:none;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;padding:0;cursor:pointer}.it .del svg{width:20px;height:20px}.it .del.arm{border-color:#c0392b;color:#e5534b}
+
+/* peso no card da balança: mesmo estilo do nome no título, com as cores do card */
+#bOn.bchip{position:relative;isolation:isolate;background:transparent;border-radius:0;padding:8px 18px;color:#2f9e5b;font:400 1.25rem/1 "Permanent Marker","Familjen Grotesk",cursive;text-transform:uppercase}
+#bOn.bchip i{display:none}
+#bOn.bchip::before{content:"";position:absolute;inset:-2px -6px;z-index:-1;background:color-mix(in srgb,#2f9e5b 22%,transparent);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 60' preserveAspectRatio='none'%3E%3Cpath d='M9 14C30 6 70 9 104 7c18-1 34-2 47 3 4 6 1 10 4 15-3 4 2 9-1 14 2 6-2 10-6 12-26 2-58 0-92 3-18 1-34 0-46-3-4-5 0-9-3-13 3-5-1-9 2-14-2-5 0-9 4-10z'/%3E%3Cpath d='M2 22c10-2 18 0 22-1M140 46c8 1 14-1 18 1M3 44c6 0 9 2 14 1' stroke='black' stroke-width='3' fill='none'/%3E%3C/svg%3E") center/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 60' preserveAspectRatio='none'%3E%3Cpath d='M9 14C30 6 70 9 104 7c18-1 34-2 47 3 4 6 1 10 4 15-3 4 2 9-1 14 2 6-2 10-6 12-26 2-58 0-92 3-18 1-34 0-46-3-4-5 0-9-3-13 3-5-1-9 2-14-2-5 0-9 4-10z'/%3E%3Cpath d='M2 22c10-2 18 0 22-1M140 46c8 1 14-1 18 1M3 44c6 0 9 2 14 1' stroke='black' stroke-width='3' fill='none'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+@media (prefers-color-scheme:dark){#bOn.bchip{color:#6cc08b}}
+.escCs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.escOp{display:grid;justify-items:center;align-content:start;gap:6px;text-align:center;padding:14px 10px 12px;border-radius:16px;border:2px solid var(--line,#ddd);background:var(--soft);color:var(--fg);font:inherit;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.06);transition:transform .12s,background .12s}
+.escOp:active{transform:scale(.97)}.escOp b{font-size:1rem;line-height:1.2}.escOp small{color:var(--muted);font-size:.78rem;line-height:1.3}
+.escI{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--bg,#fff);color:var(--accent)}.escI svg{width:34px;height:34px}
+.escOp[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}.escOp[aria-pressed="true"] small{color:var(--accent-fg);opacity:.85}
+.escOp[aria-pressed="true"] .escI{background:rgba(255,255,255,.18);color:var(--accent-fg)}
+.escGr{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.escGr button{display:grid;justify-items:center;align-content:start;gap:4px;padding:10px 4px;font-size:.78rem;line-height:1.15}.escGr button svg{width:34px;height:34px}
+.escGr button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.escIt{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:var(--soft)}
+.escMd{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff}
+body:not(.escPote) #potPanel{display:none!important}
+.modoCs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.modoCs .escOp{padding:10px 4px;gap:4px}.modoCs .escOp b{font-size:.88rem}.modoCs .escI{width:42px;height:42px}.modoCs .escI svg{width:28px;height:28px}
+.kitG{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.kitG button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:14px;min-height:84px;font:500 .72rem/1.15 var(--display);text-align:center;border:2px solid var(--line,#ddd);background:var(--soft);color:var(--fg);cursor:pointer}
+.kitG button svg{width:38px;height:38px}
+.kitG button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.kitG button.rec:not([aria-pressed="true"]),#moedores button.rec:not([aria-pressed="true"]){border:2px dashed var(--accent)!important}
+.kitLeg{font-size:.78rem;color:var(--muted);margin:0}
+body.locViagem #escBox,body.locViagem #cSel,body.locViagem label[for="cSel"],body.locViagem #addCafe,body.locViagem #addPote,body.locViagem #pOrdemBox,body.locViagem #pDica,body.locViagem #pN,body.locViagem label[for="pN"]{display:none!important}
+body.locViagem[data-pag="cafe"] #potPanel{display:block!important}
+body.locIpa #aBox,body.locIpa #sdBox,body.locSemPen #ajPen{display:none!important}
+body.cadOn #escBox{display:none!important}
+#appNome{flex:none!important;max-width:none!important}#appBar b{min-width:0}
+#appLoc{flex:none;font:400 .8rem/1 "Permanent Marker","Familjen Grotesk",cursive;text-transform:uppercase;color:var(--accent);white-space:nowrap;margin-left:2px;letter-spacing:.02em}
+body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"]{display:none!important}
+.kitRes{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--soft);font-size:.88rem;line-height:1.35}
+
 </style>
 
-<div id="appBar"><b>Calculadora de Café</b><button type="button" id="appNome" class="nomeU" aria-label="Trocar o nome"></button></div>
+<div id="appBar"><b>Calculadora de Café</b><button type="button" id="appNome" class="nomeU" aria-label="Trocar o nome"></button><span id="appLoc" hidden></span></div>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão de teste 92 · 18/11/2026 · Páginas e desenhos de métodos, moedores, potes, receitas e avaliações</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 119 · 21/11/2026 · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios e peneiras editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -363,8 +396,10 @@ body.timing[data-vd="1"] section[aria-label="Resultado"]{gap:6px}
   <div class="ola av" id="avHist" hidden role="dialog" aria-modal="true" aria-labelledby="avHT"><div class="cx"><p id="avHT">Avaliações do café</p><div id="avHL" style="display:grid;gap:10px"></div><button class="btn" id="avHF" type="button" style="padding:12px">Fechar</button></div></div>
   <section class="panel" aria-label="Café" id="cafePanel" data-pag="cafe">
     <div>
+      <div id="modoBox" style="display:grid;gap:10px;margin-bottom:14px"><span class="lbl" style="margin:0">Onde você vai fazer o café?</span><div class="escCs modoCs"><button type="button" class="escOp" data-modo="casa"><span class="escI" id="modoIc"></span><b>Em casa</b><small>Itabira</small></button><button type="button" class="escOp" data-modo="ipatinga"><span class="escI" id="modoIp"></span><b>Em casa</b><small>Ipatinga</small></button><button type="button" class="escOp" data-modo="trabalho"><span class="escI" id="modoIt"></span><b>No trabalho</b></button><button type="button" class="escOp" data-modo="viagem"><span class="escI" id="modoIv"></span><b>Em viagem</b></button></div><div id="kitBox" hidden style="display:grid;gap:10px"></div></div>
       <label class="lbl" for="cSel">Café</label>
       <select class="txt" id="cSel"></select><button class="addL" id="addCafe" type="button" style="margin-top:8px">+ Cadastrar café</button>
+      <div id="escBox" style="display:grid;gap:8px;margin-top:10px"><span class="lbl" style="margin:0">Ou escolha o café dos potes</span><div class="escCs"><button type="button" class="escOp" data-esc="g"><span class="escI" id="escIg"></span><b>Pelo tipo de preparo</b><small>os 3 melhores para espresso, coado, moka ou prensa</small></button><button type="button" class="escOp" data-esc="p"><span class="escI" id="escIp"></span><b>Pelo pote</b><small>veja seus potes e toque no café que quer usar</small></button></div><div id="escG" hidden style="display:grid;gap:10px"></div><p id="escP" hidden class="cres" style="margin:0;font-size:.85rem">Os potes aparecem logo abaixo. Toque em um pote cheio e depois em Usar.</p></div>
       <p class="cres" id="cResumo" style="margin-top:8px"></p>
       <button class="lnk" id="avVer" type="button" hidden style="margin-top:-2px">Ver avaliações</button>
       <div id="cIndBox" hidden style="margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--soft)"><span class="lbl" style="margin-bottom:6px">Métodos para este café, do mais ao menos indicado</span><div id="cIndList" style="display:grid;gap:8px"></div><details style="margin-top:8px"><summary style="font-size:.84rem;cursor:pointer">Ver os demais métodos</summary><div id="cIndRest" style="display:grid;gap:8px;margin-top:8px"></div></details></div>
@@ -419,7 +454,7 @@ body.timing[data-vd="1"] section[aria-label="Resultado"]{gap:6px}
     </div>
   </section>
 
-  <section class="panel" aria-label="Potes" data-pag="cafe">
+  <section class="panel" aria-label="Potes" data-pag="cafe" id="potPanel">
     <div>
       <span class="lbl">Meus potes de café aberto</span>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><label for="pN" style="font-size:.9rem">Quantidade de potes</label><select class="txt" id="pN" style="width:auto;min-width:80px"></select></div>
@@ -550,7 +585,7 @@ body.timing[data-vd="1"] section[aria-label="Resultado"]{gap:6px}
     <div class="bprev" id="bPrev" hidden></div>
     <ol class="steps" id="steps"></ol>
     <p class="tip" id="tip"></p>
-    <p class="tip">Ajuste fino: saiu ácido ou aguado, moa mais fino; saiu amargo ou adstringente, moa mais grosso. Mude uma coisa por vez. Moagem: K7, R3, R3 Pro e Oster partem das indicações dos manuais de cada fabricante, com interpolação nos métodos que o manual não cita. Os do Mongdio partem do seu teste (Melitta no 20) e da escala do anel; os do iCoffee são provisórios, proporcionais aos 30 ajustes.</p>
+    <p class="tip">Ajuste fino: saiu ácido ou aguado, moa mais fino; saiu amargo ou adstringente, moa mais grosso. Mude uma coisa por vez. Moagem: K7, R3, R3 Pro e Oster partem das indicações dos manuais de cada fabricante, com interpolação nos métodos que o manual não cita. Os do Mongdio partem do seu teste (Melitta no 20) e da escala do anel; os do iCoffee são provisórios, proporcionais aos 30 ajustes. Os do HiBrew G5 Mini partem das faixas do fabricante (espresso 0–60, moka 61–80, coado 81–90, prensa 91 em diante) e também são provisórios.</p>
   </section>
   <section class="panel" aria-label="Minhas receitas" data-pag="receitas">
     <div>
@@ -782,7 +817,7 @@ const san=(x)=>{if(!x||typeof x!=="object"||x.desc)return null;const o={id:typeo
 const ISD=v=>v==="desc"||v==="descpo";
 // Novo preparo: método, moedor e café precisam ser escolhidos antes de liberar o temporizador
 let NOVO=null,abrirMet=false,abrirMoe=false,abrirRec=false,recPend=false;const cafOk=()=>{try{if(cur().cap)return true}catch(e){}return usoPote>=0&&POT.p[usoPote]===st.csel};
-const novoFalta=()=>(cafOk()?[]:["o café no pote (Usar no preparo)"]).concat(NOVO?[!NOVO.met&&"o método",!NOVO.moe&&"o moedor"].filter(Boolean):[]).concat(recPend?["o tipo de preparo"]:[]);
+const novoFalta=()=>(cafOk()?[]:["o café dos potes (Pelo tipo de preparo ou Pelo pote)"]).concat(NOVO?[!NOVO.met&&"o método",!NOVO.moe&&"o moedor"].filter(Boolean):[]).concat(recPend?["o tipo de preparo"]:[]);
 const marca=k=>{if(NOVO){NOVO[k]=true;if(NOVO.met&&NOVO.moe)NOVO=null}};
 let CAF=null;try{CAF=JSON.parse(localStorage.getItem("calcCafes")||"null")}catch(e){}
 if(!Array.isArray(CAF)){CAF=[{...CAFE0,id:"c-tucano",nome:"Black Tucano Fruity"}];
@@ -792,12 +827,13 @@ CAF=CAF.map(san).filter(Boolean);
 let usoPote=-1;
 let AVAL=[];try{const x=JSON.parse(localStorage.getItem("calcAval")||"[]");if(Array.isArray(x))AVAL=x}catch(e){}
 const saveAval=()=>{try{localStorage.setItem("calcAval",JSON.stringify(AVAL))}catch(e){}};
+var LOCPOT="calcPotes";
 let POT={n:5,p:[],g:[],u:[],h:[],log:[],t:[]};
 const BAL={rec:[],on:false,dev:null,cmd:null,w:null,alvoCafe:0,cap:false,semAuto:false,base:0,autoBase:false,hist:[],est:null,cand:null,bip:new Set()};
-function loadPot(){try{const x=JSON.parse(localStorage.getItem("calcPotes")||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
+function loadPot(){try{const x=JSON.parse(localStorage.getItem(LOCPOT)||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
 loadPot();
 const logPot=(ev,i)=>{const d=new Date(),p2=n=>String(n).padStart(2,"0");POT.log.unshift(`${p2(d.getDate())}/${p2(d.getMonth()+1)} ${p2(d.getHours())}:${p2(d.getMinutes())} · Pote ${i+1} · ${ev}`);POT.log=POT.log.slice(0,40)};
-const savePot=()=>{try{localStorage.setItem("calcPotes",JSON.stringify(POT))}catch(e){}};
+const savePot=()=>{try{localStorage.setItem(LOCPOT,JSON.stringify(POT))}catch(e){}};
 let potArm=-1,potSel=-1;
 const saveCaf=()=>{try{localStorage.setItem("calcCafes",JSON.stringify(CAF))}catch(e){}};saveCaf();
 if(!st.csel){const o=st.cafe&&!st.cafe.desc&&CAF.find(c=>c.nome===st.cafe.nome);st.csel=o?o.id:(st.cafe&&st.cafe.desc?"desc":(CAF[0]?CAF[0].id:"desc"))}
@@ -814,20 +850,21 @@ try{REC=JSON.parse(localStorage.getItem("calcReceitas")||"null")}catch(e){}
 if(!Array.isArray(REC)) REC=[{nome:"B75 Black Tucano (vídeo)",cafeId:"c-tucano",cafe:{...CAFE0,nome:"Black Tucano Fruity"},met:"b75",moe:"k7",base:"cafe",c:20,q:300,r:15,gr:70}];
 const saveRec=()=>{try{localStorage.setItem("calcReceitas",JSON.stringify(REC))}catch(e){}};
 const $=id=>document.getElementById(id);
-const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Padrão do app");
-// ===== Espresso portátil (OutIn Nano, iCoffee): um método com lista de equipamentos. Receitas provisórias até o Jeff mandar as caixas/manuais =====
+const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Receita sugerida");
+// ===== iCoffee Barista (espresso portátil): café moído, Basket Plus da OutIn e cápsula Nespresso. Receitas provisórias até o Jeff mandar as caixas/manuais =====
 {const gEP={k7:[35,45,40],r3:[25,45,35],pro:[8,24,15],oster:[1,3,1,'Pode não chegar à finura de espresso'],mongdio:[3,9,6,'Pode não chegar à finura de espresso'],icoffee:[2,7,5,'Pode não chegar à finura de espresso']},
   PROV=" Receita provisória: será ajustada com os dados da caixa e do manual.";
  M.push(
- {id:"portatil",dev:"OutIn Nano",rn:"Nano · Basket Plus (dose dupla)",n:"Espresso portátil",cls:"Fina",dose:true,tank:true,q:17,qs:0.5,r:[3,5,4,0.5],temp:"Aquecimento automático",tempo:"30 a 40 s de extração",g:gEP,
-  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no Basket Plus, distribua e compacte firme e nivelado`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (sem passar da linha máxima). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Monte a máquina e ligue: ela aquece a água e começa a extração"],["0:30–0:40","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
-  tip:"O Basket Plus leva 16 a 18 g e faz espresso duplo. A proporção aqui é água no reservatório : café. Se sair rápido e aguado, moa mais fino ou compacte mais; se travar, moa mais grosso."+PROV},
- {id:"epNano1",grp:"portatil",dev:"OutIn Nano",rn:"Nano · cesto padrão (dose simples)",n:"Espresso portátil",cls:"Fina",dose:true,tank:true,q:9,qs:0.5,r:[4,7,5,0.5],temp:"Aquecimento automático",tempo:"25 a 35 s de extração",g:gEP,
-  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no cesto padrão, distribua e compacte firme`],["Preparo",`Encha o reservatório com ${f(a)} ml de água. Água já quente encurta o aquecimento`],["0:00","Monte a máquina e ligue: ela aquece a água e começa a extração"],["0:25–0:35","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
-  tip:"Dose simples no cesto que vem com a Nano. A proporção aqui é água no reservatório : café."+PROV},
- {id:"epIcof",grp:"portatil",dev:"iCoffee",rn:"iCoffee · café moído",n:"Espresso portátil",cls:"Fina",dose:true,tank:true,q:8,qs:0.5,r:[3,6,5,0.5],temp:"Aquecimento automático",tempo:"cerca de 3:30 com água fria",g:gEP,
-  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no cesto inox, nivele e compacte de leve`],["Preparo",`Encha o reservatório com ${f(a)} ml de água. Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Monte a máquina no suporte sobre a xícara, ligue e aperte o botão"],["3:20","Com água fria, a extração começa quando a água esquenta (com água quente, bem antes)"],["3:50","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
-  tip:"30 a 40 ml é espresso, 60 a 80 ml é lungo. A proporção aqui é água no reservatório : café."+PROV});}
+ {id:"portatil",rn:"Expresso pressurizado",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:9,qs:0.5,r:[4,8,5.5,0.5],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00 com água fria",g:gEP,
+  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no cesto inox, nivele e compacte de leve`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (a xícara da máquina é de 50 ml). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Monte a máquina no suporte da iCoffee sobre a xícara, ligue e aperte o botão"],["2:30","Com água fria, a extração começa quando a água esquenta (com água quente, bem antes)"],["3:00","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
+  tip:"Dados da caixa da iCoffee Linha Barista: até 20 bar, aquece em cerca de 2:30, até 8 xícaras de 50 ml por carga, carga completa em 2,5 h (30 W). 30 a 40 ml na xícara é espresso; mais água vira lungo. A proporção aqui é água no reservatório : café."},
+ {id:"epIcofBp",grp:"portatil",rn:"Basket Plus (dose dupla)",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:17,qs:0.5,r:[3,5,4,0.5],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00 com água fria",g:gEP,
+  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no Basket Plus da OutIn, distribua e compacte firme e nivelado`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (sem passar da linha máxima). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Encaixe o Basket Plus na iCoffee, monte no suporte da iCoffee sobre a xícara, ligue e aperte o botão"],["2:30","Com água fria, a extração começa quando a água esquenta (com água quente, bem antes)"],["3:00","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
+  tip:"O Basket Plus da OutIn encaixa na iCoffee: leva 16 a 18 g e faz espresso duplo. A proporção aqui é água no reservatório : café. Se sair rápido e aguado, moa mais fino ou compacte mais; se travar, moa mais grosso."},
+ {id:"epIcofNs",grp:"portatil",rn:"Cápsula Nespresso",n:"iCoffee Barista",cls:"Cápsula",cap:true,q:40,qs:5,r:[1,30,8,1],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00",
+  g:{k7:[0,0,0],r3:[0,0,0],pro:[0,0,0],oster:[0,0,0],mongdio:[0,0,0],icoffee:[0,0,0]},
+  steps:(c,a)=>[["Preparo","Encaixe a cápsula no adaptador de cápsula (o que tem a agulha)"],["Preparo",`Encha o reservatório com ${f(a)} ml de água: 25 ml ristretto, 40 ml espresso, até 50 ml lungo`],["0:00","Monte o adaptador, coloque a máquina no suporte sobre a xícara, ligue e aperte o botão"],["2:30","Extração automática (com água já quente, bem antes)"],["3:00","Fim: retire e descarte a cápsula com cuidado, ela sai quente"]],
+  tip:"Cápsula não usa moedor nem balança de café. A caixa diz que a máquina aceita cápsulas e café moído; confira no manual quais cápsulas o adaptador recebe."});}
 // ===== Wacaco (Prestina, Cuppamoka, Pipamoka): um método com lista de equipamentos e receitas de cada um =====
 {const gPres={k7:[75,90,82],r3:[110,140,125],pro:[75,95,85],oster:[10,13,11],mongdio:[20,26,23],icoffee:[15,20,17]},
        gCup={k7:[65,80,72],r3:[95,125,110],pro:[60,90,75],oster:[8,10,9],mongdio:[16,21,18],icoffee:[12,16,14]},
@@ -861,7 +898,7 @@ const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Padr�
   steps:(c,a)=>[["Preparo",`${f(c,1)} g na cápsula de filtro, nivelado e fechado`],["Preparo",`Êmbolo no fundo e ${g(a)} de água (cerca de 3/4 da caneca)`],["0:00","Solte a cápsula, espere afundar e feche a tampa"],["0:30","Gire o anel bem devagar, cerca de 90 s"],["1:50–2:10","Fim do preparo"]],
   tip:"Menos água com a mesma dose máxima deixa o café mais encorpado (reviews relatam ~180 ml com sabor mais forte)."});}
 const IC={"turco": "<path d=\"M18 26h24l-3 24a4 4 0 0 1-4 3H25a4 4 0 0 1-4-3z\"/><path d=\"M17 26c0-3 2-4 4-4h18c2 0 4 1 4 4\"/><path d=\"M42 30l16-6\"/><path d=\"M27 18c0-3 3-3 3-6M33 18c0-3 3-3 3-6\"/>", "espresso": "<path d=\"M10 22h30v8a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6z\"/><path d=\"M40 26h14\"/><path d=\"M20 36v6M30 36v6\"/><path d=\"M16 46h18l-2 8H18z\"/><path d=\"M14 18h26\"/>", "moka": "<path d=\"M22 34h20l4 20H18z\"/><path d=\"M24 34l-4-18h24l-4 18\"/><path d=\"M20 16l-2-4h28l-2 4\"/><path d=\"M44 20c6 0 8 4 8 8s-3 6-6 6\"/><path d=\"M31 12V8h2v4\"/>", "aeropress": "<rect x=\"22\" y=\"22\" width=\"20\" height=\"30\" rx=\"2\"/><path d=\"M26 22V10h12v12\"/><path d=\"M22 10h20\"/><path d=\"M18 52h28\"/><path d=\"M26 30h12M26 38h12\" stroke-dasharray=\"2 3\"/>", "switch": "<path d=\"M14 14h36L36 40h-8z\"/><path d=\"M22 20l10 18M42 20L32 38\"/><path d=\"M26 40h12v6H26z\"/><path d=\"M18 50h28v4H18z\"/><path d=\"M38 43h6\"/><circle cx=\"46\" cy=\"43\" r=\"2\"/>", "b75": "<path d=\"M12 18h40l-6 22H18z\"/><path d=\"M18 40h28\"/><path d=\"M20 26h24M22 33h20\"/><path d=\"M24 40v6h16v-6\"/><path d=\"M14 50h36\"/>", "v60": "<path d=\"M12 16h40L36 42h-8z\"/><path d=\"M20 18l10 22M44 18L34 40M32 17v23\"/><path d=\"M8 16h48\"/><path d=\"M50 22c5 0 6 3 6 6s-2 5-5 5\"/><path d=\"M26 42h12v4H26z\"/><path d=\"M18 52h28\"/>", "fluire": "<path d=\"M14 16h36L34 44h-4z\"/><path d=\"M14 16c0 4 8 6 18 6s18-2 18-6\"/><path d=\"M22 28h20M26 36h12\"/><path d=\"M28 44h8v4h-8z\"/><path d=\"M16 52h32\"/>", "origami": "<path d=\"M10 16h44L36 42h-8z\"/><path d=\"M15 16l15 26M21 16l11 26M27 16l5 26M33 16l1 26M39 16l-4 26M45 16l-9 26M51 16l-13 26\"/><path d=\"M26 42h12v5H26z\"/><path d=\"M18 52h28\"/>", "melitta": "<path d=\"M14 16h36l-8 28H22z\"/><path d=\"M22 44h20\"/><path d=\"M28 44v4h8v-4\"/><path d=\"M50 22c5 0 6 3 6 7s-3 5-6 5\"/><path d=\"M12 52h40\"/><path d=\"M27 44l5-20 5 20\"/>", "pano": "<path d=\"M14 14h36\"/><path d=\"M18 14v40M46 14v40\"/><path d=\"M22 14c0 18 4 26 10 26s10-8 10-26\"/><path d=\"M26 22h12\"/><path d=\"M14 54h36\"/><path d=\"M32 42v4\"/>", "coador": "<rect x=\"14\" y=\"10\" width=\"36\" height=\"12\" rx=\"2\"/><path d=\"M18 22v32M46 22v32\"/><path d=\"M24 34h16v14a4 4 0 0 1-4 4h-8a4 4 0 0 1-4-4z\"/><path d=\"M40 38c4 0 4 8 0 8\"/><path d=\"M14 54h36\"/><path d=\"M26 26h12l-3 5h-6z\"/>", "sifao": "<circle cx=\"32\" cy=\"44\" r=\"10\"/><path d=\"M26 10h12v14a6 6 0 0 1-12 0z\"/><path d=\"M32 30v10\"/><path d=\"M20 56h24\"/><path d=\"M28 54h8\"/><path d=\"M24 14h16\"/>", "clever": "<path d=\"M12 14h40L40 40H24z\"/><path d=\"M20 22h24\"/><path d=\"M24 40h16v6H24z\"/><circle cx=\"32\" cy=\"43\" r=\"1.5\"/><path d=\"M50 20c5 0 6 3 6 6s-2 5-5 5\"/><path d=\"M18 52h28\"/>", "chemex": "<path d=\"M18 8h28L34 30l12 22a2 2 0 0 1-2 3H20a2 2 0 0 1-2-3l12-22z\"/><path d=\"M26 26h12l-2 8h-8z\"/><path d=\"M31 30h2\"/><path d=\"M24 44h16\"/>", "prensa": "<rect x=\"18\" y=\"18\" width=\"28\" height=\"36\" rx=\"3\"/><path d=\"M32 6v28\"/><path d=\"M28 6h8\"/><path d=\"M20 34h24\"/><path d=\"M46 24c6 0 8 4 8 10s-2 10-8 10\"/><path d=\"M16 18h32\"/>", "cold": "<path d=\"M18 14h28v36a6 6 0 0 1-6 6H24a6 6 0 0 1-6-6z\"/><path d=\"M16 14h32v-4H16z\"/><rect x=\"24\" y=\"24\" width=\"8\" height=\"8\" rx=\"1\" transform=\"rotate(12 28 28)\"/><rect x=\"32\" y=\"34\" width=\"8\" height=\"8\" rx=\"1\" transform=\"rotate(-10 36 38)\"/><path d=\"M22 46h20\"/>", "me26": "<rect x=\"20\" y=\"8\" width=\"24\" height=\"34\" rx=\"5\"/><path d=\"M24 16h16\"/><circle cx=\"32\" cy=\"26\" r=\"3\"/><path d=\"M22 42h20v6H22z\"/><path d=\"M26 52h12l-1 4H27z\"/>", "portatil": "<rect x=\"22\" y=\"6\" width=\"20\" height=\"38\" rx=\"9\"/><path d=\"M27 14h10\"/><circle cx=\"32\" cy=\"22\" r=\"2\"/><path d=\"M24 44h16l-2 6H26z\"/><path d=\"M14 56h36\"/><path d=\"M28 50v6M36 50v6\"/>", "wacaco": "<path d=\"M22 8h20v10H22z\"/><path d=\"M24 18h16v26H24z\"/><path d=\"M20 44h24l-2 6H22z\"/><path d=\"M14 22h10M40 22h10\"/><path d=\"M28 26v12M36 26v12\"/>"};
-const GI={"k7": "<path d=\"M32 6v8\"/><path d=\"M32 8h16\"/><circle cx=\"50\" cy=\"8\" r=\"3\"/><rect x=\"24\" y=\"14\" width=\"16\" height=\"6\" rx=\"1\"/><rect x=\"22\" y=\"20\" width=\"20\" height=\"36\" rx=\"3\"/><path d=\"M22 40h20\"/><path d=\"M26 26v8M30 26v8M34 26v8M38 26v8\"/>", "r3": "<path d=\"M32 8v6\"/><path d=\"M32 9h14\"/><circle cx=\"48\" cy=\"9\" r=\"3.5\"/><rect x=\"23\" y=\"14\" width=\"18\" height=\"40\" rx=\"9\"/><path d=\"M23 30h18\"/><path d=\"M27 54h10\"/>", "pro": "<path d=\"M32 4v10\"/><path d=\"M32 6h18\"/><circle cx=\"52\" cy=\"6\" r=\"3.5\"/><path d=\"M14 6h4\"/><rect x=\"22\" y=\"14\" width=\"20\" height=\"42\" rx=\"4\"/><path d=\"M22 24h20M22 44h20\"/><circle cx=\"32\" cy=\"34\" r=\"4\"/>", "oster": "<path d=\"M24 6h16l-3 12H27z\"/><rect x=\"16\" y=\"18\" width=\"32\" height=\"38\" rx=\"4\"/><circle cx=\"32\" cy=\"30\" r=\"5\"/><path d=\"M32 25v3\"/><rect x=\"22\" y=\"40\" width=\"20\" height=\"12\" rx=\"2\"/><path d=\"M42 44h4\"/>", "mongdio": "<rect x=\"23\" y=\"6\" width=\"18\" height=\"8\" rx=\"3\"/><rect x=\"22\" y=\"14\" width=\"20\" height=\"40\" rx=\"5\"/><path d=\"M22 34h20\"/><circle cx=\"32\" cy=\"24\" r=\"3\"/><path d=\"M27 44h10\" stroke-dasharray=\"1 3\"/><path d=\"M29 54v3h6v-3\"/>", "icoffee": "<path d=\"M24 6h16v6H24z\"/><rect x=\"24\" y=\"12\" width=\"16\" height=\"44\" rx=\"8\"/><circle cx=\"32\" cy=\"24\" r=\"2.5\"/><path d=\"M28 32h8M28 36h8M28 40h8\"/><path d=\"M30 56v2h4v-2\"/>"};
+const GI={"hibrew": "<rect x=\"21\" y=\"18\" width=\"22\" height=\"38\" rx=\"5\"/><rect x=\"23\" y=\"8\" width=\"18\" height=\"10\" rx=\"3\"/><path d=\"M21 30h22\"/><path d=\"M26 30v-4M30 30v-3M34 30v-4M38 30v-3\"/><circle cx=\"32\" cy=\"44\" r=\"3\"/><path d=\"M27 56v3h10v-3\"/>","k7": "<path d=\"M32 6v8\"/><path d=\"M32 8h16\"/><circle cx=\"50\" cy=\"8\" r=\"3\"/><rect x=\"24\" y=\"14\" width=\"16\" height=\"6\" rx=\"1\"/><rect x=\"22\" y=\"20\" width=\"20\" height=\"36\" rx=\"3\"/><path d=\"M22 40h20\"/><path d=\"M26 26v8M30 26v8M34 26v8M38 26v8\"/>", "r3": "<path d=\"M32 8v6\"/><path d=\"M32 9h14\"/><circle cx=\"48\" cy=\"9\" r=\"3.5\"/><rect x=\"23\" y=\"14\" width=\"18\" height=\"40\" rx=\"9\"/><path d=\"M23 30h18\"/><path d=\"M27 54h10\"/>", "pro": "<path d=\"M32 4v10\"/><path d=\"M32 6h18\"/><circle cx=\"52\" cy=\"6\" r=\"3.5\"/><path d=\"M14 6h4\"/><rect x=\"22\" y=\"14\" width=\"20\" height=\"42\" rx=\"4\"/><path d=\"M22 24h20M22 44h20\"/><circle cx=\"32\" cy=\"34\" r=\"4\"/>", "oster": "<path d=\"M24 6h16l-3 12H27z\"/><rect x=\"16\" y=\"18\" width=\"32\" height=\"38\" rx=\"4\"/><circle cx=\"32\" cy=\"30\" r=\"5\"/><path d=\"M32 25v3\"/><rect x=\"22\" y=\"40\" width=\"20\" height=\"12\" rx=\"2\"/><path d=\"M42 44h4\"/>", "mongdio": "<rect x=\"23\" y=\"6\" width=\"18\" height=\"8\" rx=\"3\"/><rect x=\"22\" y=\"14\" width=\"20\" height=\"40\" rx=\"5\"/><path d=\"M22 34h20\"/><circle cx=\"32\" cy=\"24\" r=\"3\"/><path d=\"M27 44h10\" stroke-dasharray=\"1 3\"/><path d=\"M29 54v3h6v-3\"/>", "icoffee": "<path d=\"M24 6h16v6H24z\"/><rect x=\"24\" y=\"12\" width=\"16\" height=\"44\" rx=\"8\"/><circle cx=\"32\" cy=\"24\" r=\"2.5\"/><path d=\"M28 32h8M28 36h8M28 40h8\"/><path d=\"M30 56v2h4v-2\"/>"};
 const svgI=b=>`<svg class="ico" viewBox="0 0 64 64" aria-hidden="true">${b||""}</svg>`;
 const icMet=m=>IC[m&&m.ic]||IC[m&&G(m)]||IC[m&&m.like]||IC.v60;
 var METU=[];try{const x=JSON.parse(localStorage.getItem("calcMetU")||"[]");if(Array.isArray(x))METU=x}catch(e){}
@@ -894,10 +931,13 @@ const calc=m=>{const r=Number(rOf(m));const q=Math.max(0,Number(qOf(m))||0);
   return {r,q,c,a,b:Math.max(0,a-ret*c)}};
 let toastT;const toast=window.toastG=t=>{$("toast").textContent=t;clearTimeout(toastT);toastT=setTimeout(()=>$("toast").textContent="",5000)};
 const MN=Object.fromEntries(M.map(m=>[m.id,m.n]));
-const GN={k7:"K7",r3:"Blade R3",pro:"R3 Pro",oster:"Oster",mongdio:"Mongdio",icoffee:"iCoffee"};
+const GN={k7:"K7",r3:"Blade R3",pro:"R3 Pro",oster:"Oster",mongdio:"Mongdio",icoffee:"iCoffee",hibrew:"HiBrew G5 Mini"};
+// HiBrew G5 Mini (mó cônica de 38 mm, 100 ajustes): faixas do fabricante espresso 0–60, moka 61–80, coado 81–90, prensa 91+; valores convertidos a partir do K7
+{const P=[[0,0],[10,8],[20,25],[35,45],[50,70],[60,79],[75,86],[100,95],[130,100]];const cv=k=>{if(k>=130)return 100;for(let i=1;i<P.length;i++)if(k<=P[i][0]){const[a,b]=P[i-1],[c,d]=P[i];return Math.round(b+(d-b)*(k-a)/(c-a))}return 100};
+ for(const m of M)if(m.g&&m.g.k7&&!m.g.hibrew){const k=m.g.k7;m.g.hibrew=[cv(k[0]),cv(k[1]),cv(k[2])];if(k[0]<=20)m.g.hibrew.push("O fabricante indica 0 a 60 para espresso; para o turco, comece bem perto do zero")}}
 var MOEU=[];try{const x=JSON.parse(localStorage.getItem("calcMoeU")||"[]");if(Array.isArray(x))MOEU=x}catch(e){}
 for(const u of MOEU){GN[u.id]=u.n;for(const m of M){if(m.g&&m.g[u.like]&&!m.g[u.id])m.g[u.id]=[...m.g[u.like]]}}
-const MOEB=[["k7","KINGrinder K7","man"],["r3","Blade R3","man"],["pro","R3 Pro","man"],["oster","Oster BVSTBMH24","mesa"],["mongdio","Mongdio HB-991","port"],["icoffee","iCoffee elétrico","port"]];
+const MOEB=[["k7","KINGrinder K7","man"],["r3","Blade R3","man"],["pro","R3 Pro","man"],["oster","Oster BVSTBMH24","mesa"],["mongdio","Mongdio HB-991","port"],["icoffee","iCoffee elétrico","port"],["hibrew","HiBrew G5 Mini","port"]];
 function renderMoeBtns(){const L=[...MOEB.map(([id,n,t])=>({id,n,t,ic:id})),...MOEU.map(u=>({id:u.id,n:u.n,t:u.tipo||"man",ic:u.ic||u.like}))],bt=x=>`<button type="button" data-v="${x.id}">${svgI(GI[x.ic]||GI.k7)}<span>${esc(x.n)}</span></button>`;
   $("moedores").innerHTML=[["man","Manuais"],["mesa","Elétrico de mesa"],["port","Elétricos portáteis"]].map(([t,l])=>{const g=L.filter(x=>x.t===t);return g.length?`<span class="grp">${l}</span>${g.map(bt).join("")}`:""}).join("")
    +`<div class="addT" role="button" tabindex="0" id="addMoe">${svgI('<path d="M32 18v28M18 32h28"/>')}<span>Adicionar moedor</span></div>`}
@@ -993,8 +1033,8 @@ function renderPotes(){
     if(v){const k=CAF.find(c=>c.id===v),d=k?dias(k.data):null;
       const gs=POT.g[i],u=POT.u[i]||{n:0,g:0,ini:null},dose=calc(cur()).c;
       const pgIn=`<input class="txt" id="pg${i}" data-pg="${i}" type="number" inputmode="decimal" min="0" step="1" style="width:62px;padding:7px 6px;flex:none" placeholder="peso" aria-label="Café no pote (g)" value="${gs!=null?Math.round(gs*10)/10:""}"><span style="font-size:.86rem;margin-left:-2px">g</span>`;info=gs==null?`</p><p class="pi">Pese só o café no pote (zere a balança com o pote vazio) e informe o peso ao lado de "Usar no preparo".`:gs<dose?`</p><p class="pi"><b>Menos de uma dose no pote</b>`:"";
-      if(k&&!(v===st.csel&&!(NOVO&&!NOVO.met)&&!abrirMet&&!recPend)){const rk=rankMetodos(k),it=(r,j)=>{const mm=M.find(x=>x.id===r.id),on=st.csel===v&&G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="pi" style="color:var(--fg)"><b>${j+1}. ${esc(mm.n)}</b> · ${r.nota}%<br><span style="color:var(--muted)">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-pind="${i}:${j}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
-        info+=`</p><div style="margin-top:4px;padding:10px 12px;border-radius:10px;background:var(--soft);display:grid;gap:8px"><span class="lbl" style="margin:0">Métodos para este café, do mais ao menos indicado</span>${rk.slice(0,5).map(it).join("")}<details><summary style="font-size:.84rem;cursor:pointer">Ver os demais métodos</summary><div style="display:grid;gap:8px;margin-top:8px">${rk.slice(5).map((r,j)=>it(r,j+5)).join("")}</div></details></div><p class="pi" hidden>`}
+      if(k&&!(v===st.csel&&!(NOVO&&!NOVO.met)&&!abrirMet&&!recPend)){const rk=rankPote(k),it=(r,j)=>{const mm=M.find(x=>x.id===r.id),on=st.csel===v&&G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="pi" style="color:var(--fg)"><b>${j+1}. ${esc(mm.n)}</b> · ${r.nota}%<br><span style="color:var(--muted)">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-pind="${i}:${j}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
+        info+=`</p><div style="margin-top:4px;padding:10px 12px;border-radius:10px;background:var(--soft);display:grid;gap:8px"><span class="lbl" style="margin:0">${rk.length>2?"Métodos para este café, do mais ao menos indicado":"Métodos daqui para este café"}</span>${rk.slice(0,5).map(it).join("")}${rk.length>5?`<details><summary style="font-size:.84rem;cursor:pointer">Ver os demais métodos</summary><div style="display:grid;gap:8px;margin-top:8px">${rk.slice(5).map((r,j)=>it(r,j+5)).join("")}</div></details>`:""}</div><p class="pi" hidden>`}
       acts=`<div class="acts" style="align-items:center;flex-wrap:nowrap">${pgIn}${BAL.on?`<button class="btn" type="button" data-ppes="${i}" aria-label="Pesar o pote na balança" title="${POT.t&&POT.t[i]!=null?"Pesar o pote cheio":"Guardar a tara do pote vazio"}">⚖︎</button>`:""}<button class="btn" type="button" data-pusar="${i}" aria-pressed="${usoPote===i&&v===st.csel}">${usoPote===i&&v===st.csel?"Utilizando este café no preparo":"Usar no preparo"}</button><button class="btn" type="button" data-pfim="${i}">${potArm===i?"Confirmar: acabou":"Acabou"}</button></div>`}
     else{const sg=fila[si++];
       if(sg){const d=dias(sg.data),nx=fila.slice(si,si+2).map(x=>x.nome);
@@ -1024,7 +1064,7 @@ const PERF={v60:{c:3,b:1,i:0,d:2,e:0},b75:{c:3,b:1,i:0,d:3,e:0},origami:{c:2,b:2
   espresso:{c:0,b:3,i:0,d:2,e:3},me26:{c:0,b:3,i:0,d:2,e:3},turco:{c:0,b:3,i:1,d:0,e:1}};
 // Métodos que o Jeff tem
 const MEUS=["v60","b75","origami","melitta","pano","fluire","switch","prensa","me26"];
-PERF.wacaco={c:2,b:2,i:2,d:2,e:0};PERF.portatil={c:0,b:3,i:0,d:2,e:3};MEUS.push("wacaco","aeropress","portatil");
+PERF.wacaco={c:2,b:2,i:2,d:2,e:0};PERF.portatil={c:0,b:3,i:0,d:2,e:3};MEUS.push("wacaco","aeropress","portatil","moka");
 
 const ROT={c:"clareza para acidez e aromas",b:"corpo",i:"imersão, que extrai melhor café menos fresco",d:"doçura",e:"concentração (espresso)"};
 function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,co=k.corpo,d=k.docura,ar=k.aroma,dd=dias(k.data),tx=(k.nome+" "+k.processo+" "+k.tipo).toLowerCase();
@@ -1041,7 +1081,7 @@ function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,c
 function renderCafe(){
   const k=st.cafe,sel=st.csel;
   $("cSel").innerHTML=`<option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option>`+(CAF.length?`<optgroup label="Meus cafés">${CAF.map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}${c.fim?" · acabou":""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
-  if(NOVO&&!NOVO.caf){$("cSel").insertAdjacentHTML("afterbegin",`<option value="__esc">Escolha o café no pote…</option>`);$("cSel").value="__esc"}else $("cSel").value=sel;
+  if(NOVO&&!NOVO.caf){$("cSel").insertAdjacentHTML("afterbegin",`<option value="__esc">Escolha o café dos potes abaixo…</option>`);$("cSel").value="__esc"}else $("cSel").value=sel;
   const reg=!ISD(sel)&&sel!=="novo", d=dias(k.data);
   {const noPote=POT.p.slice(0,POT.n).includes(st.csel);const rk=[];$("cIndBox").hidden=!rk.length;
    const item=(r,i)=>{const m=M.find(x=>x.id===r.id),on=G(cur())===r.g&&!(NOVO&&!NOVO.met);return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center"><div class="cres" style="color:var(--fg)"><b>${i+1}. ${esc(m.n)}</b> · ${r.nota}%<br><span style="color:var(--muted);font-size:.84rem">${esc(r.why)}${r.k46?" (4:6 "+K46S[r.k46.s][0].toLowerCase()+")":""}</span></div><button class="btn" type="button" data-ind="${i}" aria-pressed="${on}">${on?"Em uso":"Usar"}</button></div>`};
@@ -1093,7 +1133,7 @@ function render(){
   $("lAgua").textContent=m.dose?"Na xícara":"Água";
   $("oAgua").innerHTML=f(a,m.dose?1:0)+"<small>g</small>";
   const gr=m.g[st.moe], aj=ajuste(m), sv=Math.max(0,gr[2]+aj.off), gv=st.gr[gKey(m)]??sv, custom=st.gr[gKey(m)]!=null&&st.gr[gKey(m)]!==sv;
-  const unit={oster:"Moagem · posição",mongdio:"Moagem · número do anel",icoffee:"Moagem · ajuste (de 30)"}[st.moe]||((MOEU.find(x=>x.id===st.moe)||{}).u==="num"?"Moagem · número":"Moagem · cliques");
+  const unit={oster:"Moagem · posição",mongdio:"Moagem · número do anel",icoffee:"Moagem · ajuste (de 30)",hibrew:"Moagem · ajuste (de 100)"}[st.moe]||((MOEU.find(x=>x.id===st.moe)||{}).u==="num"?"Moagem · número":"Moagem · cliques");
   $("padrao").hidden=st.r[m.id]==null||Number(st.r[m.id])===Number(m.r[2]);
   $("lMoag").textContent=unit; $("lMoagIn").textContent=unit;
   $("gUnit").textContent=st.moe==="oster"?"posição":st.moe==="mongdio"?"nº":st.moe==="icoffee"?"ajuste":(MOEU.find(x=>x.id===st.moe)||{}).u==="num"?"nº":"cliques";
@@ -1494,7 +1534,7 @@ $("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pote]"
 $("potes").addEventListener("input",e=>{const el=e.target.closest("[data-pg]");if(!el)return;loadPot();const i=+el.dataset.pg,v=el.value===""?null:Math.max(0,Number(el.value));POT.g[i]=v;const u0=POT.u[i];if(!(u0&&u0.n>0))POT.u[i]={n:0,g:0,ini:v};savePot();
   const o=$("poteSel").options[i+1];if(o)o.textContent=`Pote ${i+1} · ${potNome(POT.p[i])}${v!=null?" · "+f(v)+" g":""}`});
 $("potes").addEventListener("change",e=>{const el=e.target.closest("[data-pg]");if(el){loadPot();logPot("peso informado: "+(POT.g[+el.dataset.pg]??"vazio")+" g",+el.dataset.pg);savePot();setTimeout(renderPotes,0)}});
-$("potes").addEventListener("click",e=>{const pi=e.target.closest("[data-pind]");if(pi){const[i,j]=pi.dataset.pind.split(":").map(Number);const v=POT.p[i],k=CAF.find(c=>c.id===v);if(!k)return;const r=rankMetodos(k)[j];if(!r)return;
+$("potes").addEventListener("click",e=>{const pi=e.target.closest("[data-pind]");if(pi){const[i,j]=pi.dataset.pind.split(":").map(Number);const v=POT.p[i],k=CAF.find(c=>c.id===v);if(!k)return;const r=rankPote(k)[j];if(!r)return;
     marca("caf");marca("met");st.csel=v;cEdit=false;cDelArm=false;st.cafe={...k};{const l=(st.gsel||{})[r.g];st.met=r.id&&M.some(x=>x.id===r.id)?r.id:l&&M.some(x=>x.id===l&&G(x)===r.g)?l:r.g;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:st.met}}recPend=false;abrirMet=false;abrirRec=false;render();toast("Café do pote e método selecionados");return}
   const u=e.target.closest("[data-pusar]"),fm=e.target.closest("[data-pfim]"),po=e.target.closest("[data-ppor]");
   if(po||fm)loadPot();
@@ -1504,7 +1544,7 @@ $("potes").addEventListener("click",e=>{const pi=e.target.closest("[data-pind]")
     if(POT.g[i]!=null){const u=POT.u[i]||{n:0};const dt=new Date();POT.h.unshift({nome:potNome(v),prev:Math.round(POT.g[i]*10)/10,n:u.n,data:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`});POT.h=POT.h.slice(0,10)}
     logPot("acabou",i);POT.p[i]="";POT.g[i]=null;POT.u[i]=null;savePot();potArm=-1;render();toast("Pote vazio")}});
 // Voltar ao app ou mudança feita em outra janela: recarrega os potes do armazenamento
-window.addEventListener("storage",e=>{if(e.key==="calcPotes"){loadPot();renderPotes()}});
+window.addEventListener("storage",e=>{if(e.key===LOCPOT){loadPot();renderPotes()}});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){loadPot();renderPotes()}});
 window.addEventListener("pageshow",()=>{loadPot();renderPotes()});
 $("cDel").onclick=()=>{if(!cDelArm){cDelArm=true;renderCafe();return}CAF=CAF.filter(c=>c.id!==st.csel);saveCaf();st.csel="desc";st.cafe={...CAFE0};cDelArm=false;cEdit=false;render();toast("Café excluído")};
@@ -1601,7 +1641,10 @@ function renderPotGrid(){const el=$("potGrid");if(!el)return;const h=[];
 $("potGrid").addEventListener("click",e=>{const t=e.target.closest("[data-pt]");
   if(t){const i=+t.dataset.pt;$("poteSel").value=String(potSel===i?-1:i);$("poteSel").dispatchEvent(new Event("change",{bubbles:true}));if(potSel>=0)$("potes").scrollIntoView({behavior:"smooth",block:"nearest"});return}
   if(e.target.closest("#addPote")){loadPot();if(POT.n>=12)return;$("pN").value=String(POT.n+1);$("pN").dispatchEvent(new Event("change",{bubbles:true}));toast("Pote "+POT.n+" adicionado")}});
-$("addCafe").onclick=()=>{$("cSel").value="novo";$("cSel").dispatchEvent(new Event("change",{bubbles:true}))};
+$("addCafe").onclick=()=>{try{escPor="";escGrp="";renderEsc()}catch(e){}$("cSel").value="novo";$("cSel").dispatchEvent(new Event("change",{bubbles:true}));
+  setTimeout(()=>{const n=$("cNome");if(n&&n.offsetParent){n.scrollIntoView({block:"center",behavior:"smooth"});try{n.focus({preventScroll:true})}catch(e){}}},120)};
+// durante o cadastro, a escolha pelos potes some para o formulário ficar logo abaixo
+{const rc=render;render=function(){rc();document.body.classList.toggle("cadOn",st.csel==="novo")}}
 
 // ===== Receitas em desenho =====
 function renderRecGrid(){const el=$("recGrid");if(!el)return;
@@ -1668,7 +1711,7 @@ function prepTopo(){const m=cur(),k=calc(m),u=MOEU.find(x=>x.id===st.moe);$("ptI
   const caf=ISD(st.csel)?"Café desconhecido":(st.cafe&&st.cafe.nome)||"Sem café";
   const bN=(M.find(x=>x.id===G(m))||m).n;$("ptT").textContent=`${bN}${M.filter(x=>G(x)===G(m)).length>1?" · "+vn(m):""} · ${caf}${usoPote>=0?" · Pote "+(usoPote+1):""}`;
   const mg=$("moag")&&$("moag").value;$("ptS").textContent=(m.cap?"Cápsula":`${f(k.c,1)} g`)+` : ${f(k.a)} g · ${GN[st.moe]||st.moe}${mg&&!m.cap?" "+mg:""}${m.temp?" · "+m.temp:""}`}
-function prepFix(){const b=$("fixBtn"),t=$("tStart");if(document.body.dataset.sub==="pp"){b.textContent=t.textContent==="Bora fazer esse café"?`Bora fazer esse café, ${st.nome||"cafezeiro"}!`:t.textContent;b.disabled=t.disabled;b.hidden=t.hidden}else{b.textContent="Pronto: ir para o passo a passo";b.disabled=false;b.hidden=false}}
+function prepFix(){const b=$("fixBtn"),t=$("tStart");if(document.body.dataset.sub==="pp"&&armado&&!T.run){b.textContent="Iniciar o tempo agora (sem esperar a balança)";b.disabled=t.disabled;b.hidden=false;return}if(document.body.dataset.sub==="pp"){b.textContent=t.textContent==="Bora fazer esse café"?`Bora fazer esse café, ${st.nome||"cafezeiro"}!`:t.textContent;b.disabled=t.disabled;b.hidden=t.hidden}else{b.textContent="Pronto: ir para o passo a passo";b.disabled=false;b.hidden=false}}
 $("fixBtn").onclick=()=>{if(document.body.dataset.sub==="pp")comecar();else irSub("pp")};
 {const r1=render;render=function(){st.ajF=false;r1();try{prepTopo();prepFix()}catch(e){}}}
 new MutationObserver(prepFix).observe($("tStart"),{attributes:true,childList:true,characterData:true,subtree:true});
@@ -1703,18 +1746,21 @@ function pTela(){const pk=$("pSelPk"),b=pk&&pk.querySelector(`[data-pv="${$("pSe
 // Iniciar: primeiro as etapas sem tempo (peneirar, preparo...), cada uma com o botão da próxima; depois o cronômetro
 let preI=-1,preL=[];
 function preTela(){const s0=preL[preI],nx=preL[preI+1];$("preK").textContent=`Antes de começar · ${preI+1} de ${preL.length}`;$("preT").textContent=s0[0];$("preX").textContent=s0[1];
-  $("preNx").textContent=nx?`${nx[0]} ›`:`Iniciar o tempo ›`;$("preOv").hidden=false}
-function comecar(){if($("tStart").disabled)return;preL=[];for(const x of CUR){if(seg(x[0])!=null)break;preL.push(x)}
-  if(!preL.length){$("tStart").click();return}preI=0;preTela()}
-$("preNx").onclick=()=>{if(preI<preL.length-1){preI++;preTela()}else{$("preOv").hidden=true;preI=-1;$("tStart").click()}};
+  $("preNx").textContent=nx?`${nx[0]} ›`:balAuto()?`Pronto: pode despejar ›`:`Iniciar o tempo ›`;$("preOv").hidden=false}
+// Com balança Bluetooth conectada, o tempo começa sozinho quando a água começa a cair (como antes)
+const balAuto=()=>{try{return BAL.on&&!BAL.cap&&!BAL.semAuto&&!cur().cap}catch(e){return false}};let armado=false;
+function armar(){armado=true;prepFix();toast("Pode despejar: o tempo começa sozinho quando a balança perceber a água")}
+function comecar(){if($("tStart").disabled)return;if(armado){armado=false;$("tStart").click();return}preL=[];for(const x of CUR){if(seg(x[0])!=null)break;preL.push(x)}
+  if(!preL.length){if(balAuto())armar();else $("tStart").click();return}preI=0;preTela()}
+$("preNx").onclick=()=>{if(preI<preL.length-1){preI++;preTela()}else{$("preOv").hidden=true;preI=-1;if(balAuto())armar();else $("tStart").click()}};
 $("preCn").onclick=()=>{$("preOv").hidden=true;preI=-1};
 // Se a balança iniciar o cronômetro sozinha, fecha as etapas de antes
-new MutationObserver(()=>{if(!$("tmr").hidden&&!$("preOv").hidden){$("preOv").hidden=true;preI=-1}}).observe($("tmr"),{attributes:true,attributeFilter:["hidden"]});
+new MutationObserver(()=>{if(!$("tmr").hidden){armado=false;if(!$("preOv").hidden){$("preOv").hidden=true;preI=-1}}prepFix()}).observe($("tmr"),{attributes:true,attributeFilter:["hidden"]});
 
 // ===== Balanças com desenho =====
-const BI={"dot": "<ellipse cx=\"32\" cy=\"27\" rx=\"24\" ry=\"9\"/><path d=\"M8 27v8c0 5 11 9 24 9s24-4 24-9v-8\"/><ellipse cx=\"32\" cy=\"26\" rx=\"16\" ry=\"5\" stroke-width=\"1.5\"/><rect x=\"27\" y=\"37\" width=\"10\" height=\"4\" rx=\"1\" stroke-width=\"1.6\"/>", "quad": "<path d=\"M14 22h36l6 8H8z\"/><path d=\"M8 30h48v12H8z\"/><rect x=\"26\" y=\"33\" width=\"12\" height=\"6\" rx=\"1\" stroke-width=\"1.6\"/><path d=\"M18 26h28\" stroke-width=\"1.3\"/>", "mchef": "<path d=\"M12 20h40l4 10H8z\"/><path d=\"M8 30h48v14a3 3 0 0 1-3 3H11a3 3 0 0 1-3-3z\"/><rect x=\"18\" y=\"34\" width=\"16\" height=\"7\" rx=\"1.5\" stroke-width=\"1.6\"/><circle cx=\"42\" cy=\"37.5\" r=\"2\"/><circle cx=\"49\" cy=\"37.5\" r=\"2\"/>", "acaia": "<rect x=\"8\" y=\"24\" width=\"48\" height=\"22\" rx=\"4\"/><rect x=\"24\" y=\"30\" width=\"16\" height=\"7\" rx=\"1.5\"/><circle cx=\"16\" cy=\"40\" r=\"1.5\"/><circle cx=\"48\" cy=\"40\" r=\"1.5\"/>", "felicita": "<rect x=\"9\" y=\"22\" width=\"46\" height=\"26\" rx=\"10\"/><rect x=\"23\" y=\"30\" width=\"18\" height=\"8\" rx=\"4\"/>", "decent": "<path d=\"M10 28h44v16a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z\"/><path d=\"M10 28l4-6h36l4 6\"/><rect x=\"25\" y=\"34\" width=\"14\" height=\"7\" rx=\"1.5\"/>", "bookoo": "<rect x=\"12\" y=\"20\" width=\"40\" height=\"30\" rx=\"5\"/><rect x=\"22\" y=\"40\" width=\"20\" height=\"6\" rx=\"1.5\"/><circle cx=\"32\" cy=\"30\" r=\"6\"/>", "varia": "<rect x=\"10\" y=\"26\" width=\"44\" height=\"20\" rx=\"3\"/><rect x=\"20\" y=\"31\" width=\"24\" height=\"7\" rx=\"1.5\"/><path d=\"M14 46v4M50 46v4\"/>", "eureka": "<circle cx=\"32\" cy=\"34\" r=\"18\"/><circle cx=\"32\" cy=\"32\" r=\"10\" stroke-width=\"1.6\"/><rect x=\"25\" y=\"44\" width=\"14\" height=\"5\" rx=\"1.5\"/>"},TI={"som": "<path d=\"M10 24h10l12-10v36L20 40H10z\"/><path d=\"M40 24a10 10 0 0 1 0 16M46 18a18 18 0 0 1 0 28\"/>", "mudo": "<path d=\"M10 24h10l12-10v36L20 40H10z\"/><path d=\"M42 24l14 16M56 24L42 40\"/>", "pausa": "<path d=\"M22 14v36M42 14v36\" stroke-width=\"6\"/>", "play": "<path d=\"M20 12l30 20-30 20z\" fill=\"currentColor\"/>", "stop": "<rect x=\"16\" y=\"16\" width=\"32\" height=\"32\" rx=\"4\" fill=\"currentColor\"/>", "volta": "<path d=\"M26 18L12 32l14 14\"/><path d=\"M12 32h28a12 12 0 0 1 0 24h-6\"/>"};
+const BI={"redonda": "<ellipse cx=\"32\" cy=\"25\" rx=\"22\" ry=\"8\"/><path d=\"M10 25v9c0 4.5 10 8 22 8s22-3.5 22-8v-9\"/><rect x=\"25\" y=\"33\" width=\"14\" height=\"5\" rx=\"1\" stroke-width=\"1.6\"/><circle cx=\"20\" cy=\"35.5\" r=\"1.3\"/><circle cx=\"44\" cy=\"35.5\" r=\"1.3\"/>","dot": "<ellipse cx=\"32\" cy=\"27\" rx=\"24\" ry=\"9\"/><path d=\"M8 27v8c0 5 11 9 24 9s24-4 24-9v-8\"/><ellipse cx=\"32\" cy=\"26\" rx=\"16\" ry=\"5\" stroke-width=\"1.5\"/><rect x=\"27\" y=\"37\" width=\"10\" height=\"4\" rx=\"1\" stroke-width=\"1.6\"/>", "quad": "<path d=\"M14 22h36l6 8H8z\"/><path d=\"M8 30h48v12H8z\"/><rect x=\"26\" y=\"33\" width=\"12\" height=\"6\" rx=\"1\" stroke-width=\"1.6\"/><path d=\"M18 26h28\" stroke-width=\"1.3\"/>", "mchef": "<path d=\"M12 20h40l4 10H8z\"/><path d=\"M8 30h48v14a3 3 0 0 1-3 3H11a3 3 0 0 1-3-3z\"/><rect x=\"18\" y=\"34\" width=\"16\" height=\"7\" rx=\"1.5\" stroke-width=\"1.6\"/><circle cx=\"42\" cy=\"37.5\" r=\"2\"/><circle cx=\"49\" cy=\"37.5\" r=\"2\"/>", "acaia": "<rect x=\"8\" y=\"24\" width=\"48\" height=\"22\" rx=\"4\"/><rect x=\"24\" y=\"30\" width=\"16\" height=\"7\" rx=\"1.5\"/><circle cx=\"16\" cy=\"40\" r=\"1.5\"/><circle cx=\"48\" cy=\"40\" r=\"1.5\"/>", "felicita": "<rect x=\"9\" y=\"22\" width=\"46\" height=\"26\" rx=\"10\"/><rect x=\"23\" y=\"30\" width=\"18\" height=\"8\" rx=\"4\"/>", "decent": "<path d=\"M10 28h44v16a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z\"/><path d=\"M10 28l4-6h36l4 6\"/><rect x=\"25\" y=\"34\" width=\"14\" height=\"7\" rx=\"1.5\"/>", "bookoo": "<rect x=\"12\" y=\"20\" width=\"40\" height=\"30\" rx=\"5\"/><rect x=\"22\" y=\"40\" width=\"20\" height=\"6\" rx=\"1.5\"/><circle cx=\"32\" cy=\"30\" r=\"6\"/>", "varia": "<rect x=\"10\" y=\"26\" width=\"44\" height=\"20\" rx=\"3\"/><rect x=\"20\" y=\"31\" width=\"24\" height=\"7\" rx=\"1.5\"/><path d=\"M14 46v4M50 46v4\"/>", "eureka": "<circle cx=\"32\" cy=\"34\" r=\"18\"/><circle cx=\"32\" cy=\"32\" r=\"10\" stroke-width=\"1.6\"/><rect x=\"25\" y=\"44\" width=\"14\" height=\"5\" rx=\"1.5\"/>"},TI={"som": "<path d=\"M10 24h10l12-10v36L20 40H10z\"/><path d=\"M40 24a10 10 0 0 1 0 16M46 18a18 18 0 0 1 0 28\"/>", "mudo": "<path d=\"M10 24h10l12-10v36L20 40H10z\"/><path d=\"M42 24l14 16M56 24L42 40\"/>", "pausa": "<path d=\"M22 14v36M42 14v36\" stroke-width=\"6\"/>", "play": "<path d=\"M20 12l30 20-30 20z\" fill=\"currentColor\"/>", "stop": "<rect x=\"16\" y=\"16\" width=\"32\" height=\"32\" rx=\"4\" fill=\"currentColor\"/>", "volta": "<path d=\"M26 18L12 32l14 14\"/><path d=\"M12 32h28a12 12 0 0 1 0 24h-6\"/>"};
 const wfI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9a11 11 0 0 1 16 0M7.5 12.5a6 6 0 0 1 9 0"/><circle cx="12" cy="16.5" r="1.6" fill="currentColor"/></svg>';
-const BAL0=[{id:"dot",n:"Timemore Dot",bt:true,ic:"dot"},{id:"icoffee",n:"iCoffee",bt:false,ic:"quad"},{id:"mchef",n:"MasterChef",bt:false,ic:"mchef"}];
+const BAL0=[{id:"dot",n:"Timemore Dot",bt:true,ic:"dot"},{id:"icoffee",n:"iCoffee",bt:false,ic:"quad"},{id:"mchef",n:"MasterChef",bt:false,ic:"mchef"},{id:"cscale",n:"Coffee Scale (redonda)",bt:false,ic:"redonda"}];
 const MARCAS=[["dot","Timemore"],["acaia","Acaia"],["felicita","Felicita"],["decent","Decent"],["bookoo","Bookoo"],["varia","Varia AKU"],["eureka","Eureka Precisa"]];
 var BALU=[];try{const x=JSON.parse(localStorage.getItem("calcBalU")||"[]");if(Array.isArray(x))BALU=x}catch(e){}
 const balLista=()=>[...BAL0,...BALU];const balSel=()=>balLista().find(b=>b.id===st.bal)||BAL0[0];let balAberto=false,balNovaOn=false;
@@ -1899,7 +1945,455 @@ const LIX='<path d="M14 18h36M26 18v-6h12v6M18 18l3 34h22l3-34M28 26v18M36 26v18
 $("avLista").addEventListener("click",e=>{const b=e.target.closest("[data-avdel]");if(!b)return;e.stopPropagation();
   if(!b.classList.contains("arm")){b.classList.add("arm");b.setAttribute("aria-label","Toque de novo para excluir");toast("Toque de novo na lixeira para excluir");return}
   AVAL=AVAL.filter(v=>v.id!==b.dataset.avdel);saveAval();try{avPendTela();avBadge()}catch(_){}renderAvLista();toast("Avaliação pendente excluída")},true);
-renderMetBtns();renderMoeBtns();
+
+// Garante o som dos bipes da balança: qualquer toque nos botões do preparo libera o áudio do iPhone
+document.addEventListener("click",e=>{if(e.target.closest("#fixBtn,#preNx,#preVolta,#bCafe,#bConn,#bTara,#ajFim,#tPause,#tSom")){try{T.ac=T.ac||new (window.AudioContext||window.webkitAudioContext)();if(T.ac.state!=="running")T.ac.resume()}catch(_){}}},true);
+{const sm=som;som=function(...a){try{if(T.ac&&T.ac.state!=="running")T.ac.resume()}catch(_){}return sm.apply(this,a)}}
+
+{const bp0=balPronto;balPronto=function(){return armado&&bp0()}}
+// Escolher o café dos potes pelo grupo de preparo (os 3 melhores) ou pelo pote; começa sem nada marcado
+let escPor="",escGrp="";
+const GRUPOS=[["esp","Espressos","espresso",["espresso","me26","portatil"]],["coa","Coados","v60",["wacaco","v60","b75","origami","melitta","pano","fluire","switch","chemex","clever","coador"]],["ita","Italiana","moka",["moka"]],["pre","Prensa francesa","prensa",["prensa","aeropress"]]];
+const MOEPREF={esp:["hibrew","pro","k7","r3"],coa:["k7","r3","pro","mongdio","hibrew","icoffee","oster"],ita:["hibrew","k7","pro","r3"],pre:["k7","oster","r3","pro","hibrew"]};
+function escMoe(gk,r,k){const m=M.find(y=>y.id===r.id)||M.find(y=>y.id===r.g);if(!m||m.cap||!m.g)return null;for(const id of moeLista(gk)){const v=m.g[id];if(!v||v[3])continue;let gv=v[2];
+  if(k){const sv={cafe:st.cafe,moe:st.moe,csel:st.csel};try{st.cafe={...k};st.csel=k.id;st.moe=id;gv=st.gr[gKey(m)]??Math.max(0,v[2]+ajuste(m).off)}catch(e){}finally{st.cafe=sv.cafe;st.moe=sv.moe;st.csel=sv.csel}}
+  return{id,n:GN[id]||id,v:gv}}return null}
+function rankEsc(k){const rk=rankMetodos(k);if(!viag())return rk;const ok=kitIds();
+  return rk.map(r=>{const al=ok.filter(id=>{const m=M.find(x=>x.id===id);return m&&G(m)===r.g&&!m.cap});if(!al.length)return null;return al.includes(r.id)?r:{...r,id:al[0],k46:undefined}})}
+function rankPote(k){try{return rankEsc(k).filter(Boolean)}catch(e){return rankMetodos(k)}}
+function grpTem(gr){try{if(viag())return kitIds().some(id=>{const m=M.find(x=>x.id===id);return m&&!m.cap&&gr[3].includes(G(m))});
+  return M.some(m=>!m.cap&&gr[3].includes(G(m)))}catch(e){return true}}
+function escTop(gk){const gr=GRUPOS.find(x=>x[0]===gk);if(!gr)return[];const vis=new Set(),out=[];
+  for(let i=0;i<POT.n;i++){const v=POT.p[i];if(!v||ISD(v)||vis.has(v))continue;const k=CAF.find(c=>c.id===v);if(!k||k.fim)continue;vis.add(v);
+    const rk=rankEsc(k);const j=rk.findIndex(r=>r&&gr[3].includes(r.g));if(j<0)continue;out.push({i,j,k,r:rk[j]})}
+  return out.sort((a,b)=>b.r.nota-a.r.nota).slice(0,3)}
+function renderEsc(){if(!$("escBox"))return;document.querySelectorAll(".escOp[data-esc]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.esc===escPor)));
+  document.body.classList.toggle("escPote",escPor==="p");$("escP").hidden=true;$("escG").hidden=escPor!=="g";if(escPor!=="g")return;
+  const GV=GRUPOS.filter(grpTem);if(!GV.some(x=>x[0]===escGrp))escGrp="";
+  const gr=GRUPOS.find(x=>x[0]===escGrp);let h=`<div class="escGr" style="grid-template-columns:repeat(${Math.max(1,GV.length)},minmax(0,1fr))">${GV.map(g=>`<button class="btn" type="button" data-escg="${g[0]}" aria-pressed="${g[0]===escGrp}">${svgI(icMet(M.find(m=>m.id===g[2])||M[0]))}<span>${g[1]}</span></button>`).join("")}</div>`;
+  if(!gr)h+=`<p class="cres" style="margin:0;font-size:.85rem">Toque no tipo de preparo.</p>`;
+  else{const t=escTop(escGrp);h+=`<span class="lbl" style="margin:4px 0 0">${t.length===1?"O melhor":"Os "+(t.length||3)+" melhores"} dos potes para ${gr[1].toLowerCase()}</span>`;
+    if(!t.length)h+=`<p class="cres" style="margin:0">${viag()&&!kitIds().some(id=>{const m=M.find(x=>x.id===id);return m&&gr[3].includes(G(m))&&!m.cap})?locTxt()+" não tem método deste grupo.":"Nenhum pote com café."}</p>`;
+    h+=t.map((x,n)=>{const m=M.find(y=>y.id===x.r.id)||M.find(y=>y.id===x.r.g)||{n:x.r.g},d=dias(x.k.data);
+      return `<div class="escIt"><span class="escMd" style="background:${["#b8860b","#8c8c8c","#a0522d"][n]}">${n+1}</span><div style="font-size:.9rem;line-height:1.3"><b>${esc(x.k.nome)}</b> · ${x.r.nota}%<br><span style="color:var(--muted);font-size:.8rem">Pote ${x.i+1} · ${esc(x.r.why)}${d!=null&&d>=0?`, ${d} dia${d===1?"":"s"} de torra`:""}<br>Melhor método: <b>${esc(m.n)}</b>${(mo=>mo?`<br>Moedor: <b>${esc(mo.n)}</b> no ${f(mo.v)}`:"")(escMoe(escGrp,x.r,x.k))}</span></div><button class="btn" type="button" data-escu="${x.i}:${x.j}" style="padding:8px 12px">Usar</button></div>`}).join("")}
+  $("escG").innerHTML=h}
+$("escBox").addEventListener("click",e=>{const o=e.target.closest("[data-esc]");if(o){escPor=escPor===o.dataset.esc?"":o.dataset.esc;renderEsc();if(escPor==="p")setTimeout(()=>$("potPanel").scrollIntoView({behavior:"smooth",block:"start"}),50);return}
+  const g=e.target.closest("[data-escg]");if(g){escGrp=g.dataset.escg;renderEsc();return}
+  const u=e.target.closest("[data-escu]");if(u){const[i,j]=u.dataset.escu.split(":").map(Number);const v=POT.p[i],k=CAF.find(c=>c.id===v);if(!k)return;const r=rankEsc(k)[j];if(!r)return;
+    marca("caf");marca("met");st.csel=v;cEdit=false;cDelArm=false;st.cafe={...k};{const l=(st.gsel||{})[r.g];st.met=r.id&&M.some(x=>x.id===r.id)?r.id:l&&M.some(x=>x.id===l&&G(x)===r.g)?l:r.g;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:st.met}}
+    recPend=false;abrirMet=false;abrirRec=false;{const mo=escMoe(escGrp,r,k);if(mo){st.moe=mo.id;marca("moe")}}usoPote=i;escPor="";escGrp="";renderEsc();render();toast("Café, método e moedor selecionados");irPag("preparo")}});
+{const zera=()=>{escPor="";escGrp="";renderEsc()};$("novoCafe").addEventListener("click",zera);$("olaSim").addEventListener("click",zera)}
+{const rp=renderPotes;renderPotes=function(...a){const x=rp.apply(this,a);try{renderEsc()}catch(e){}return x}}
+$("escIg").innerHTML=svgI('<path d="M14 12h36L38 30H26z"/><path d="M29 30v5M35 30v5"/><path d="M17 39h30v6a9 9 0 0 1-9 9H26a9 9 0 0 1-9-9z"/><path d="M47 42h3a4 4 0 0 1 0 8h-4"/>');$("escIp").innerHTML=potSvg(180,250);
+renderEsc();
+// v102: a OutIn Nano saiu (o Jeff não tem a máquina); receitas antigas da Nano e da iCoffee passam para o iCoffee Barista
+{const MAP={epIcof:"portatil",epIcofDg:"epIcofNs",epOutBp:"epIcofBp",epNano1:"portatil",pBialetti:"prensa"},fx=v=>MAP[v]||v;let mud=false;
+ if(MAP[st.met]){st.met=fx(st.met);mud=true}
+ if(st.gsel&&MAP[st.gsel.portatil]){st.gsel.portatil=fx(st.gsel.portatil);mud=true}
+ for(const k of ["q","r","c","x","base"])if(st[k]&&st[k].epIcof!=null){st[k].portatil=st[k].epIcof;delete st[k].epIcof;mud=true}
+ for(const k of Object.keys(st.gr||{}))if(/^epIcof\|/.test(k)){st.gr[k.replace("epIcof|","portatil|")]=st.gr[k];delete st.gr[k];mud=true}
+ if(Array.isArray(REC)){let r2=false;for(const r of REC)if(MAP[r.met]){r.met=fx(r.met);r2=true}if(r2)saveRec()}
+ if(mud)try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}}
+// ===== Ajustes de equipamento (v111) =====
+// Wacaco: cada cafeteira vira um método (Prestina, Cuppamoka, Pipamoka)
+{IC.wPres='<rect x="22" y="14" width="20" height="36" rx="4"/><path d="M26 8h12v6"/><path d="M22 26h20"/><path d="M16 54h32"/>';
+ IC.wCup='<path d="M16 12h32L38 30H26z"/><path d="M20 34h24v12a8 8 0 0 1-8 8h-8a8 8 0 0 1-8-8z"/><path d="M44 38h3a4 4 0 0 1 0 8h-3"/>';
+ IC.wPip='<rect x="22" y="18" width="20" height="38" rx="5"/><path d="M20 10h24v8H20z"/><path d="M22 34h20"/><path d="M28 44h8"/>';
+ const nm={Prestina:["wacaco","Wacaco Prestina","wPres"],Cuppamoka:["wCup","Wacaco Cuppamoka","wCup"],Pipamoka:["wPip","Wacaco Pipamoka","wPip"]};
+ for(const m of M){if(G(m)!=="wacaco"||!m.dev)continue;const d=nm[m.dev];if(!d)continue;const[b,n,ic]=d;
+   if(m.id===b)delete m.grp;else m.grp=b;m.n=n;m.ic=ic;if(m.rn)m.rn=m.rn.replace(new RegExp("^"+m.dev+"\\s*·\\s*"),"");delete m.dev;MN[m.id]=n}
+ PERF.wCup={...PERF.wacaco,c:3};PERF.wPip={...PERF.wacaco};MEUS.push("wCup","wPip");COAD.push("wCup");OUT.splice(OUT.indexOf("wacaco")+1,0,"wPip");
+ const gc=GRUPOS.find(x=>x[0]==="coa");if(gc)gc[3].push("wCup","wPip");
+ // Espresso de máquina sai: os espressos do Jeff são a i Cafilas e a iCoffee
+ const ge=GRUPOS.find(x=>x[0]==="esp");if(ge){const i=ge[3].indexOf("espresso");if(i>=0)ge[3].splice(i,1);ge[2]="portatil"}
+ OUT.splice(OUT.indexOf("espresso"),1);
+ // Prensa francesa de casa é a Bialetti de 350 ml (sem receita separada)
+ const pb=M.find(x=>x.id==="prensa");if(pb){pb.q=300;pb.tip="Na Bialetti de 350 ml, use até 300 ml de água para sobrar espaço para o café e a crosta ao encaixar o êmbolo. Beba logo após prensar: o café segue em contato com o pó e amarga."}
+ // Fluire: 02 (base, 300 ml) e 01 (menor)
+ const fl=M.find(x=>x.id==="fluire");if(fl&&!M.some(x=>x.id==="fluire01")){fl.rn="Fluire 02";
+   M.push({...fl,id:"fluire01",grp:"fluire",rn:"Fluire 01",q:200,
+     steps:(c,a)=>{const k=Math.sqrt(a/200);return[["Preparo","Escalde o filtro 01 e o decanter; descarte a água"],["0:00",`Pré-infusão: ${g(c*2)} de água e espere`],[tm(30*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(60*k),`Complete até ${g(a)}`],[tm(130*k)+"–"+tm(160*k),"Fim do preparo"]]},
+     tip:"Fluire 01, para 1 ou 2 xícaras. O porta-filtro vazado escoa rápido: se terminar antes do previsto, moa mais fino. A Pressca sugere 1:13 a 1:14 para um café mais encorpado."})}
+ // Moedor manual iCoffee M9 (Ipatinga): números provisórios, iguais aos do K7 até confirmar pelo manual
+ GI.m9='<path d="M32 8v6"/><path d="M32 9h14"/><circle cx="48" cy="9" r="3"/><path d="M24 14h16l-2 10H26z"/><rect x="23" y="24" width="18" height="30" rx="4"/><path d="M27 34h10"/>';
+ MOEB.push(["m9","iCoffee M9","man"]);GN.m9="iCoffee M9";MOE.m9="cliques";
+ for(const m of M)if(m.g&&m.g.k7&&!m.g.m9)m.g.m9=[...m.g.k7];
+ if(st.met==="espresso"||st.met==="pBialetti")st.met=st.met==="pBialetti"?"prensa":"me26"}
+// ===== Locais e equipamentos configuráveis (v119): tudo se cria, altera e apaga em Configurações =====
+// Cada método, moedor, balança, acessório e peneira tem a lista dos locais onde está. Local "fixo": o que está lá fica lá. Local "viagem": um kit montado a cada viagem.
+const idsG=g=>M.filter(x=>G(x)===g).map(x=>x.id);
+const uidC=()=>"x"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const MOEN0={k7:"KINGrinder K7",r3:"Blade R3",pro:"R3 Pro",oster:"Oster BVSTBMH24",mongdio:"Mongdio HB-991",icoffee:"iCoffee elétrico",hibrew:"HiBrew G5 Mini",m9:"iCoffee M9"};
+const moeNome=k=>MOEN0[k]||((MOEU.find(u=>u.id===k)||{}).n)||GN[k]||k;
+const MOEN=new Proxy({},{get:(o,k)=>moeNome(k)});
+// --- padrão: o que já estava configurado no app (listas do trabalho e de Ipatinga, kit de viagem, balanças) ---
+function cfgPadrao(){
+  let LT={met:["pViagem","fluire01","aeropress"],moe:["mongdio"]},LI={met:["v60","prensa"],moe:["oster","m9"]},BL={mchef:"ipatinga"};
+  try{const t=JSON.parse(localStorage.getItem("calcTrab")||"null");if(t&&Array.isArray(t.met))LT=t}catch(e){}
+  try{const t=JSON.parse(localStorage.getItem("calcIpa")||"null");if(t&&Array.isArray(t.met))LI=t}catch(e){}
+  try{const t=JSON.parse(localStorage.getItem("calcBalLoc")||"null");if(t&&typeof t==="object")BL=t}catch(e){}
+  const VM=["joinout","prestina","cuppamoka","pipamoka","aeropress","pViagem","moka","me26","portatil"];
+  const it=(k,n,grupo,src)=>{const loc=[];if(!LT.met.includes(k))loc.push("casa");if(LI.met.includes(k))loc.push("ipatinga");if(LT.met.includes(k))loc.push("trabalho");if(VM.includes(k)||LT.met.includes(k))loc.push("viagem");return{k,n,grupo,src,loc}};
+  const itens=[it("v60","V60 / Kalita","coa",{g:"v60",ex:["joinout"]}),it("joinout","Kit portátil Joinout","coa",{ids:["joinout"]}),it("b75","Timemore B75","coa",{g:"b75"}),
+    it("origami","Origami","coa",{g:"origami"}),it("melitta","Melitta","coa",{g:"melitta"}),it("pano","Coador de pano","coa",{g:"pano"}),it("switch","Hario Switch","coa",{g:"switch"}),
+    it("fluire02","Fluire 02","coa",{ids:["fluire"]}),it("fluire01","Fluire 01","coa",{ids:["fluire01"]}),it("prestina","Wacaco Prestina","coa",{g:"wacaco"}),
+    it("cuppamoka","Wacaco Cuppamoka","coa",{g:"wCup"}),it("pipamoka","Wacaco Pipamoka","coa",{g:"wPip"}),it("aeropress","AeroPress (iCoffee)","pre",{g:"aeropress"}),
+    it("prensa","Prensa francesa","pre",{g:"prensa",ex:["pViagem"]}),it("pViagem","Prensa portátil i Cafilas","pre",{ids:["pViagem"]}),it("moka","Moka","ita",{g:"moka"}),
+    it("me26","i Cafilas ME2604","esp",{g:"me26"}),it("portatil","iCoffee Barista","esp",{g:"portatil"}),
+    {k:"clever",n:"Clever",grupo:"coa",src:{g:"clever"},loc:["casa"]},{k:"chemex",n:"Chemex",grupo:"coa",src:{g:"chemex"},loc:["casa"]},{k:"coador",n:"Cafeteira elétrica",grupo:"coa",src:{g:"coador"},loc:["casa"]},
+    {k:"sifao",n:"Sifão",grupo:"",src:{g:"sifao"},loc:["casa"]},{k:"turco",n:"Turco",grupo:"",src:{g:"turco"},loc:["casa"]},{k:"cold",n:"Cold brew",grupo:"",src:{g:"cold"},loc:["casa"]}];
+  for(const u of METU)if(!itens.some(i=>i.k===u.id)){const b=M.find(x=>x.id===u.like),gb=b?G(b):"";itens.push({k:u.id,n:u.n,grupo:["me26","portatil","espresso"].includes(gb)?"esp":gb==="moka"?"ita":["prensa","aeropress"].includes(gb)?"pre":"coa",src:{g:u.id},loc:["casa"]})}
+  const moes=[...MOEB.map(x=>x[0]),...MOEU.map(u=>u.id)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>{const loc=[];if(k==="m9")loc.push("ipatinga");else if(!LT.moe.includes(k))loc.push("casa");if(LI.moe.includes(k)&&k!=="m9")loc.push("ipatinga");if(LT.moe.includes(k))loc.push("trabalho");if(["r3","pro"].includes(k)||LT.moe.includes(k))loc.push("viagem");return{k,loc}});
+  const bals={};for(const b of balLista())bals[b.id]={loc:BL[b.id]||"casa",viagem:b.id==="dot"||BL[b.id]==="trabalho"};
+  return{v:1,
+    locais:[{id:"casa",n:"Em casa - Itabira",curto:"Itabira",ic:"casa",tipo:"fixo",pkey:"calcPotes"},{id:"ipatinga",n:"Em casa - Ipatinga",curto:"Ipatinga",ic:"casa",tipo:"fixo",pkey:"calcPotesIpa"},
+      {id:"trabalho",n:"No trabalho",curto:"Trabalho",ic:"trabalho",tipo:"fixo",usaPotesDe:"casa"},{id:"viagem",n:"Em viagem",curto:"Viagem",ic:"mala",tipo:"viagem",pkey:"calcPotesViagem",pote:"Airscape 250 g",lim:{metodos:2,espresso:1}}],
+    grupos:[{k:"esp",n:"Espressos",ic:"portatil"},{k:"coa",n:"Coados",ic:"v60"},{k:"ita",n:"Italiana",ic:"moka"},{k:"pre",n:"Prensa francesa",ic:"prensa"}],
+    itens,metFora:["espresso"],ocultas:[],moes,moesFora:[],bals,balsFora:[],
+    acess:[{k:"star",n:"LilyDrip Starflower (com CFS)",loc:["casa"]},{k:"lotos",n:"LOTOS",loc:["casa"]},{k:"sd",n:"Timemore SimpleDrip",loc:["casa"]}],
+    pens:[{k:"inox",n:"Peneira inox (copo)",loc:["casa"]},{k:"kit",n:"Peneiras do kit Blade R3 / R3 Pro (300 a 850 µm)",loc:["casa","viagem"],soCom:["r3","pro"]}],
+    perfil:{nome:st.nome||"",tel:"",email:"",cidade:""},prefs:{som:true}}}
+let CFG=null;try{CFG=JSON.parse(localStorage.getItem("calcCfg")||"null")}catch(e){}
+if(!CFG||CFG.v!==1)CFG=cfgPadrao();
+{const P=cfgPadrao();for(const k of Object.keys(P))if(CFG[k]==null)CFG[k]=P[k];
+ for(const u of METU)if(!CFG.itens.some(i=>i.k===u.id))CFG.itens.push(P.itens.find(i=>i.k===u.id));
+ for(const k of [...MOEB.map(x=>x[0]),...MOEU.map(u=>u.id)])if(!CFG.moes.some(m=>m.k===k))CFG.moes.push({k,loc:["casa"]});
+ for(const b of balLista())if(!CFG.bals[b.id])CFG.bals[b.id]={loc:(CFG.locais.find(l=>l.tipo==="fixo")||{}).id||"",viagem:false}}
+const saveCfg=()=>{try{localStorage.setItem("calcCfg",JSON.stringify(CFG))}catch(e){}};
+saveCfg();
+const idsOf=i=>{if(!i||!i.src)return[];const a=i.src.ids?i.src.ids.filter(id=>M.some(x=>x.id===id)):idsG(i.src.g).filter(id=>!(i.src.ex||[]).includes(id));const b=a.filter(id=>!CFG.ocultas.includes(id));return b.length?b:a};
+const locById=id=>CFG.locais.find(l=>l.id===id);
+const locObj=()=>locById(MODO);
+const ehV=()=>!!locObj()&&locObj().tipo==="viagem";
+const vId=()=>(CFG.locais.find(l=>l.tipo==="viagem")||{}).id;
+const ehEsp=i=>i.grupo==="esp";
+// grupos de "Pelo tipo de preparo" a partir dos itens
+function montaGrupos(){GRUPOS.length=0;for(const g of CFG.grupos){const gs=[...new Set(CFG.itens.filter(i=>i.grupo===g.k).flatMap(i=>idsOf(i).map(id=>G(M.find(x=>x.id===id)))))];GRUPOS.push([g.k,g.n,g.ic,gs])}}
+montaGrupos();
+let MODO="",KIT={met:[],esp:"",moe:"",bal:""},kitAberto=false;
+try{const ks=JSON.parse(localStorage.getItem("calcKits")||"null"),kv=ks&&ks.viagem;if(kv)KIT={met:Array.isArray(kv.met)?kv.met.slice(0,4):[],esp:kv.esp||"",moe:kv.moe||"",bal:kv.bal||""}}catch(e){}
+const saveModo=()=>{try{localStorage.setItem("calcKits",JSON.stringify({viagem:KIT}))}catch(e){}};
+const itensEm=L=>CFG.itens.filter(i=>i.loc.includes(L));
+const moesEm=L=>CFG.moes.filter(m=>m.loc.includes(L)&&!CFG.moesFora.includes(m.k)).map(m=>m.k);
+const optViagem=()=>{const v=vId();return{m:itensEm(v).filter(i=>!ehEsp(i)).map(i=>i.k),e:itensEm(v).filter(ehEsp).map(i=>i.k),g:moesEm(v)}};
+const limV=()=>Object.assign({metodos:2,espresso:1},(locObj()||{}).lim||{});
+const kitOk=()=>{const l=locObj();if(!l)return false;if(l.tipo!=="viagem")return itensEm(l.id).length>0&&moesEm(l.id).length>0;const o=optViagem();return KIT.met.length>0&&!!KIT.moe&&(!limV().espresso||!o.e.length||!!KIT.esp)};
+const viag=()=>kitOk();
+const itemK=k=>CFG.itens.find(i=>i.k===k);
+const kitItens=()=>{const l=locObj();if(!l)return[];const ks=l.tipo==="viagem"?[...KIT.met,...(KIT.esp?[KIT.esp]:[])]:itensEm(l.id).map(i=>i.k);return ks.map(itemK).filter(Boolean).map(i=>[i.k,i.n,()=>idsOf(i)])};
+const kitIds=()=>kitItens().flatMap(x=>x[2]());
+const kitDe=id=>kitItens().find(x=>x[2]().includes(id));
+const kitMoes=()=>{const l=locObj();if(!l)return[];return l.tipo==="viagem"?(KIT.moe?[KIT.moe]:[]):moesEm(l.id)};
+const locTxt=()=>ehV()?"Seu kit de viagem":"O que está "+(locObj()?("em "+locObj().curto):"aqui");
+const FORA_CASA=()=>[];
+const icKit=ids=>{const m=M.find(x=>x.id===ids[0]);return svgI(icMet(m||M[0]))};
+const moeCasa=m=>{const g=G(m);if(["moka","me26","portatil","espresso"].includes(g))return["hibrew"];if(g==="prensa")return["k7","oster"];return["k7"]};
+function moeLista(gk){if(viag()){const t=kitMoes();return[...(MOEPREF[gk]||[]).filter(x=>t.includes(x)),...t]}return(MOEPREF[gk]||[]).filter(x=>!CFG.moesFora.includes(x))}
+function permitido(id){if(viag())return kitIds().includes(id);return !CFG.ocultas.includes(id)||true}
+// --- acessórios, SimpleDrip e peneiras disponíveis no local ---
+function dispLoc(){const l=locObj();if(!l)return{star:true,lotos:true,sd:true,inox:true,kit:true};const L=l.id,has=(arr,k)=>{const x=arr.find(a=>a.k===k);if(!x||!x.loc.includes(L))return false;if(l.tipo==="viagem"&&x.soCom&&!x.soCom.includes(KIT.moe))return false;return true};
+  return{star:has(CFG.acess,"star"),lotos:has(CFG.acess,"lotos"),sd:has(CFG.acess,"sd"),inox:has(CFG.pens,"inox"),kit:has(CFG.pens,"kit")}}
+let ipaSave=null;
+function trocaPotes(){const l=locObj(),d=dispLoc(),acc=d.star||d.lotos,pen=d.inox||d.kit;
+  const cl=document.body.classList;cl.toggle("locViagem",ehV());cl.toggle("locSemAcc",!acc);cl.toggle("locSemSD",!d.sd);cl.toggle("locSemPen",!pen);cl.toggle("locSemInox",!d.inox);cl.toggle("locSemKitPen",!d.kit);cl.toggle("locSemStar",!d.star);cl.toggle("locSemLotos",!d.lotos);
+  if(ipaSave){st.acc=ipaSave.acc;if(st.pen){st.pen.on=ipaSave.pen;st.pen.sel=ipaSave.sel;st.pen.esc=ipaSave.esc}if(st.sd)st.sd.on=ipaSave.sd;ipaSave=null}
+  if(l){ipaSave={acc:st.acc,pen:!!(st.pen&&st.pen.on),sel:st.pen&&st.pen.sel,esc:st.pen&&st.pen.esc,sd:!!(st.sd&&st.sd.on)};
+    if(st.acc&&!d[st.acc])st.acc="";if(!pen&&st.pen)st.pen.on=false;if(!d.sd&&st.sd)st.sd.on=false;
+    if(st.pen&&pen){if(st.pen.sel==="inox"&&!d.inox){st.pen.sel="300";st.pen.esc=false}else if(st.pen.sel!=="inox"&&!d.kit){st.pen.sel="inox";st.pen.esc=false}}}
+  try{const ps=$("pSel");if(ps)ps.value=st.pen.sel;if(typeof syncPick==="function")syncPick("pSel")}catch(e){}
+  {const lb=document.querySelector("#potPanel .lbl");if(lb)lb.textContent=ehV()?`Pote de viagem: ${l.pote||"pote único"}`:l?(l.usaPotesDe?`Potes de ${(locById(l.usaPotesDe)||{}).curto||""}`:`Potes de ${l.curto}`):"Meus potes de café aberto"}
+  const src=l&&l.usaPotesDe?locById(l.usaPotesDe)||l:l;const k=!src?"calcPotes":(src.pkey||("calcPotes_"+src.id));
+  if(LOCPOT===k){if(ehV())POT.n=1;viagCafe();return}LOCPOT=k;Object.assign(POT,{n:5,p:[],g:[],u:[],h:[],log:[],t:[]});loadPot();if(ehV())POT.n=1;usoPote=-1;potSel=-1;potArm=-1;try{renderPotes()}catch(e){}viagCafe()}
+// Na viagem o café é sempre o do pote único
+let viagG=false;function viagCafe(){if(!ehV()||viagG)return;const v=POT.p[0];if(!v||ISD(v))return;const k=CAF.find(c=>c.id===v);if(!k)return;
+  if(st.csel===v&&usoPote===0)return;viagG=true;try{st.csel=v;st.cafe={...k};cEdit=false;cDelArm=false;usoPote=0;marca("caf");render()}finally{viagG=false}}
+{const rpv=renderPotes;renderPotes=function(){if(ehV())POT.n=1;rpv();if(!ehV())return;const nm=(locObj()||{}).pote||"Pote de viagem";
+  const tr=el=>{if(!el)return;const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode())if(/Pote 1\b/.test(n.nodeValue))n.nodeValue=n.nodeValue.replace(/Pote 1\b/g,nm)};
+  ["potGrid","potes","pOrdem"].forEach(id=>tr($(id)));[...$("poteSel").options].forEach(o=>o.textContent=o.textContent.replace(/Pote 1\b/,nm));setTimeout(viagCafe,0)}}
+// --- cartões de local na página Café ---
+const LIC={casa:'<path d="M10 30L32 12l22 18"/><path d="M16 26v24h32V26"/><path d="M28 50V38h8v12"/>',trabalho:'<rect x="10" y="14" width="44" height="28" rx="3"/><path d="M26 42v8M38 42v8M20 50h24"/><path d="M40 22h6v6"/>',
+  mala:'<rect x="10" y="20" width="44" height="30" rx="5"/><path d="M24 20v-6h16v6"/><path d="M10 32h44"/><path d="M20 50v4M44 50v4"/>',local:'<path d="M32 56s-16-16-16-28a16 16 0 0 1 32 0c0 12-16 28-16 28z"/><circle cx="32" cy="28" r="6"/>'};
+function cardsLocais(){const c=document.querySelector("#modoBox .modoCs");if(!c)return;const h=CFG.locais.map(l=>{const [t,sub]=/^Em casa - /.test(l.n)?["Em casa",l.n.replace(/^Em casa - /,"")]:[l.n,""];
+  return `<button type="button" class="escOp" data-modo="${esc(l.id)}" aria-pressed="${MODO===l.id}"><span class="escI">${svgI(LIC[l.ic]||LIC.local)}</span><b>${esc(t)}</b>${sub?`<small>${esc(sub)}</small>`:""}</button>`}).join("");
+  if(c.dataset.h!==h){c.innerHTML=h;c.dataset.h=h}}
+const balViagem=()=>balLista().filter(b=>!CFG.balsFora.includes(b.id)&&(CFG.bals[b.id]||{}).viagem);
+function renderKit(){cardsLocais();document.querySelectorAll("[data-modo]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.modo===MODO)));
+  {const a=$("appLoc"),l=locObj();if(a){a.hidden=!l;a.textContent=l?l.curto:""}}
+  const kb=$("kitBox"),l=locObj();kb.hidden=!l;if(!l)return;
+  const bt=(id,n,ids,on,attr,rec)=>`<button type="button" ${attr}="${id}" aria-pressed="${on}" class="${rec?"rec":""}">${ids?icKit(ids):svgI(GI[id]||GI.k7)}<span>${esc(n)}</span></button>`;
+  if(l.tipo!=="viagem"){const it=itensEm(l.id),mo=moesEm(l.id),ba=balLista().filter(b=>!CFG.balsFora.includes(b.id)&&(CFG.bals[b.id]||{}).loc===l.id);
+    kb.innerHTML=`<div class="kitRes"><span><b>${esc(l.n)}</b><br>${it.length} método${it.length===1?"":"s"} · ${mo.length?esc(mo.map(moeNome).join(", ")):"nenhum moedor"}${ba.length?" · balança "+esc(ba.map(b=>b.n).join(", ")):""}</span><button class="lnk" type="button" id="kitAlterar">Alterar</button></div>`;return}
+  const o=optViagem(),lim=limV(),REC_V=["joinout","aeropress","portatil","pro","dot"];
+  if(kitOk()&&!kitAberto){const b=balLista().find(b=>b.id===KIT.bal);kb.innerHTML=`<div class="kitRes"><span><b>Seu kit de viagem</b><br>${esc(kitItens().map(x=>x[1]).join(", "))} · moedor ${esc(moeNome(KIT.moe))}${b?" · balança "+esc(b.n):""}</span><button class="lnk" type="button" id="kitTrocar">Trocar kit</button></div>`;return}
+  kb.innerHTML=`<p class="kitLeg">Monte o kit que vai levar. A linha tracejada marca a recomendação, mas a escolha é sua.</p>
+   <span class="lbl" style="margin:0">Métodos (até ${lim.metodos}) · ${KIT.met.length}/${lim.metodos}</span><div class="kitG">${o.m.map(k=>{const i=itemK(k);return bt(k,i.n,idsOf(i),KIT.met.includes(k),"data-km",REC_V.includes(k))}).join("")||'<p class="kitLeg">Nenhum método marcado como "pode ir na viagem". Marque em Configurações.</p>'}</div>
+   ${lim.espresso&&o.e.length?`<span class="lbl" style="margin:0">Espresso (1)</span><div class="kitG">${o.e.map(k=>{const i=itemK(k);return bt(k,i.n,idsOf(i),KIT.esp===k,"data-ke",REC_V.includes(k))}).join("")}</div>`:""}
+   <span class="lbl" style="margin:0">Moedor (1)</span><div class="kitG">${o.g.map(id=>bt(id,moeNome(id),null,KIT.moe===id,"data-kg",REC_V.includes(id))).join("")}</div>
+   ${balViagem().length?`<span class="lbl" style="margin:0">Balança para levar (1)</span><div class="kitG">${balViagem().map(b=>`<button type="button" data-kb="${b.id}" aria-pressed="${KIT.bal===b.id}" class="${REC_V.includes(b.id)?"rec":""}">${svgI(BI[b.ic]||BI.quad)}<span>${esc(b.n)}</span></button>`).join("")}</div>`:""}
+   ${kitOk()?`<button class="btn pri" type="button" id="kitPronto">Pronto</button>`:`<p class="kitLeg">Escolha pelo menos um método${lim.espresso&&o.e.length?", uma máquina de espresso":""} e o moedor.</p>`}`}
+function aplicaModo(){trocaPotes();balLocal();
+  if(viag()){const ms=kitMoes();if(ms.length===1&&st.moe!==ms[0]){st.moe=ms[0];marca("moe")}else if(!ms.includes(st.moe))abrirMoe=true;if(!kitIds().includes(st.met))abrirMet=true}
+  renderMetBtns();renderMoeBtns();renderKit();render();try{renderEsc()}catch(e){}try{homeTela()}catch(e){}}
+function setModo(id){MODO=MODO===id?"":id;kitAberto=!!MODO&&ehV()&&!kitOk();aplicaModo()}
+$("modoBox").addEventListener("click",e=>{const t=e.target;let b;
+  if(b=t.closest("[data-modo]")){setModo(b.dataset.modo);return}
+  if(t.closest("#kitTrocar")){kitAberto=true;renderKit();return}
+  if(t.closest("#kitAlterar")){cfgAbre(["locais",{ed:"locais",id:MODO}]);return}
+  if(t.closest("#kitPronto")){kitAberto=false;saveModo();aplicaModo();return}
+  const lim=limV();
+  if(b=t.closest("[data-kb]")){KIT.bal=KIT.bal===b.dataset.kb?"":b.dataset.kb;saveModo();renderKit();return}
+  if(b=t.closest("[data-km]")){const k=b.dataset.km,i=KIT.met.indexOf(k);if(i>=0)KIT.met.splice(i,1);else if(KIT.met.length>=lim.metodos){toast(`No máximo ${lim.metodos} métodos: desmarque um antes`);return}else KIT.met.push(k);saveModo();renderKit();return}
+  if(b=t.closest("[data-ke]")){KIT.esp=KIT.esp===b.dataset.ke?"":b.dataset.ke;saveModo();renderKit();return}
+  if(b=t.closest("[data-kg]")){KIT.moe=KIT.moe===b.dataset.kg?"":b.dataset.kg;saveModo();renderKit();return}});
+$("novoCafe").addEventListener("click",()=>{if(MODO){MODO="";kitAberto=false;aplicaModo()}});
+{const rm=renderMetBtns;renderMetBtns=function(){rm();
+  for(const g of CFG.metFora){const b=document.querySelector(`#metodos button[data-v="${g}"]`);if(b)b.remove()}
+  if(ehV()&&!kitOk()){$("metodos").innerHTML='<p class="kitLeg" style="grid-column:1/-1">Monte o kit de viagem na página Café. Os métodos aparecem aqui depois que você escolher.</p>';return}
+  if(!viag())return;const l=locObj(),its=kitItens();
+  const porG=CFG.grupos.map(g=>[g.n,its.filter(x=>(itemK(x[0])||{}).grupo===g.k)]).concat([["Outros",its.filter(x=>!CFG.grupos.some(g=>g.k===(itemK(x[0])||{}).grupo))]]).filter(x=>x[1].length);
+  $("metodos").innerHTML=porG.map(([n,xs])=>`<span class="grp">${esc(n)}</span>`+xs.map(([k,nm,f])=>`<button type="button" data-kit="${k}">${icKit(f())}<span>${esc(nm)}</span></button>`).join("")).join("")}}
+$("metodos").addEventListener("click",e=>{const b=e.target.closest("[data-kit]");if(!b)return;e.stopImmediatePropagation();
+  const it=kitItens().find(x=>x[0]===b.dataset.kit);if(!it)return;const ids=it[2](),g=G(M.find(x=>x.id===ids[0])),l=(st.gsel||{})[g];
+  marca("met");st.met=ids.includes(l)?l:(ids.find(id=>!(M.find(x=>x.id===id)||{}).cap)||ids[0]);recPend=false;abrirMet=false;abrirRec=false;render()},true);
+{const rmo=renderMoeBtns;renderMoeBtns=function(){rmo();
+  document.querySelectorAll("#moedores button[data-v]").forEach(b=>{if(CFG.moesFora.includes(b.dataset.v))b.remove()});
+  if(ehV()&&!kitOk()){$("moedores").innerHTML='<p class="kitLeg" style="grid-column:1/-1">O moedor aparece aqui depois que você montar o kit de viagem.</p>';return}
+  if(!viag())return;const km=kitMoes();document.querySelectorAll("#moedores button").forEach(b=>{if(!km.includes(b.dataset.v))b.remove()});const a=$("moedores").querySelector(".addT");if(a)a.remove();document.querySelectorAll("#moedores .grp").forEach(g=>g.remove())}}
+{const r8=render;render=function(){
+  try{const m=cur();if(viag()&&!kitIds().includes(m.id)){const al=idsG(G(m)).find(id=>kitIds().includes(id)&&!(M.find(x=>x.id===id)||{}).cap)||idsG(G(m)).find(id=>kitIds().includes(id));if(al)st.met=al}}catch(e){}
+  r8();try{const m=cur();
+  const filtra=ok=>{[...$("recVar").options].forEach(o=>{if(o.value&&!ok(o.value))o.remove()});$("recVar").dataset.h="";
+    const nv=[...$("recVar").options].filter(o=>o.value).length;if(nv<2){$("recVar").hidden=true;$("lRecVar").hidden=true}};
+  filtra(id=>!CFG.ocultas.includes(id)||id===m.id);
+  {let rc=moeCasa(m);if(viag()){const km=kitMoes();rc=rc.filter(x=>km.includes(x));if(!rc.length){const f=km.find(x=>m.g&&m.g[x]&&!m.g[x][3]);if(f)rc=[f]}}
+   document.querySelectorAll("#moedores button").forEach(b=>b.classList.toggle("rec",rc.includes(b.dataset.v)))}
+  if(viag()){const ok=kitIds();filtra(v=>ok.includes(v));
+    const ds=[...$("devSel").options];ds.forEach(o=>{if(!M.some(x=>x.dev===o.value&&ok.includes(x.id)))o.remove()});$("devSel").dataset.h="";if($("devSel").options.length<2)$("devBox").hidden=true;
+    {const it=kitDe(m.id),bt=$("metChipBtn");if(it&&bt&&!$("metChip").hidden){const vs=it[2]().length>1;bt.innerHTML=svgI(icMet(m))+"<span>"+esc(it[1]+(vs?" · "+vn(m):""))+"</span>"}}}
+  }catch(e){}}}
+// --- balanças por local ---
+const balPerm=id=>{if(CFG.balsFora.includes(id))return false;const l=locObj();if(!l)return true;if(l.tipo==="viagem")return !KIT.bal||id===KIT.bal;const tem=balLista().some(b=>!CFG.balsFora.includes(b.id)&&(CFG.bals[b.id]||{}).loc===l.id);return !tem||(CFG.bals[id]||{}).loc===l.id};
+function balLocal(){const l=locObj();if(!l)return;if(l.tipo==="viagem"){if(KIT.bal&&st.bal!==KIT.bal){st.bal=KIT.bal;try{balCardTela()}catch(e){}}return}
+  if(balPerm(st.bal)&&balLista().some(b=>(CFG.bals[b.id]||{}).loc===l.id&&b.id===st.bal))return;const L=balLista().filter(b=>!CFG.balsFora.includes(b.id)&&(CFG.bals[b.id]||{}).loc===l.id);if(L.length===1)st.bal=L[0].id;else balAberto=true;try{balCardTela()}catch(e){}}
+{const bp=balPickTela;balPickTela=function(){bp();document.querySelectorAll("#balPick [data-bl]").forEach(b=>{if(!balPerm(b.dataset.bl))b.remove()});const l=locObj();if(!l)return;const lb=document.querySelector("#balPick .lbl");
+  if(lb)lb.textContent=l.tipo==="viagem"?"Balança da viagem":"Balanças "+(l.curto?"em "+l.curto:"")}}
+// --- mostra no app as receitas da Configuração ---
+renderMetBtns();renderMoeBtns();renderKit();
+// ===== Tela de início, cadastro e Configurações (v119) =====
+{const css=document.createElement("style");css.textContent=`
+.ov{position:fixed;inset:0;z-index:60;background:var(--bg);overflow:auto;display:flex;flex-direction:column}
+.ov .ovTop{position:sticky;top:0;z-index:2;background:var(--bg);display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;border-bottom:1px solid var(--line)}
+.ov .ovTop h2{margin:0;font:600 1.1rem var(--display);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ovIb{width:44px;height:44px;border-radius:50%;border:0;background:var(--surface);display:grid;place-items:center;color:var(--fg);cursor:pointer}
+.ovIb svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ovC{padding:16px 16px calc(100px + env(safe-area-inset-bottom,0px));display:grid;gap:12px;align-content:start;max-width:620px;width:100%;margin:0 auto}
+#homeOv{display:grid;grid-template-rows:auto 1fr auto;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(28px + env(safe-area-inset-bottom,0px));gap:14px}
+#homeOv .hb{display:flex;justify-content:space-between}
+#homeOv .hero{display:grid;place-items:center;align-content:center;gap:14px;text-align:center}
+#homeOv .hero>svg{width:120px;height:120px;color:var(--accent);fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+#homeOv h1{margin:0;font:700 1.6rem/1.1 var(--display)}
+#homeOv .hNome{position:relative;display:inline-block;font:400 1.5rem/1 "Permanent Marker","Familjen Grotesk",cursive;text-transform:uppercase;color:var(--accent-fg);padding:10px 22px;isolation:isolate}
+#homeOv .hNome::before{content:"";position:absolute;inset:-2px -6px;z-index:-1;background:var(--accent);border-radius:8px 18px 10px 16px;transform:rotate(-1.5deg)}
+#homeOv .go{border:0;border-radius:18px;background:var(--accent);color:var(--accent-fg);font:700 1.1rem var(--display);padding:16px;width:100%;max-width:560px;justify-self:center;cursor:pointer}
+.cLocs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.cChip{border:2px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:7px 13px;font:600 .86rem var(--display);cursor:pointer}
+.cChip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.cTiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cTile{border:0;background:var(--surface);color:var(--fg);border-radius:18px;padding:14px 6px;display:grid;justify-items:center;gap:6px;font:600 .85rem var(--display);cursor:pointer}
+.cTile svg,.cIt svg{width:32px;height:32px;color:var(--accent);fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.cTile small{color:var(--muted);font-weight:500;font-size:.72rem}
+.cIt{border:0;background:var(--surface);color:var(--fg);border-radius:16px;padding:12px 14px;display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;width:100%;font:inherit;cursor:pointer}
+.cIt b{display:block;font-size:.95rem;line-height:1.2}.cIt small{display:block;color:var(--muted);font-size:.78rem;line-height:1.3}
+.cIt .chev{color:var(--muted);font-size:1.3rem}
+.cAdd{border:2px dashed var(--accent);background:transparent;color:var(--accent);border-radius:16px;padding:12px;font:700 .95rem var(--display);width:100%;cursor:pointer}
+.cHint{font-size:.84rem;color:var(--muted);margin:0}
+.cCard{background:var(--surface);border-radius:18px;padding:14px;display:grid;gap:10px}
+.cTag{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 7px;border-radius:6px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.cSw{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cSw input[type=checkbox]{width:44px;height:26px;appearance:none;-webkit-appearance:none;background:var(--line);border-radius:999px;position:relative;cursor:pointer;flex:none;margin:0}
+.cSw input[type=checkbox]::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+.cSw input:checked{background:var(--accent)}.cSw input:checked::after{left:21px}
+.cNum{display:flex;align-items:center;gap:8px}.cNum button{width:36px;height:36px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--fg);font-weight:700;cursor:pointer}.cNum span{min-width:24px;text-align:center;font-weight:700}
+.cVeil{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:70;display:flex;align-items:flex-end;justify-content:center}
+.cSheet{background:var(--bg);width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:8px 16px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:12px}
+.cGrab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 0}
+.cSheet h3{margin:0;font:700 1.15rem var(--display)}
+.cActs{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.cDel{border:0;background:transparent;color:#b3361f;font:700 .95rem var(--display);padding:10px;cursor:pointer}
+#appHome{border:0;background:transparent;color:var(--fg);width:36px;height:36px;display:grid;place-items:center;cursor:pointer;flex:none}
+#appHome svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:360px){.cTiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+body.locSemAcc #aBox,body.locSemSD #sdBox,body.locSemPen #ajPen{display:none!important}
+body.locSemInox #pSelPk [data-pv="inox"],body.locSemInox #pSel option[value="inox"]{display:none!important}
+body.locSemKitPen #pSelPk [data-pv]:not([data-pv="inox"]),body.locSemKitPen #pSel optgroup{display:none!important}
+body.locSemStar #aSelPk [data-pv="star"],body.locSemLotos #aSelPk [data-pv="lotos"]{display:none!important}
+`;document.head.appendChild(css)}
+const CI={casa:LIC.casa,trabalho:LIC.trabalho,mala:LIC.mala,local:LIC.local,
+ metodo:'<path d="M14 14h36L38 34H26z"/><path d="M28 34v6M36 34v6"/><path d="M16 44h32"/>',
+ moedor:'<path d="M32 6v8"/><path d="M32 8h16"/><circle cx="50" cy="8" r="3"/><rect x="22" y="14" width="20" height="40" rx="4"/><path d="M22 30h20"/>',
+ balanca:'<rect x="8" y="22" width="48" height="24" rx="6"/><rect x="24" y="30" width="16" height="8" rx="2"/>',
+ acessorio:'<path d="M10 14h44L40 34H24z"/><circle cx="32" cy="24" r="4"/><path d="M20 44h24M24 52h16"/>',
+ peneira:'<ellipse cx="32" cy="22" rx="20" ry="8"/><path d="M12 22v8c0 4 9 8 20 8s20-4 20-8v-8"/><path d="M22 22h20M24 18l16 8M40 18L24 26"/>',
+ cafe:'<path d="M32 10c10 6 14 14 12 24s-10 18-12 20c-2-2-10-10-12-20S22 16 32 10z"/><path d="M32 12c-4 10-4 22 0 40"/>',
+ grupo:'<rect x="8" y="8" width="20" height="20" rx="4"/><rect x="36" y="8" width="20" height="20" rx="4"/><rect x="8" y="36" width="20" height="20" rx="4"/><rect x="36" y="36" width="20" height="20" rx="4"/>',
+ pref:'<path d="M12 18h40M12 32h40M12 46h40"/><circle cx="24" cy="18" r="4"/><circle cx="40" cy="32" r="4"/><circle cx="28" cy="46" r="4"/>',
+ receita:'<rect x="14" y="8" width="36" height="48" rx="4"/><path d="M22 20h20M22 30h20M22 40h12"/>',
+ xicara:'<path d="M24 8c-2 3 2 5 0 8M32 6c-2 3 2 5 0 8M40 8c-2 3 2 5 0 8"/><path d="M12 24h36v12a14 14 0 0 1-14 14h-8a14 14 0 0 1-14-14z"/><path d="M48 28h4a6 6 0 0 1 0 12h-5"/><path d="M8 56h48"/>'};
+const S24={perfil:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
+ gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+ voltar:'<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>'};
+const curtoDe=n=>{const t=String(n||"").replace(/^Em casa - /,"").replace(/^(No|Na|Em) /,"");return t.charAt(0).toUpperCase()+t.slice(1)};
+// --- tela de início ---
+const homeOv=document.createElement("div");homeOv.id="homeOv";homeOv.className="ov";homeOv.hidden=true;
+homeOv.innerHTML=`<div class="hb"><button class="ovIb" id="hPerfil" aria-label="Meu cadastro">${S24.perfil}</button><button class="ovIb" id="hCfg" aria-label="Configurações">${S24.gear}</button></div>
+ <div class="hero">${svgI(CI.xicara)}<h1>Calculadora de Café</h1><span class="hNome" id="hNome"></span><span class="lbl" style="margin:6px 0 0">Onde você está?</span><div class="cLocs" id="hLocs"></div></div>
+ <button class="go" id="hGo">Bora fazer esse café</button>`;
+document.body.appendChild(homeOv);
+function homeTela(){$("hNome").textContent=st.nome||"cafezeiro";$("hLocs").innerHTML=CFG.locais.map(l=>`<button class="cChip" data-hl="${esc(l.id)}" aria-pressed="${MODO===l.id}">${esc(l.curto||curtoDe(l.n))}</button>`).join("")}
+homeOv.addEventListener("click",e=>{const t=e.target;let b;
+  if(b=t.closest("[data-hl]")){setModo(b.dataset.hl);homeTela();return}
+  if(t.closest("#hPerfil")){cfgAbre(["perfil"]);return}
+  if(t.closest("#hCfg")){cfgAbre(["raiz"]);return}
+  if(t.closest("#hGo")){homeOv.hidden=true;try{novoPreparo()}catch(e){}irPag("cafe");window.scrollTo({top:0});return}});
+const mostraHome=()=>{homeTela();homeOv.hidden=false};
+{const bar=$("appBar");if(bar&&!$("appHome")){const b=document.createElement("button");b.id="appHome";b.type="button";b.setAttribute("aria-label","Início");b.innerHTML=S24.home;b.onclick=mostraHome;bar.prepend(b)}}
+// a tela de início substitui a pergunta "Olá" ao abrir
+new MutationObserver(()=>{if(!$("ola").hidden){$("ola").hidden=true;mostraHome()}}).observe($("ola"),{attributes:true,attributeFilter:["hidden"]});
+// --- Configurações e cadastro ---
+const cfgOv=document.createElement("div");cfgOv.id="cfgOv";cfgOv.className="ov";cfgOv.hidden=true;
+cfgOv.innerHTML=`<div class="ovTop"><button class="ovIb" id="cVoltar" aria-label="Voltar">${S24.voltar}</button><h2 id="cTit"></h2><span></span></div><div class="ovC" id="cCorpo"></div>`;
+document.body.appendChild(cfgOv);
+let cPilha=[];
+function cfgAbre(p){cPilha=[];for(const x of p){if(typeof x==="string")cPilha.push(x);else if(x&&x.ed)setTimeout(()=>cFolha(x.ed,x.id),30)}cfgOv.hidden=false;cTela()}
+const nLoc=ids=>(ids||[]).map(id=>{const l=locById(id);return l?(l.tipo==="viagem"?"pode ir na viagem":l.curto||curtoDe(l.n)):""}).filter(Boolean).join(", ")||"sem local";
+const cIt_=(attr,ic,n,sub,dir)=>`<button class="cIt" ${attr}>${svgI(ic)}<span><b>${esc(n)}</b><small>${esc(sub)}</small></span>${dir||'<span class="chev">›</span>'}</button>`;
+const TELAS_C={
+ raiz:()=>["Configurações",`<div class="cTiles">${[["locais","Locais",CI.local,CFG.locais.length],["metodos","Métodos",CI.metodo,CFG.itens.length],["moedores","Moedores",CI.moedor,CFG.moes.filter(m=>!CFG.moesFora.includes(m.k)).length],
+   ["balancas","Balanças",CI.balanca,balLista().filter(b=>!CFG.balsFora.includes(b.id)).length],["acess","Acessórios",CI.acessorio,CFG.acess.length],["pens","Peneiras",CI.peneira,CFG.pens.length],
+   ["cafes","Cafés",CI.cafe,CAF.length],["grupos","Tipos de preparo",CI.grupo,CFG.grupos.length],["prefs","Preferências",CI.pref,""]].map(([k,n,ic,c])=>`<button class="cTile" data-cn="${k}">${svgI(ic)}${n}<small>${c===""?"":c+(c===1?" item":" itens")}</small></button>`).join("")}</div>
+   <p class="cHint">Tudo aqui pode ser adicionado, alterado ou removido. Cada item mostra em quais locais está.</p>`],
+ perfil:()=>["Meu cadastro",`<div class="cCard"><label class="lbl" for="pfNome">Nome</label><input class="txt" id="pfNome" data-pf="nome" value="${esc(st.nome||"")}" maxlength="30" autocomplete="name">
+   <label class="lbl" for="pfTel">Telefone</label><input class="txt" id="pfTel" data-pf="tel" type="tel" inputmode="tel" value="${esc(CFG.perfil.tel)}" placeholder="(31) 9 0000-0000" autocomplete="tel">
+   <label class="lbl" for="pfEm">E-mail</label><input class="txt" id="pfEm" data-pf="email" type="email" value="${esc(CFG.perfil.email)}" placeholder="voce@email.com" autocomplete="email">
+   <label class="lbl" for="pfCid">Cidade</label><input class="txt" id="pfCid" data-pf="cidade" value="${esc(CFG.perfil.cidade)}"></div>
+   ${cIt_('data-cn="receitas"',CI.receita,"Minhas receitas",REC.length+" salva"+(REC.length===1?"":"s"))}
+   <button class="btn pri" id="pfMail" style="padding:13px">Enviar minhas receitas para o meu e-mail</button><p class="cHint">Abre o seu app de e-mail com as receitas escritas, prontas para enviar.</p>`],
+ receitas:()=>["Minhas receitas",REC.length?REC.map((r,i)=>`<div class="cCard"><b>${esc(r.nome)}</b><span class="cHint">${esc(recTxt(r).split("\n").slice(1).join(" · "))}</span></div>`).join(""):`<p class="cHint">Nenhuma receita salva. No preparo, use Salvar receita.</p>`],
+ locais:()=>["Locais",`<button class="cAdd" data-cnovo="locais">+ Adicionar local</button>`+CFG.locais.map(l=>cIt_(`data-ced="locais|${esc(l.id)}"`,LIC[l.ic]||LIC.local,l.n,l.tipo==="viagem"?`Viagem: kit de até ${limDe(l).metodos} métodos · pote ${l.pote||"único"}`:`${itensEm(l.id).length} métodos · ${moesEm(l.id).length} moedores · ${l.usaPotesDe?"usa os potes de "+((locById(l.usaPotesDe)||{}).curto||""):potN(l)+" potes"}`)).join("")],
+ metodos:()=>["Métodos",`<button class="cAdd" data-cnovo="metodos">+ Adicionar método</button>`+CFG.grupos.concat([{k:"",n:"Sem tipo de preparo"}]).map(g=>{const xs=CFG.itens.filter(i=>(i.grupo||"")===g.k||(!g.k&&!CFG.grupos.some(x=>x.k===i.grupo)));return xs.length?`<span class="lbl" style="margin:6px 0 0">${esc(g.n)}</span>`+xs.map(i=>cIt_(`data-ced="metodos|${esc(i.k)}"`,CI.metodo,i.n,`${idsOf(i).length} receita${idsOf(i).length===1?"":"s"} · ${nLoc(i.loc)}`)).join(""):""}).join("")],
+ moedores:()=>["Moedores",`<button class="cAdd" data-cnovo="moedores">+ Adicionar moedor</button>`+CFG.moes.filter(m=>!CFG.moesFora.includes(m.k)).map(m=>cIt_(`data-ced="moedores|${esc(m.k)}"`,CI.moedor,moeNome(m.k),nLoc(m.loc),["icoffee","hibrew","m9"].includes(m.k)?'<span class="cTag">provisório</span>':"")).join("")],
+ balancas:()=>["Balanças",`<button class="cAdd" data-cnovo="balancas">+ Adicionar balança</button>`+balLista().filter(b=>!CFG.balsFora.includes(b.id)).map(b=>{const c=CFG.bals[b.id]||{};return cIt_(`data-ced="balancas|${esc(b.id)}"`,CI.balanca,b.n,`${b.bt?"Bluetooth":"sem Bluetooth"} · fica ${((locById(c.loc)||{}).curto)||"sem local"}${c.viagem?" · pode ir na viagem":""}`)}).join("")],
+ acess:()=>["Acessórios",`<button class="cAdd" data-cnovo="acess">+ Adicionar acessório</button>`+CFG.acess.map(a=>cIt_(`data-ced="acess|${esc(a.k)}"`,CI.acessorio,a.n,nLoc(a.loc))).join("")+`<p class="cHint">O app ajusta a receita para o Starflower, o LOTOS e o SimpleDrip. Os outros ficam só registrados.</p>`],
+ pens:()=>["Peneiras",`<button class="cAdd" data-cnovo="pens">+ Adicionar peneira</button>`+CFG.pens.map(a=>cIt_(`data-ced="pens|${esc(a.k)}"`,CI.peneira,a.n,nLoc(a.loc)+(a.soCom?" · na viagem só com "+a.soCom.map(moeNome).join(" ou "):""))).join("")],
+ cafes:()=>["Cafés",`<button class="cAdd" id="cCadCafe">+ Cadastrar café</button><p class="cHint">O cadastro abre no app, com a leitura do rótulo pela câmera.</p>`+CAF.map(c=>cIt_(`data-ced="cafes|${esc(c.id)}"`,CI.cafe,c.nome,[c.torra,c.processo,c.data&&("torra "+dataBR(c.data))].filter(Boolean).join(" · ")||"sem dados",c.fim?'<span class="cTag">acabou</span>':"")).join("")],
+ grupos:()=>["Tipos de preparo",`<p class="cHint">Os grupos de "Pelo tipo de preparo". O app indica os 3 melhores cafés dos potes para cada um.</p><button class="cAdd" data-cnovo="grupos">+ Adicionar tipo de preparo</button>`+CFG.grupos.map(g=>cIt_(`data-ced="grupos|${esc(g.k)}"`,CI.grupo,g.n,CFG.itens.filter(i=>i.grupo===g.k).map(i=>i.n).join(", ")||"nenhum método")).join("")],
+ prefs:()=>["Preferências",`<div class="cCard"><label class="cSw"><span>Som de aviso nos despejos</span><input type="checkbox" data-cp="som" ${CFG.prefs.som!==false?"checked":""}></label>
+   <label class="cSw"><span>Ajustar o preparo pela torra e pelo frescor do café</span><input type="checkbox" data-cp="auto" ${st.auto!==false?"checked":""}></label></div>
+   <div class="cCard"><span class="lbl" style="margin:0">Configuração</span><button class="btn" id="cRestaura">Voltar à configuração original</button><p class="cHint">Desfaz as mudanças de locais, métodos, moedores, balanças, acessórios e peneiras feitas aqui. Cafés, potes e receitas não mudam.</p></div>`]};
+function cTela(){const k=cPilha[cPilha.length-1]||"raiz";const[t,h]=TELAS_C[k]();$("cTit").textContent=t;$("cCorpo").innerHTML=h;cfgOv.scrollTop=0}
+const limDe=l=>Object.assign({metodos:2,espresso:1},l.lim||{});
+function potN(l){try{const x=JSON.parse(localStorage.getItem(l.pkey||("calcPotes_"+l.id))||"null");return x&&x.n?x.n:5}catch(e){return 5}}
+function potSet(l,n){const k=l.pkey||("calcPotes_"+l.id);let x=null;try{x=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}x=x&&typeof x==="object"?x:{n:5,p:[],g:[],u:[],h:[],log:[],t:[]};x.n=Math.min(12,Math.max(1,n));try{localStorage.setItem(k,JSON.stringify(x))}catch(e){}if(LOCPOT===k){loadPot();try{renderPotes()}catch(e){}}}
+const recTxt=r=>{const m=M.find(x=>x.id===r.met);return `${r.nome}\nMétodo: ${m?m.n+(m.grp||m.rn?" · "+vn(m):""):r.met}\nCafé: ${(r.cafe&&r.cafe.nome)||"—"}\nDose: ${f(r.c,1)} g de café · ${f(r.a||r.q)} g${r.r?" (1:"+f(r.r,1)+")":""}\nMoedor: ${moeNome(r.moe)} no ${f(r.gr)}`};
+const aposMudar=()=>{saveCfg();montaGrupos();renderMetBtns();renderMoeBtns();aplicaModo()};
+// --- folha de edição ---
+function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(sel,multi,soFixo)=>`<div class="chips" data-cl="${multi?"m":"u"}" style="display:flex;flex-wrap:wrap;gap:6px">${CFG.locais.filter(l=>!soFixo||l.tipo!=="viagem").map(l=>`<button type="button" class="cChip" data-cv="${esc(l.id)}" aria-pressed="${multi?(sel||[]).includes(l.id):sel===l.id}">${esc(l.tipo==="viagem"?"Pode ir na viagem":l.curto||curtoDe(l.n))}</button>`).join("")}</div>`;
+  const un=(nome,ops,sel)=>`<div style="display:flex;flex-wrap:wrap;gap:6px" data-un="${nome}">${ops.map(([v,n])=>`<button type="button" class="cChip" data-v="${esc(v)}" aria-pressed="${v===sel}">${esc(n)}</button>`).join("")}</div>`;
+  const nome=(v,ph,ro)=>`<label class="lbl" for="cfN">Nome</label><input class="txt" id="cfN" value="${esc(v||"")}" placeholder="${ph}" ${ro?"readonly":""}>`;
+  let x=null;
+  if(k==="locais"){x=novo?{id:"",n:"",ic:"casa",tipo:"fixo"}:locById(id);if(!x)return;tit=novo?"Novo local":"Editar local";const fix=CFG.locais.filter(l=>l.tipo==="fixo"&&l.id!==x.id);
+    h=nome(x.n,"ex.: Casa da praia")+`<span class="lbl">Ícone</span>${un("ic",[["casa","Casa"],["trabalho","Trabalho"],["mala","Viagem"],["local","Outro"]],x.ic)}
+     <span class="lbl">Tipo</span>${un("tipo",[["fixo","Fixo: o que tem lá fica lá"],["viagem","Viagem: monto um kit"]],x.tipo)}
+     <div id="cfFixo" ${x.tipo==="viagem"?"hidden":""} style="display:grid;gap:10px"><span class="lbl">Potes</span>${un("pot",[["proprio","Potes próprios"],...fix.map(l=>[l.id,"Usa os de "+(l.curto||curtoDe(l.n))])],x.usaPotesDe||"proprio")}
+      <div class="cSw" id="cfPotN" ${x.usaPotesDe?"hidden":""}><span>Quantidade de potes</span><span class="cNum"><button type="button" data-pn="-1">−</button><span id="cfPot">${novo?4:potN(x)}</span><button type="button" data-pn="1">+</button></span></div>
+      ${novo?"":`<span class="lbl">O que tem aqui</span><span class="cHint">Toque para marcar ou desmarcar.</span>
+      <span class="lbl" style="font-size:.7rem">Métodos</span><div style="display:flex;flex-wrap:wrap;gap:6px">${CFG.itens.map(i=>`<button type="button" class="cChip" data-inv="itens|${esc(i.k)}" aria-pressed="${i.loc.includes(x.id)}">${esc(i.n)}</button>`).join("")}</div>
+      <span class="lbl" style="font-size:.7rem">Moedores</span><div style="display:flex;flex-wrap:wrap;gap:6px">${CFG.moes.filter(m=>!CFG.moesFora.includes(m.k)).map(m=>`<button type="button" class="cChip" data-inv="moes|${esc(m.k)}" aria-pressed="${m.loc.includes(x.id)}">${esc(moeNome(m.k))}</button>`).join("")}</div>
+      <span class="lbl" style="font-size:.7rem">Balanças (cada uma fica num lugar só)</span><div style="display:flex;flex-wrap:wrap;gap:6px">${balLista().filter(b=>!CFG.balsFora.includes(b.id)).map(b=>`<button type="button" class="cChip" data-inv="bals|${esc(b.id)}" aria-pressed="${(CFG.bals[b.id]||{}).loc===x.id}">${esc(b.n)}</button>`).join("")}</div>
+      <span class="lbl" style="font-size:.7rem">Acessórios e peneiras</span><div style="display:flex;flex-wrap:wrap;gap:6px">${[...CFG.acess.map(a=>["acess",a]),...CFG.pens.map(a=>["pens",a])].map(([t,a])=>`<button type="button" class="cChip" data-inv="${t}|${esc(a.k)}" aria-pressed="${a.loc.includes(x.id)}">${esc(a.n)}</button>`).join("")}</div>`}</div>
+     <div id="cfViag" ${x.tipo==="viagem"?"":"hidden"} style="display:grid;gap:10px"><label class="lbl" for="cfPote">Nome do pote de viagem</label><input class="txt" id="cfPote" value="${esc(x.pote||"Pote de viagem")}">
+      <div class="cSw"><span>Métodos no kit</span><span class="cNum"><button type="button" data-lm="-1">−</button><span id="cfLm">${limDe(x).metodos}</span><button type="button" data-lm="1">+</button></span></div>
+      <label class="cSw"><span>Levar uma máquina de espresso</span><input type="checkbox" id="cfLe" ${limDe(x).espresso?"checked":""}></label>
+      <p class="cHint">O que pode ir na viagem você marca em cada método, moedor e balança ("Pode ir na viagem").</p></div>`}
+  else if(k==="metodos"){x=novo?null:itemK(id);tit=novo?"Novo método":"Editar método";
+    if(novo){const bases=M.filter(m=>!m.grp&&!m.like&&!m.cap);h=nome("","ex.: Kalita Wave 185")+`<label class="lbl" for="cfLike">Receita base (parecido com)</label><select class="txt" id="cfLike">${bases.map(m=>`<option value="${m.id}">${esc(m.n)}</option>`).join("")}</select>
+      <span class="lbl">Tipo de preparo</span>${un("grupo",[...CFG.grupos.map(g=>[g.k,g.n]),["","Nenhum"]],"coa")}<span class="lbl">Onde está</span>${chipsL(MODO&&!ehV()?[MODO]:[CFG.locais[0].id],true)}<p class="cHint">O app copia as receitas e a moagem do método base. Depois de salvar, o app recarrega.</p>`}
+    else{const ids=x.src.ids?x.src.ids:idsG(x.src.g).filter(i=>!(x.src.ex||[]).includes(i));h=nome(x.n,"")+`<span class="lbl">Tipo de preparo</span>${un("grupo",[...CFG.grupos.map(g=>[g.k,g.n]),["","Nenhum"]],x.grupo||"")}<span class="lbl">Onde está</span>${chipsL(x.loc,true)}
+      <span class="lbl">Receitas</span><span class="cHint">Desligue as receitas que não quer ver.</span>${ids.map(rid=>{const m=M.find(y=>y.id===rid);return m?`<label class="cSw"><span>${esc(vn(m))}</span><input type="checkbox" data-rec="${rid}" ${CFG.ocultas.includes(rid)?"":"checked"}></label>`:""}).join("")}`}}
+  else if(k==="moedores"){x=novo?null:CFG.moes.find(m=>m.k===id);tit=novo?"Novo moedor":"Editar moedor";
+    if(novo)h=nome("","ex.: Comandante C40")+`<label class="lbl" for="cfLike">Ajustes parecidos com</label><select class="txt" id="cfLike">${MOEB.map(([k2,n2])=>`<option value="${k2}">${esc(n2)}</option>`).join("")}</select>
+      <span class="lbl">Tipo</span>${un("tipo",[["man","Manual"],["mesa","Elétrico de mesa"],["port","Elétrico portátil"]],"man")}<span class="lbl">Onde está</span>${chipsL(MODO&&!ehV()?[MODO]:[CFG.locais[0].id],true)}<p class="cHint">Depois de salvar, o app recarrega.</p>`;
+    else h=nome(moeNome(x.k),"",true)+`<span class="lbl">Onde está</span>${chipsL(x.loc,true)}`}
+  else if(k==="balancas"){const b=novo?null:balLista().find(y=>y.id===id);x=b;const c=novo?{loc:(MODO&&!ehV()?MODO:(CFG.locais.find(l=>l.tipo==="fixo")||{}).id),viagem:false}:(CFG.bals[id]||{loc:"",viagem:false});tit=novo?"Nova balança":"Editar balança";
+    h=nome(b?b.n:"","ex.: Acaia Pearl",b&&!BALU.some(u=>u.id===b.id))+(novo?`<label class="cSw"><span>Tem Bluetooth (uma das marcas que o app conecta)</span><input type="checkbox" id="cfBt"></label>`:"")+
+     `<span class="lbl">Onde fica (um lugar só)</span>${chipsL(c.loc,false,true)}<label class="cSw"><span>Pode ir na viagem</span><input type="checkbox" id="cfVg" ${c.viagem?"checked":""}></label>`}
+  else if(k==="acess"||k==="pens"){x=novo?null:CFG[k].find(a=>a.k===id);tit=(novo?"Novo ":"Editar ")+(k==="acess"?"acessório":"peneira");
+    h=nome(x?x.n:"",k==="acess"?"ex.: Filtro de metal":"ex.: Kruve")+`<span class="lbl">Onde está</span>${chipsL(x?x.loc:(MODO&&!ehV()?[MODO]:[CFG.locais[0].id]),true)}`}
+  else if(k==="cafes"){x=CAF.find(c=>c.id===id);if(!x)return;tit=x.nome;
+    h=`<div class="cCard"><span class="cHint">${esc([x.torra&&"Torra "+x.torra.toLowerCase(),x.processo,x.tipo,x.data&&"torrado em "+dataBR(x.data)].filter(Boolean).join(" · ")||"Sem dados")}</span></div>
+     <button class="btn" id="cfCafEd">Editar os dados no app</button><button class="btn" id="cfCafFim">${x.fim?"Reativar este café":"Marcar que acabou"}</button>`}
+  else if(k==="grupos"){x=novo?null:CFG.grupos.find(g=>g.k===id);tit=novo?"Novo tipo de preparo":"Editar tipo de preparo";h=nome(x?x.n:"","ex.: Cold brew")}
+  const v=document.createElement("div");v.className="cVeil";v.innerHTML=`<div class="cSheet" role="dialog" aria-label="${esc(tit)}"><div class="cGrab"></div><h3>${esc(tit)}</h3>${h}<div class="cActs">${novo?"<span></span>":`<button class="cDel" id="cfDel">Excluir</button>`}<div style="display:flex;gap:8px"><button class="btn" id="cfCan">Cancelar</button>${k==="cafes"?"":`<button class="btn pri" id="cfOk">Salvar</button>`}</div></div></div>`;
+  document.body.appendChild(v);const fecha=()=>v.remove();
+  v.addEventListener("click",e=>{const t=e.target;let b;
+    if(t===v||t.closest("#cfCan")){fecha();return}
+    if(b=t.closest("[data-cl] [data-cv]")){const g=b.parentElement;if(g.dataset.cl==="u"){g.querySelectorAll("[data-cv]").forEach(c=>c.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true")}else b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true"));return}
+    if(b=t.closest("[data-un] [data-v]")){b.parentElement.querySelectorAll("[data-v]").forEach(c=>c.setAttribute("aria-pressed",String(c===b)));const u=b.parentElement.dataset.un;
+      if(u==="tipo"&&k==="locais"){v.querySelector("#cfFixo").hidden=b.dataset.v==="viagem";v.querySelector("#cfViag").hidden=b.dataset.v!=="viagem"}if(u==="pot")v.querySelector("#cfPotN").hidden=b.dataset.v!=="proprio";return}
+    if(b=t.closest("[data-inv]")){b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true"));if(b.dataset.inv.startsWith("bals|")&&b.getAttribute("aria-pressed")==="true")toast("Ao salvar, esta balança passa a ficar só aqui");return}
+    if(b=t.closest("[data-pn]")){const s=v.querySelector("#cfPot");s.textContent=Math.min(12,Math.max(1,+s.textContent+ +b.dataset.pn));return}
+    if(b=t.closest("[data-lm]")){const s=v.querySelector("#cfLm");s.textContent=Math.min(4,Math.max(1,+s.textContent+ +b.dataset.lm));return}
+    if(t.closest("#cfCafEd")){fecha();cfgOv.hidden=true;homeOv.hidden=true;st.csel=x.id;st.cafe={...x};cEdit=true;cDelArm=false;irPag("cafe");render();setTimeout(()=>{try{$("cNome").scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}},120);return}
+    if(t.closest("#cfCafFim")){x.fim=!x.fim;saveCaf();fecha();cTela();try{renderPotes();render()}catch(e){}toast(x.fim?"Marcado como acabou":"Café reativado");return}
+    if(t.closest("#cfDel")){const d=t.closest("#cfDel");if(!d.dataset.arm){d.dataset.arm="1";d.textContent="Confirmar exclusão";return}
+      if(k==="locais"){if(CFG.locais.length<2){toast("Deixe pelo menos um local");return}CFG.locais=CFG.locais.filter(l=>l.id!==id);for(const a of [CFG.itens,CFG.moes,CFG.acess,CFG.pens])a.forEach(z=>z.loc=z.loc.filter(y=>y!==id));
+        for(const bid of Object.keys(CFG.bals))if(CFG.bals[bid].loc===id)CFG.bals[bid].loc=(CFG.locais.find(l=>l.tipo==="fixo")||{}).id||"";CFG.locais.forEach(l=>{if(l.usaPotesDe===id)delete l.usaPotesDe});if(MODO===id)MODO=""}
+      else if(k==="metodos"){CFG.itens=CFG.itens.filter(i=>i.k!==id);const mu=METU.findIndex(u=>u.id===id);if(mu>=0){METU.splice(mu,1);try{localStorage.setItem("calcMetU",JSON.stringify(METU))}catch(e){}}
+        else if(x&&x.src.g&&!x.src.ex&&!CFG.itens.some(i=>i.src.g===x.src.g)&&!CFG.metFora.includes(x.src.g))CFG.metFora.push(x.src.g)}
+      else if(k==="moedores"){const mu=MOEU.findIndex(u=>u.id===id);if(mu>=0){MOEU.splice(mu,1);try{localStorage.setItem("calcMoeU",JSON.stringify(MOEU))}catch(e){}CFG.moes=CFG.moes.filter(m=>m.k!==id)}else CFG.moesFora.push(id);if(KIT.moe===id)KIT.moe=""}
+      else if(k==="balancas"){const bu=BALU.findIndex(u=>u.id===id);if(bu>=0){BALU.splice(bu,1);saveBalU()}else CFG.balsFora.push(id);delete CFG.bals[id];if(KIT.bal===id)KIT.bal=""}
+      else if(k==="acess"||k==="pens")CFG[k]=CFG[k].filter(a=>a.k!==id);
+      else if(k==="grupos"){CFG.grupos=CFG.grupos.filter(g=>g.k!==id);CFG.itens.forEach(i=>{if(i.grupo===id)i.grupo=""})}
+      saveModo();aposMudar();fecha();cTela();toast("Excluído");return}
+    if(t.closest("#cfOk")){const n=v.querySelector("#cfN").value.trim();if(!n){v.querySelector("#cfN").focus();toast("Dê um nome");return}
+      const uv=nm=>{const q=v.querySelector(`[data-un="${nm}"] [aria-pressed="true"]`);return q?q.dataset.v:""};
+      const lm=()=>[...v.querySelectorAll('[data-cl="m"] [aria-pressed="true"]')].map(q=>q.dataset.cv),lu=()=>{const q=v.querySelector('[data-cl="u"] [aria-pressed="true"]');return q?q.dataset.cv:""};
+      if(k==="locais"){const tipo=uv("tipo")||"fixo";const o=novo?{id:uidC()}:x;o.n=n;o.curto=curtoDe(n);o.ic=uv("ic")||"casa";o.tipo=tipo;
+        if(tipo==="viagem"){o.pote=v.querySelector("#cfPote").value.trim()||"Pote de viagem";o.lim={metodos:+v.querySelector("#cfLm").textContent,espresso:v.querySelector("#cfLe").checked?1:0};if(!o.pkey)o.pkey="calcPotes_"+o.id;delete o.usaPotesDe}
+        else{const p=uv("pot");if(p&&p!=="proprio")o.usaPotesDe=p;else{delete o.usaPotesDe;potSet(o,+v.querySelector("#cfPot").textContent)}
+          if(!novo)v.querySelectorAll("[data-inv]").forEach(q=>{const[t2,kk]=q.dataset.inv.split("|"),on=q.getAttribute("aria-pressed")==="true";
+            if(t2==="bals"){if(on)CFG.bals[kk]={...(CFG.bals[kk]||{viagem:false}),loc:o.id};else if((CFG.bals[kk]||{}).loc===o.id)CFG.bals[kk].loc="";return}
+            const z=CFG[t2].find(a=>(a.k)===kk);if(!z)return;const i=z.loc.indexOf(o.id);if(on&&i<0)z.loc.push(o.id);if(!on&&i>=0)z.loc.splice(i,1)})}
+        if(novo)CFG.locais.push(o)}
+      else if(k==="metodos"){if(novo){const like=v.querySelector("#cfLike").value,nid="u"+Date.now().toString(36);METU.push({id:nid,n,like,ic:G(M.find(m=>m.id===like)||{id:like})});try{localStorage.setItem("calcMetU",JSON.stringify(METU))}catch(e){}
+          CFG.itens.push({k:nid,n,grupo:uv("grupo"),src:{g:nid},loc:lm()});saveCfg();try{sessionStorage.setItem("calcCfgAbre","metodos");sessionStorage.setItem("calcRecarga","1")}catch(e){}location.reload();return}
+        x.n=n;x.grupo=uv("grupo");x.loc=lm();v.querySelectorAll("[data-rec]").forEach(q=>{const rid=q.dataset.rec,i=CFG.ocultas.indexOf(rid);if(q.checked&&i>=0)CFG.ocultas.splice(i,1);if(!q.checked&&i<0)CFG.ocultas.push(rid)})}
+      else if(k==="moedores"){if(novo){const like=v.querySelector("#cfLike").value,nid="u"+Date.now().toString(36);MOEU.push({id:nid,n,like,ic:like,u:"",tipo:uv("tipo")||"man"});try{localStorage.setItem("calcMoeU",JSON.stringify(MOEU))}catch(e){}
+          CFG.moes.push({k:nid,loc:lm()});saveCfg();try{sessionStorage.setItem("calcCfgAbre","moedores");sessionStorage.setItem("calcRecarga","1")}catch(e){}location.reload();return}
+        x.loc=lm()}
+      else if(k==="balancas"){let bid=id;if(novo){bid="b"+Date.now().toString(36);BALU.push({id:bid,n,bt:v.querySelector("#cfBt").checked,ic:"quad"});saveBalU()}else{const bu=BALU.find(u=>u.id===id);if(bu)bu.n=n,saveBalU()}
+        CFG.bals[bid]={loc:lu(),viagem:v.querySelector("#cfVg").checked}}
+      else if(k==="acess"||k==="pens"){if(novo)CFG[k].push({k:uidC(),n,loc:lm()});else{x.n=n;x.loc=lm()}}
+      else if(k==="grupos"){if(novo)CFG.grupos.push({k:uidC(),n,ic:"v60"});else x.n=n}
+      saveModo();aposMudar();fecha();cTela();toast(novo?"Adicionado":"Salvo")}});
+  setTimeout(()=>{const q=v.querySelector("#cfN");if(q&&novo)q.focus()},60)}
+cfgOv.addEventListener("click",e=>{const t=e.target;let b;
+  if(t.closest("#cVoltar")){if(cPilha.length>1){cPilha.pop();cTela()}else{cfgOv.hidden=true;if(!homeOv.hidden)homeTela()}return}
+  if(b=t.closest("[data-cn]")){cPilha.push(b.dataset.cn);cTela();return}
+  if(b=t.closest("[data-ced]")){const[k,id]=b.dataset.ced.split("|");cFolha(k,id);return}
+  if(b=t.closest("[data-cnovo]")){cFolha(b.dataset.cnovo,null);return}
+  if(t.closest("#cCadCafe")){cfgOv.hidden=true;homeOv.hidden=true;irPag("cafe");setTimeout(()=>$("addCafe").click(),60);return}
+  if(t.closest("#cRestaura")){const r=t.closest("#cRestaura");if(!r.dataset.arm){r.dataset.arm="1";r.textContent="Confirmar: voltar à original";return}try{localStorage.removeItem("calcCfg")}catch(e){}CFG=cfgPadrao();aposMudar();cTela();toast("Configuração original de volta");return}
+  if(t.closest("#pfMail")){const em=(CFG.perfil.email||"").trim();if(!/.+@.+\..+/.test(em)){toast("Preencha o seu e-mail primeiro");try{$("pfEm").focus()}catch(e){}return}
+    const corpo=REC.length?REC.map((r,i)=>`${i+1}. ${recTxt(r)}`).join("\n\n"):"Nenhuma receita salva ainda.";
+    location.href=`mailto:${encodeURIComponent(em)}?subject=${encodeURIComponent("Minhas receitas de café")}&body=${encodeURIComponent(`Olá, ${st.nome||""}!\n\nSuas receitas da Calculadora de Café:\n\n${corpo}\n`)}`;return}});
+cfgOv.addEventListener("input",e=>{const t=e.target;if(t.dataset.pf){if(t.dataset.pf==="nome"){st.nome=t.value.trim().slice(0,30);try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(err){}try{nomeTela()}catch(err){}}else CFG.perfil[t.dataset.pf]=t.value;saveCfg()}});
+cfgOv.addEventListener("change",e=>{const t=e.target;if(t.dataset.cp==="som"){CFG.prefs.som=t.checked;saveCfg()}if(t.dataset.cp==="auto"){st.auto=t.checked;render()}});
+{const s0=som;som=function(...a){if(CFG.prefs&&CFG.prefs.som===false)return;return s0.apply(this,a)}}
+// ao abrir: tela de início (ou volta para Configurações depois de adicionar método/moedor)
+{let reab=null;try{reab=sessionStorage.getItem("calcCfgAbre");sessionStorage.removeItem("calcCfgAbre")}catch(e){}
+ if(reab){cfgAbre(["raiz",reab]);toast("Adicionado")}else if(st.nome){$("ola").hidden=true;mostraHome()}}
+
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
 render();
