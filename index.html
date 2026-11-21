@@ -357,7 +357,7 @@ body:not(.escPote) #potPanel{display:none!important}
 .kitLeg{font-size:.78rem;color:var(--muted);margin:0}
 body.locViagem #escBox,body.locViagem #cSel,body.locViagem label[for="cSel"],body.locViagem #addCafe,body.locViagem #addPote,body.locViagem #pOrdemBox,body.locViagem #pDica,body.locViagem #pN,body.locViagem label[for="pN"]{display:none!important}
 body.locViagem[data-pag="cafe"] #potPanel{display:block!important}
-body.locIpa #aBox,body.locIpa #sdBox,body.locIpa #ajPen{display:none!important}
+body.locIpa #aBox,body.locIpa #sdBox,body.locSemPen #ajPen{display:none!important}
 .kitRes{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--soft);font-size:.88rem;line-height:1.35}
 
 </style>
@@ -369,7 +369,7 @@ body.locIpa #aBox,body.locIpa #sdBox,body.locIpa #ajPen{display:none!important}
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 113 · 21/11/2026 · Ipatinga sem acessório, SimpleDrip e peneira; métodos do pote só os do local; balança de cada local</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 114 · 21/11/2026 · Sem peneira no trabalho</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -2047,9 +2047,11 @@ function moeLista(gk){if(viag()){const t=kitMoes();return[...(MOEPREF[gk]||[]).f
 // métodos e moedores permitidos no local atual (null = sem filtro)
 function permitido(id){if(viag())return kitIds().includes(id);if(MODO==="casa")return !FORA_CASA().includes(id);return true}
 let ipaSave=null;
-function trocaPotes(){document.body.classList.toggle("locViagem",MODO==="viagem");document.body.classList.toggle("locIpa",MODO==="ipatinga");
-  if(MODO==="ipatinga"){if(!ipaSave){ipaSave={acc:st.acc,pen:!!(st.pen&&st.pen.on),sd:!!(st.sd&&st.sd.on)};st.acc="";if(st.pen)st.pen.on=false;if(st.sd)st.sd.on=false}}
-  else if(ipaSave){st.acc=ipaSave.acc;if(st.pen)st.pen.on=ipaSave.pen;if(st.sd)st.sd.on=ipaSave.sd;ipaSave=null}
+function trocaPotes(){document.body.classList.toggle("locViagem",MODO==="viagem");document.body.classList.toggle("locIpa",MODO==="ipatinga");document.body.classList.toggle("locSemPen",MODO==="ipatinga"||MODO==="trabalho");
+  // o que não existe no local fica desligado ali e volta ao sair: Ipatinga sem acessório, SimpleDrip e peneira; trabalho sem peneira
+  {const off=MODO==="ipatinga"?["acc","pen","sd"]:MODO==="trabalho"?["pen"]:[];
+   if(ipaSave){st.acc=ipaSave.acc;if(st.pen)st.pen.on=ipaSave.pen;if(st.sd)st.sd.on=ipaSave.sd;ipaSave=null}
+   if(off.length){ipaSave={acc:st.acc,pen:!!(st.pen&&st.pen.on),sd:!!(st.sd&&st.sd.on)};if(off.includes("acc"))st.acc="";if(off.includes("pen")&&st.pen)st.pen.on=false;if(off.includes("sd")&&st.sd)st.sd.on=false}}
   {const l=document.querySelector("#potPanel .lbl");if(l)l.textContent=MODO==="viagem"?"Pote de viagem: Airscape (250 g de café)":MODO==="ipatinga"?"Potes de Ipatinga":"Meus potes de café aberto"}
   const k=MODO==="ipatinga"?"calcPotesIpa":MODO==="viagem"?"calcPotesViagem":"calcPotes";if(LOCPOT===k){viagCafe();return}LOCPOT=k;Object.assign(POT,{n:5,p:[],g:[],u:[],h:[],log:[],t:[]});loadPot();if(k==="calcPotesViagem")POT.n=1;usoPote=-1;potSel=-1;potArm=-1;try{renderPotes()}catch(e){}viagCafe()}
 // Na viagem o café é sempre o do Airscape
