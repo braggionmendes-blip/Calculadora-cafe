@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 119 · 21/11/2026 · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 120 · 21/11/2026 · Escolher o café no pote leva ao Preparo · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -2159,7 +2159,7 @@ function renderKit(){cardsLocais();document.querySelectorAll("[data-modo]").forE
    ${balViagem().length?`<span class="lbl" style="margin:0">Balança para levar (1)</span><div class="kitG">${balViagem().map(b=>`<button type="button" data-kb="${b.id}" aria-pressed="${KIT.bal===b.id}" class="${REC_V.includes(b.id)?"rec":""}">${svgI(BI[b.ic]||BI.quad)}<span>${esc(b.n)}</span></button>`).join("")}</div>`:""}
    ${kitOk()?`<button class="btn pri" type="button" id="kitPronto">Pronto</button>`:`<p class="kitLeg">Escolha pelo menos um método${lim.espresso&&o.e.length?", uma máquina de espresso":""} e o moedor.</p>`}`}
 function aplicaModo(){trocaPotes();balLocal();
-  if(viag()){const ms=kitMoes();if(ms.length===1&&st.moe!==ms[0]){st.moe=ms[0];marca("moe")}else if(!ms.includes(st.moe))abrirMoe=true;if(!kitIds().includes(st.met))abrirMet=true}
+  if(viag()){const ms=kitMoes();if(ms.length===1){st.moe=ms[0];marca("moe")}else if(!ms.includes(st.moe))abrirMoe=true;if(!kitIds().includes(st.met))abrirMet=true}
   renderMetBtns();renderMoeBtns();renderKit();render();try{renderEsc()}catch(e){}try{homeTela()}catch(e){}}
 function setModo(id){MODO=MODO===id?"":id;kitAberto=!!MODO&&ehV()&&!kitOk();aplicaModo()}
 $("modoBox").addEventListener("click",e=>{const t=e.target;let b;
@@ -2204,6 +2204,16 @@ function balLocal(){const l=locObj();if(!l)return;if(l.tipo==="viagem"){if(KIT.b
   if(balPerm(st.bal)&&balLista().some(b=>(CFG.bals[b.id]||{}).loc===l.id&&b.id===st.bal))return;const L=balLista().filter(b=>!CFG.balsFora.includes(b.id)&&(CFG.bals[b.id]||{}).loc===l.id);if(L.length===1)st.bal=L[0].id;else balAberto=true;try{balCardTela()}catch(e){}}
 {const bp=balPickTela;balPickTela=function(){bp();document.querySelectorAll("#balPick [data-bl]").forEach(b=>{if(!balPerm(b.dataset.bl))b.remove()});const l=locObj();if(!l)return;const lb=document.querySelector("#balPick .lbl");
   if(lb)lb.textContent=l.tipo==="viagem"?"Balança da viagem":"Balanças "+(l.curto?"em "+l.curto:"")}}
+// --- escolher o café no pote leva direto ao Preparo, com café, método e moedor marcados ---
+const grpDe=g=>{const x=GRUPOS.find(z=>z[3].includes(g));return x?x[0]:""};
+$("potes").addEventListener("click",e=>{const pi=e.target.closest("[data-pind]");if(!pi)return;e.stopImmediatePropagation();
+  const[i,j]=pi.dataset.pind.split(":").map(Number);const v=POT.p[i],k=CAF.find(c=>c.id===v);if(!k)return;const r=rankPote(k)[j];if(!r)return;
+  marca("caf");marca("met");st.csel=v;cEdit=false;cDelArm=false;st.cafe={...k};usoPote=i;
+  {const l=(st.gsel||{})[r.g];st.met=r.id&&M.some(x=>x.id===r.id)?r.id:l&&M.some(x=>x.id===l&&G(x)===r.g)?l:r.g;if(r.k46)st.k46={...r.k46};st.gsel={...(st.gsel||{}),[r.g]:st.met}}
+  {const mo=escMoe(grpDe(r.g),r,k);if(mo){st.moe=mo.id;marca("moe")}else{const km=kitMoes();if(km.length===1){st.moe=km[0];marca("moe")}}}
+  recPend=false;abrirMet=false;abrirRec=false;potSel=-1;escPor="";try{renderEsc()}catch(err){}render();toast("Café, método e moedor selecionados");irPag("preparo");window.scrollTo({top:0})},true);
+$("potes").addEventListener("click",e=>{const u=e.target.closest("[data-pusar]");if(!u)return;const i=+u.dataset.pusar;
+  setTimeout(()=>{if(usoPote===i&&POT.p[i]===st.csel){const km=kitMoes();if(km.length===1){st.moe=km[0];marca("moe")}potSel=-1;escPor="";try{renderEsc()}catch(err){}render();irPag("preparo");window.scrollTo({top:0})}},0)});
 // --- mostra no app as receitas da Configuração ---
 renderMetBtns();renderMoeBtns();renderKit();
 // ===== Tela de início, cadastro e Configurações (v119) =====
