@@ -348,7 +348,7 @@ body.timing[data-vd="1"] section[aria-label="Resultado"]{gap:6px}
 .escIt{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px;border-radius:12px;background:var(--soft)}
 .escMd{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff}
 body:not(.escPote) #potPanel{display:none!important}
-.modoCs{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.modoCs .escOp{padding:10px 4px;gap:4px}.modoCs .escOp b{font-size:.88rem}.modoCs .escI{width:42px;height:42px}.modoCs .escI svg{width:28px;height:28px}
+.modoCs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.modoCs .escOp{padding:10px 4px;gap:4px}.modoCs .escOp b{font-size:.88rem}.modoCs .escI{width:42px;height:42px}.modoCs .escI svg{width:28px;height:28px}
 .kitG{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .kitG button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:14px;min-height:84px;font:500 .72rem/1.15 var(--display);text-align:center;border:2px solid var(--line,#ddd);background:var(--soft);color:var(--fg);cursor:pointer}
 .kitG button svg{width:38px;height:38px}
@@ -366,7 +366,7 @@ body:not(.escPote) #potPanel{display:none!important}
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 110 · 21/11/2026 · Local escolhido fica marcado; tipos de preparo sem método no local somem</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 111 · 21/11/2026 · Em casa - Itabira e Em casa - Ipatinga (com potes próprios); Wacaco em três métodos; Fluire 01 e 02</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -389,7 +389,7 @@ body:not(.escPote) #potPanel{display:none!important}
   <div class="ola av" id="avHist" hidden role="dialog" aria-modal="true" aria-labelledby="avHT"><div class="cx"><p id="avHT">Avaliações do café</p><div id="avHL" style="display:grid;gap:10px"></div><button class="btn" id="avHF" type="button" style="padding:12px">Fechar</button></div></div>
   <section class="panel" aria-label="Café" id="cafePanel" data-pag="cafe">
     <div>
-      <div id="modoBox" style="display:grid;gap:10px;margin-bottom:14px"><span class="lbl" style="margin:0">Onde você vai fazer o café?</span><div class="escCs modoCs"><button type="button" class="escOp" data-modo="casa"><span class="escI" id="modoIc"></span><b>Em casa</b></button><button type="button" class="escOp" data-modo="trabalho"><span class="escI" id="modoIt"></span><b>No trabalho</b></button><button type="button" class="escOp" data-modo="viagem"><span class="escI" id="modoIv"></span><b>Em viagem</b></button></div><div id="kitBox" hidden style="display:grid;gap:10px"></div></div>
+      <div id="modoBox" style="display:grid;gap:10px;margin-bottom:14px"><span class="lbl" style="margin:0">Onde você vai fazer o café?</span><div class="escCs modoCs"><button type="button" class="escOp" data-modo="casa"><span class="escI" id="modoIc"></span><b>Em casa</b><small>Itabira</small></button><button type="button" class="escOp" data-modo="ipatinga"><span class="escI" id="modoIp"></span><b>Em casa</b><small>Ipatinga</small></button><button type="button" class="escOp" data-modo="trabalho"><span class="escI" id="modoIt"></span><b>No trabalho</b></button><button type="button" class="escOp" data-modo="viagem"><span class="escI" id="modoIv"></span><b>Em viagem</b></button></div><div id="kitBox" hidden style="display:grid;gap:10px"></div></div>
       <label class="lbl" for="cSel">Café</label>
       <select class="txt" id="cSel"></select><button class="addL" id="addCafe" type="button" style="margin-top:8px">+ Cadastrar café</button>
       <div id="escBox" style="display:grid;gap:8px;margin-top:10px"><span class="lbl" style="margin:0">Ou escolha o café dos potes</span><div class="escCs"><button type="button" class="escOp" data-esc="g"><span class="escI" id="escIg"></span><b>Pelo tipo de preparo</b><small>os 3 melhores para espresso, coado, moka ou prensa</small></button><button type="button" class="escOp" data-esc="p"><span class="escI" id="escIp"></span><b>Pelo pote</b><small>veja seus potes e toque no café que quer usar</small></button></div><div id="escG" hidden style="display:grid;gap:10px"></div><p id="escP" hidden class="cres" style="margin:0;font-size:.85rem">Os potes aparecem logo abaixo. Toque em um pote cheio e depois em Usar.</p></div>
@@ -820,12 +820,13 @@ CAF=CAF.map(san).filter(Boolean);
 let usoPote=-1;
 let AVAL=[];try{const x=JSON.parse(localStorage.getItem("calcAval")||"[]");if(Array.isArray(x))AVAL=x}catch(e){}
 const saveAval=()=>{try{localStorage.setItem("calcAval",JSON.stringify(AVAL))}catch(e){}};
+var LOCPOT="calcPotes";
 let POT={n:5,p:[],g:[],u:[],h:[],log:[],t:[]};
 const BAL={rec:[],on:false,dev:null,cmd:null,w:null,alvoCafe:0,cap:false,semAuto:false,base:0,autoBase:false,hist:[],est:null,cand:null,bip:new Set()};
-function loadPot(){try{const x=JSON.parse(localStorage.getItem("calcPotes")||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
+function loadPot(){try{const x=JSON.parse(localStorage.getItem(LOCPOT)||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
 loadPot();
 const logPot=(ev,i)=>{const d=new Date(),p2=n=>String(n).padStart(2,"0");POT.log.unshift(`${p2(d.getDate())}/${p2(d.getMonth()+1)} ${p2(d.getHours())}:${p2(d.getMinutes())} · Pote ${i+1} · ${ev}`);POT.log=POT.log.slice(0,40)};
-const savePot=()=>{try{localStorage.setItem("calcPotes",JSON.stringify(POT))}catch(e){}};
+const savePot=()=>{try{localStorage.setItem(LOCPOT,JSON.stringify(POT))}catch(e){}};
 let potArm=-1,potSel=-1;
 const saveCaf=()=>{try{localStorage.setItem("calcCafes",JSON.stringify(CAF))}catch(e){}};saveCaf();
 if(!st.csel){const o=st.cafe&&!st.cafe.desc&&CAF.find(c=>c.nome===st.cafe.nome);st.csel=o?o.id:(st.cafe&&st.cafe.desc?"desc":(CAF[0]?CAF[0].id:"desc"))}
@@ -842,7 +843,7 @@ try{REC=JSON.parse(localStorage.getItem("calcReceitas")||"null")}catch(e){}
 if(!Array.isArray(REC)) REC=[{nome:"B75 Black Tucano (vídeo)",cafeId:"c-tucano",cafe:{...CAFE0,nome:"Black Tucano Fruity"},met:"b75",moe:"k7",base:"cafe",c:20,q:300,r:15,gr:70}];
 const saveRec=()=>{try{localStorage.setItem("calcReceitas",JSON.stringify(REC))}catch(e){}};
 const $=id=>document.getElementById(id);
-const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Padrão do app");
+const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Receita sugerida");
 // ===== iCoffee Barista (espresso portátil): café moído, Basket Plus da OutIn e cápsula Nespresso. Receitas provisórias até o Jeff mandar as caixas/manuais =====
 {const gEP={k7:[35,45,40],r3:[25,45,35],pro:[8,24,15],oster:[1,3,1,'Pode não chegar à finura de espresso'],mongdio:[3,9,6,'Pode não chegar à finura de espresso'],icoffee:[2,7,5,'Pode não chegar à finura de espresso']},
   PROV=" Receita provisória: será ajustada com os dados da caixa e do manual.";
@@ -1536,7 +1537,7 @@ $("potes").addEventListener("click",e=>{const pi=e.target.closest("[data-pind]")
     if(POT.g[i]!=null){const u=POT.u[i]||{n:0};const dt=new Date();POT.h.unshift({nome:potNome(v),prev:Math.round(POT.g[i]*10)/10,n:u.n,data:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`});POT.h=POT.h.slice(0,10)}
     logPot("acabou",i);POT.p[i]="";POT.g[i]=null;POT.u[i]=null;savePot();potArm=-1;render();toast("Pote vazio")}});
 // Voltar ao app ou mudança feita em outra janela: recarrega os potes do armazenamento
-window.addEventListener("storage",e=>{if(e.key==="calcPotes"){loadPot();renderPotes()}});
+window.addEventListener("storage",e=>{if(e.key===LOCPOT){loadPot();renderPotes()}});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){loadPot();renderPotes()}});
 window.addEventListener("pageshow",()=>{loadPot();renderPotes()});
 $("cDel").onclick=()=>{if(!cDelArm){cDelArm=true;renderCafe();return}CAF=CAF.filter(c=>c.id!==st.csel);saveCaf();st.csel="desc";st.cafe={...CAFE0};cDelArm=false;cEdit=false;render();toast("Café excluído")};
@@ -1961,7 +1962,7 @@ function renderEsc(){if(!$("escBox"))return;document.querySelectorAll(".escOp[da
   const gr=GRUPOS.find(x=>x[0]===escGrp);let h=`<div class="escGr" style="grid-template-columns:repeat(${Math.max(1,GV.length)},minmax(0,1fr))">${GV.map(g=>`<button class="btn" type="button" data-escg="${g[0]}" aria-pressed="${g[0]===escGrp}">${svgI(icMet(M.find(m=>m.id===g[2])||M[0]))}<span>${g[1]}</span></button>`).join("")}</div>`;
   if(!gr)h+=`<p class="cres" style="margin:0;font-size:.85rem">Toque no tipo de preparo.</p>`;
   else{const t=escTop(escGrp);h+=`<span class="lbl" style="margin:4px 0 0">${t.length===1?"O melhor":"Os "+(t.length||3)+" melhores"} dos potes para ${gr[1].toLowerCase()}</span>`;
-    if(!t.length)h+=`<p class="cres" style="margin:0">${viag()&&!kitIds().some(id=>{const m=M.find(x=>x.id===id);return m&&gr[3].includes(G(m))&&!m.cap})?(MODO==="trabalho"?"O que está no trabalho":"Seu kit de viagem")+" não tem método deste grupo.":"Nenhum pote com café."}</p>`;
+    if(!t.length)h+=`<p class="cres" style="margin:0">${viag()&&!kitIds().some(id=>{const m=M.find(x=>x.id===id);return m&&gr[3].includes(G(m))&&!m.cap})?locTxt()+" não tem método deste grupo.":"Nenhum pote com café."}</p>`;
     h+=t.map((x,n)=>{const m=M.find(y=>y.id===x.r.id)||M.find(y=>y.id===x.r.g)||{n:x.r.g},d=dias(x.k.data);
       return `<div class="escIt"><span class="escMd" style="background:${["#b8860b","#8c8c8c","#a0522d"][n]}">${n+1}</span><div style="font-size:.9rem;line-height:1.3"><b>${esc(x.k.nome)}</b> · ${x.r.nota}%<br><span style="color:var(--muted);font-size:.8rem">Pote ${x.i+1} · ${esc(x.r.why)}${d!=null&&d>=0?`, ${d} dia${d===1?"":"s"} de torra`:""}<br>Melhor método: <b>${esc(m.n)}</b>${(mo=>mo?`<br>Moedor: <b>${esc(mo.n)}</b> no ${f(mo.v)}`:"")(escMoe(escGrp,x.r,x.k))}</span></div><button class="btn" type="button" data-escu="${x.i}:${x.j}" style="padding:8px 12px">Usar</button></div>`}).join("")}
   $("escG").innerHTML=h}
@@ -1975,52 +1976,81 @@ $("escBox").addEventListener("click",e=>{const o=e.target.closest("[data-esc]");
 $("escIg").innerHTML=svgI('<path d="M14 12h36L38 30H26z"/><path d="M29 30v5M35 30v5"/><path d="M17 39h30v6a9 9 0 0 1-9 9H26a9 9 0 0 1-9-9z"/><path d="M47 42h3a4 4 0 0 1 0 8h-4"/>');$("escIp").innerHTML=potSvg(180,250);
 renderEsc();
 // v102: a OutIn Nano saiu (o Jeff não tem a máquina); receitas antigas da Nano e da iCoffee passam para o iCoffee Barista
-{const MAP={epIcof:"portatil",epIcofDg:"epIcofNs",epOutBp:"epIcofBp",epNano1:"portatil"},fx=v=>MAP[v]||v;let mud=false;
+{const MAP={epIcof:"portatil",epIcofDg:"epIcofNs",epOutBp:"epIcofBp",epNano1:"portatil",pBialetti:"prensa"},fx=v=>MAP[v]||v;let mud=false;
  if(MAP[st.met]){st.met=fx(st.met);mud=true}
  if(st.gsel&&MAP[st.gsel.portatil]){st.gsel.portatil=fx(st.gsel.portatil);mud=true}
  for(const k of ["q","r","c","x","base"])if(st[k]&&st[k].epIcof!=null){st[k].portatil=st[k].epIcof;delete st[k].epIcof;mud=true}
  for(const k of Object.keys(st.gr||{}))if(/^epIcof\|/.test(k)){st.gr[k.replace("epIcof|","portatil|")]=st.gr[k];delete st.gr[k];mud=true}
  if(Array.isArray(REC)){let r2=false;for(const r of REC)if(MAP[r.met]){r.met=fx(r.met);r2=true}if(r2)saveRec()}
  if(mud)try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}}
-// Em casa / No trabalho / Em viagem. O que fica no trabalho é uma lista que o Jeff edita quando quiser; esses itens não aparecem em casa e podem ir na viagem.
-// Na viagem ele monta o kit (até 2 métodos, 1 espresso, 1 moedor). Recomendações com linha tracejada; a escolha é sempre dele.
-{const pb=M.find(x=>x.id==="prensa");if(pb&&!M.some(x=>x.id==="pBialetti"))M.push({...pb,id:"pBialetti",grp:"prensa",rn:"Bialetti 350 ml",n:"Prensa francesa",q:300,
-  tip:"Prensa Bialetti de 350 ml: até 300 ml de água deixam espaço para o café e a crosta sem transbordar ao encaixar o êmbolo. Beba logo ou passe para outra jarra, porque o café continua extraindo em contato com o pó."})}
-const idsDev=d=>M.filter(x=>G(x)==="wacaco"&&x.dev===d).map(x=>x.id),idsG=g=>M.filter(x=>G(x)===g).map(x=>x.id);
+// ===== Ajustes de equipamento (v111) =====
+// Wacaco: cada cafeteira vira um método (Prestina, Cuppamoka, Pipamoka)
+{IC.wPres='<rect x="22" y="14" width="20" height="36" rx="4"/><path d="M26 8h12v6"/><path d="M22 26h20"/><path d="M16 54h32"/>';
+ IC.wCup='<path d="M16 12h32L38 30H26z"/><path d="M20 34h24v12a8 8 0 0 1-8 8h-8a8 8 0 0 1-8-8z"/><path d="M44 38h3a4 4 0 0 1 0 8h-3"/>';
+ IC.wPip='<rect x="22" y="18" width="20" height="38" rx="5"/><path d="M20 10h24v8H20z"/><path d="M22 34h20"/><path d="M28 44h8"/>';
+ const nm={Prestina:["wacaco","Wacaco Prestina","wPres"],Cuppamoka:["wCup","Wacaco Cuppamoka","wCup"],Pipamoka:["wPip","Wacaco Pipamoka","wPip"]};
+ for(const m of M){if(G(m)!=="wacaco"||!m.dev)continue;const d=nm[m.dev];if(!d)continue;const[b,n,ic]=d;
+   if(m.id===b)delete m.grp;else m.grp=b;m.n=n;m.ic=ic;if(m.rn)m.rn=m.rn.replace(new RegExp("^"+m.dev+"\\s*·\\s*"),"");delete m.dev;MN[m.id]=n}
+ PERF.wCup={...PERF.wacaco,c:3};PERF.wPip={...PERF.wacaco};MEUS.push("wCup","wPip");COAD.push("wCup");OUT.splice(OUT.indexOf("wacaco")+1,0,"wPip");
+ const gc=GRUPOS.find(x=>x[0]==="coa");if(gc)gc[3].push("wCup","wPip");
+ // Espresso de máquina sai: os espressos do Jeff são a i Cafilas e a iCoffee
+ const ge=GRUPOS.find(x=>x[0]==="esp");if(ge){const i=ge[3].indexOf("espresso");if(i>=0)ge[3].splice(i,1);ge[2]="portatil"}
+ OUT.splice(OUT.indexOf("espresso"),1);
+ // Prensa francesa de casa é a Bialetti de 350 ml (sem receita separada)
+ const pb=M.find(x=>x.id==="prensa");if(pb){pb.q=300;pb.tip="Na Bialetti de 350 ml, use até 300 ml de água para sobrar espaço para o café e a crosta ao encaixar o êmbolo. Beba logo após prensar: o café segue em contato com o pó e amarga."}
+ // Fluire: 02 (base, 300 ml) e 01 (menor)
+ const fl=M.find(x=>x.id==="fluire");if(fl&&!M.some(x=>x.id==="fluire01")){fl.rn="Fluire 02";
+   M.push({...fl,id:"fluire01",grp:"fluire",rn:"Fluire 01",q:200,
+     steps:(c,a)=>{const k=Math.sqrt(a/200);return[["Preparo","Escalde o filtro 01 e o decanter; descarte a água"],["0:00",`Pré-infusão: ${g(c*2)} de água e espere`],[tm(30*k),`Despeje até a balança marcar ${g(a*.6)}`],[tm(60*k),`Complete até ${g(a)}`],[tm(130*k)+"–"+tm(160*k),"Fim do preparo"]]},
+     tip:"Fluire 01, para 1 ou 2 xícaras. O porta-filtro vazado escoa rápido: se terminar antes do previsto, moa mais fino. A Pressca sugere 1:13 a 1:14 para um café mais encorpado."})}
+ // Moedor manual iCoffee M9 (Ipatinga): números provisórios, iguais aos do K7 até confirmar pelo manual
+ GI.m9='<path d="M32 8v6"/><path d="M32 9h14"/><circle cx="48" cy="9" r="3"/><path d="M24 14h16l-2 10H26z"/><rect x="23" y="24" width="18" height="30" rx="4"/><path d="M27 34h10"/>';
+ MOEB.push(["m9","iCoffee M9","man"]);GN.m9="iCoffee M9";MOE.m9="cliques";
+ for(const m of M)if(m.g&&m.g.k7&&!m.g.m9)m.g.m9=[...m.g.k7];
+ if(st.met==="espresso"||st.met==="pBialetti")st.met=st.met==="pBialetti"?"prensa":"me26"}
+// ===== Onde você está: Em casa - Itabira / Em casa - Ipatinga / No trabalho / Em viagem. Ao abrir, nenhum local vem marcado.
+// No trabalho e em Ipatinga há listas que o Jeff edita; o que é só do trabalho (e o M9 de Ipatinga) não aparece em Itabira. Ipatinga tem os próprios potes.
+const idsG=g=>M.filter(x=>G(x)===g).map(x=>x.id);
 const ITM={v60:["V60 / Kalita",()=>idsG("v60").filter(x=>x!=="joinout")],b75:["Timemore B75",()=>idsG("b75")],origami:["Origami",()=>idsG("origami")],melitta:["Melitta",()=>idsG("melitta")],
-  pano:["Coador de pano",()=>idsG("pano")],switch:["Hario Switch",()=>idsG("switch")],fluire01:["Fluire 01",()=>idsG("fluire")],joinout:["Kit Joinout",()=>["joinout"]],
-  prestina:["Wacaco Prestina",()=>idsDev("Prestina")],cuppamoka:["Wacaco Cuppamoka",()=>idsDev("Cuppamoka")],pipamoka:["Wacaco Pipamoka",()=>idsDev("Pipamoka")],
-  aeropress:["AeroPress (iCoffee)",()=>idsG("aeropress")],prensa:["Prensa Bialetti",()=>idsG("prensa").filter(x=>x!=="pViagem")],pViagem:["Prensa portátil i Cafilas",()=>["pViagem"]],
+  pano:["Coador de pano",()=>idsG("pano")],switch:["Hario Switch",()=>idsG("switch")],fluire02:["Fluire 02",()=>["fluire"]],fluire01:["Fluire 01",()=>["fluire01"]],joinout:["Kit Joinout",()=>["joinout"]],
+  prestina:["Wacaco Prestina",()=>idsG("wacaco")],cuppamoka:["Wacaco Cuppamoka",()=>idsG("wCup")],pipamoka:["Wacaco Pipamoka",()=>idsG("wPip")],
+  aeropress:["AeroPress (iCoffee)",()=>idsG("aeropress")],prensa:["Prensa francesa",()=>idsG("prensa").filter(x=>x!=="pViagem")],pViagem:["Prensa portátil i Cafilas",()=>["pViagem"]],
   moka:["Moka",()=>["moka"]],me26:["i Cafilas ME2604",()=>idsG("me26")],portatil:["iCoffee Barista",()=>idsG("portatil")]};
 const ESPI=["me26","portatil"];
-const MOEN={k7:"KINGrinder K7",r3:"Blade R3",pro:"R3 Pro",oster:"Oster",mongdio:"Mongdio HB-991",icoffee:"iCoffee elétrico",hibrew:"HiBrew G5 Mini"};
-let MODO="casa",KIT={met:[],esp:"",moe:""},TRAB={met:["pViagem","fluire01","aeropress"],moe:["mongdio"]},kitAberto=false;
-try{const m=localStorage.getItem("calcModo");if(["viagem","trabalho"].includes(m))MODO=m;
-  const ks=JSON.parse(localStorage.getItem("calcKits")||"null"),k1=JSON.parse(localStorage.getItem("calcKit")||"null"),kv=(ks&&ks.viagem)||k1;
+const MOEN={k7:"KINGrinder K7",r3:"Blade R3",pro:"R3 Pro",oster:"Oster",mongdio:"Mongdio HB-991",icoffee:"iCoffee elétrico",hibrew:"HiBrew G5 Mini",m9:"iCoffee M9"};
+const LOCN={casa:"Em casa - Itabira",ipatinga:"Em casa - Ipatinga",trabalho:"No trabalho",viagem:"Em viagem"};
+let MODO="",KIT={met:[],esp:"",moe:""},LST={trabalho:{met:["pViagem","fluire01","aeropress"],moe:["mongdio"]},ipatinga:{met:["v60","prensa"],moe:["oster","m9"]}},kitAberto=false;
+try{const ks=JSON.parse(localStorage.getItem("calcKits")||"null"),k1=JSON.parse(localStorage.getItem("calcKit")||"null"),kv=(ks&&ks.viagem)||k1;
   if(kv)KIT={met:Array.isArray(kv.met)?kv.met.filter(x=>ITM[x]).slice(0,2):[],esp:kv.esp||"",moe:kv.moe||""};
-  const t=JSON.parse(localStorage.getItem("calcTrab")||"null");if(t&&Array.isArray(t.met)&&Array.isArray(t.moe))TRAB={met:t.met.filter(x=>ITM[x]),moe:t.moe.filter(x=>MOEN[x])}}catch(e){}
-const saveModo=()=>{try{localStorage.setItem("calcModo",MODO);localStorage.setItem("calcKits",JSON.stringify({viagem:KIT}));localStorage.setItem("calcTrab",JSON.stringify(TRAB))}catch(e){}};
-const K=()=>MODO==="trabalho"?{met:TRAB.met,esp:"",moe:TRAB.moe.length===1?TRAB.moe[0]:""}:KIT;
+  for(const[k,key]of[["trabalho","calcTrab"],["ipatinga","calcIpa"]]){const t=JSON.parse(localStorage.getItem(key)||"null");if(t&&Array.isArray(t.met)&&Array.isArray(t.moe))LST[k]={met:t.met.filter(x=>ITM[x]),moe:t.moe.filter(x=>MOEN[x])}}}catch(e){}
+const TRAB=LST.trabalho;
+const saveModo=()=>{try{localStorage.setItem("calcKits",JSON.stringify({viagem:KIT}));localStorage.setItem("calcTrab",JSON.stringify(LST.trabalho));localStorage.setItem("calcIpa",JSON.stringify(LST.ipatinga))}catch(e){}};
+const ehLista=()=>MODO==="trabalho"||MODO==="ipatinga";
 const VIAG_M=["joinout","prestina","cuppamoka","pipamoka","aeropress","pViagem","moka"],VIAG_G=["r3","pro"],VIAG_REC=["joinout","aeropress","portatil","pro"];
 const optViagem=()=>({m:[...new Set([...VIAG_M,...TRAB.met.filter(x=>!ESPI.includes(x))])],e:ESPI,g:[...new Set([...VIAG_G,...TRAB.moe])]});
 const FORA_CASA=()=>TRAB.met.flatMap(x=>ITM[x]?ITM[x][1]():[]);
-const kitOk=()=>MODO==="trabalho"?TRAB.met.length>0&&TRAB.moe.length>0:MODO==="viagem"&&KIT.met.length>0&&!!KIT.esp&&!!KIT.moe;
-const viag=()=>MODO!=="casa"&&kitOk();
-const kitItens=()=>(MODO==="trabalho"?TRAB.met:[...KIT.met,...(KIT.esp?[KIT.esp]:[])]).filter(x=>ITM[x]).map(x=>[x,ITM[x][0],ITM[x][1]]);
+const foraMoeCasa=()=>[...TRAB.moe,"m9"];
+const kitOk=()=>ehLista()?LST[MODO].met.length>0&&LST[MODO].moe.length>0:MODO==="viagem"&&KIT.met.length>0&&!!KIT.esp&&!!KIT.moe;
+const viag=()=>(ehLista()||MODO==="viagem")&&kitOk();
+const kitItens=()=>(ehLista()?LST[MODO].met:[...KIT.met,...(KIT.esp?[KIT.esp]:[])]).filter(x=>ITM[x]).map(x=>[x,ITM[x][0],ITM[x][1]]);
 const kitIds=()=>kitItens().flatMap(x=>x[2]());
 const kitDe=id=>kitItens().find(x=>x[2]().includes(id));
-const kitMoes=()=>MODO==="trabalho"?TRAB.moe:(KIT.moe?[KIT.moe]:[]);
+const kitMoes=()=>ehLista()?LST[MODO].moe:(KIT.moe?[KIT.moe]:[]);
+const locTxt=()=>MODO==="viagem"?"Seu kit de viagem":"O que está "+(MODO==="trabalho"?"no trabalho":"em Ipatinga");
 const icKit=ids=>{const m=M.find(x=>x.id===ids[0]);return svgI(icMet(m||M[0]))};
 const moeCasa=m=>{const g=G(m);if(["moka","me26","portatil","espresso"].includes(g))return["hibrew"];if(g==="prensa")return["k7","oster"];return["k7"]};
-function moeLista(gk){if(viag()){const t=kitMoes();return[...(MOEPREF[gk]||[]).filter(x=>t.includes(x)),...t]}return(MOEPREF[gk]||[]).filter(x=>!(MODO==="casa"&&TRAB.moe.includes(x)))}
+function moeLista(gk){if(viag()){const t=kitMoes();return[...(MOEPREF[gk]||[]).filter(x=>t.includes(x)),...t]}return(MOEPREF[gk]||[]).filter(x=>!(MODO==="casa"&&foraMoeCasa().includes(x)))}
+// métodos e moedores permitidos no local atual (null = sem filtro)
+function permitido(id){if(viag())return kitIds().includes(id);if(MODO==="casa")return !FORA_CASA().includes(id);return true}
+function trocaPotes(){const k=MODO==="ipatinga"?"calcPotesIpa":"calcPotes";if(LOCPOT===k)return;LOCPOT=k;Object.assign(POT,{n:5,p:[],g:[],u:[],h:[],log:[],t:[]});loadPot();usoPote=-1;potSel=-1;potArm=-1;try{renderPotes()}catch(e){}}
 function renderKit(){document.querySelectorAll("[data-modo]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.modo===MODO)));
-  const kb=$("kitBox");kb.hidden=MODO==="casa";if(MODO==="casa")return;
+  const kb=$("kitBox");kb.hidden=!(ehLista()||MODO==="viagem");if(kb.hidden)return;
   const bt=(id,n,ids,on,attr,rec)=>`<button type="button" ${attr}="${id}" aria-pressed="${on}" class="${rec?"rec":""}">${ids?icKit(ids):svgI(GI[id]||GI.k7)}<span>${esc(n)}</span></button>`;
-  if(MODO==="trabalho"){
-    if(kitOk()&&!kitAberto){kb.innerHTML=`<div class="kitRes"><span><b>No trabalho</b><br>${esc(TRAB.met.map(x=>ITM[x][0]).join(", "))} · ${esc(TRAB.moe.map(x=>MOEN[x]).join(", "))}</span><button class="lnk" type="button" id="kitTrocar">Alterar</button></div>`;return}
-    kb.innerHTML=`<p class="kitLeg">Marque o que está no trabalho. O que fica aqui não aparece em casa, mas pode ir na viagem. Altere quando quiser.</p>
-     <span class="lbl" style="margin:0">Métodos no trabalho</span><div class="kitG">${Object.keys(ITM).map(id=>bt(id,ITM[id][0],ITM[id][1](),TRAB.met.includes(id),"data-tm",false)).join("")}</div>
-     <span class="lbl" style="margin:0">Moedores no trabalho</span><div class="kitG">${Object.keys(MOEN).map(id=>bt(id,MOEN[id],null,TRAB.moe.includes(id),"data-tg",false)).join("")}</div>
+  if(ehLista()){const L=LST[MODO],ti=LOCN[MODO];
+    if(kitOk()&&!kitAberto){kb.innerHTML=`<div class="kitRes"><span><b>${ti}</b><br>${esc(L.met.map(x=>ITM[x][0]).join(", "))} · ${esc(L.moe.map(x=>MOEN[x]).join(", "))}</span><button class="lnk" type="button" id="kitTrocar">Alterar</button></div>`;return}
+    kb.innerHTML=`<p class="kitLeg">${MODO==="trabalho"?"Marque o que está no trabalho. O que fica aqui não aparece em casa, mas pode ir na viagem.":"Marque o que fica em Ipatinga. Os potes de Ipatinga são só deste local."} Altere quando quiser.</p>
+     <span class="lbl" style="margin:0">Métodos</span><div class="kitG">${Object.keys(ITM).map(id=>bt(id,ITM[id][0],ITM[id][1](),L.met.includes(id),"data-tm",false)).join("")}</div>
+     <span class="lbl" style="margin:0">Moedores</span><div class="kitG">${Object.keys(MOEN).map(id=>bt(id,MOEN[id],null,L.moe.includes(id),"data-tg",false)).join("")}</div>
      ${kitOk()?`<button class="btn pri" type="button" id="kitPronto">Pronto</button>`:`<p class="kitLeg">Marque pelo menos um método e um moedor.</p>`}`;return}
   const o=optViagem();
   if(kitOk()&&!kitAberto){kb.innerHTML=`<div class="kitRes"><span><b>Seu kit de viagem</b><br>${esc(kitItens().map(x=>x[1]).join(", "))} · moedor ${esc(MOEN[KIT.moe]||"")}</span><button class="lnk" type="button" id="kitTrocar">Trocar kit</button></div>`;return}
@@ -2029,44 +2059,49 @@ function renderKit(){document.querySelectorAll("[data-modo]").forEach(b=>b.setAt
    <span class="lbl" style="margin:0">Espresso (1)</span><div class="kitG">${o.e.map(id=>bt(id,ITM[id][0],ITM[id][1](),KIT.esp===id,"data-ke",VIAG_REC.includes(id))).join("")}</div>
    <span class="lbl" style="margin:0">Moedor (1)</span><div class="kitG">${o.g.map(id=>bt(id,MOEN[id],null,KIT.moe===id,"data-kg",VIAG_REC.includes(id))).join("")}</div>
    ${kitOk()?`<button class="btn pri" type="button" id="kitPronto">Pronto</button>`:`<p class="kitLeg">Escolha pelo menos um método, uma máquina de espresso e o moedor.</p>`}`}
-function aplicaModo(){if(viag()){const ms=kitMoes();if(ms.length===1&&st.moe!==ms[0]){st.moe=ms[0];marca("moe")}else if(!ms.includes(st.moe))abrirMoe=true;if(!kitIds().includes(st.met))abrirMet=true}
-  else if(MODO==="casa"){if(FORA_CASA().includes(st.met))abrirMet=true;if(TRAB.moe.includes(st.moe))abrirMoe=true}
+function aplicaModo(){trocaPotes();
+  if(viag()){const ms=kitMoes();if(ms.length===1&&st.moe!==ms[0]){st.moe=ms[0];marca("moe")}else if(!ms.includes(st.moe))abrirMoe=true;if(!kitIds().includes(st.met))abrirMet=true}
+  else if(MODO==="casa"){if(FORA_CASA().includes(st.met))abrirMet=true;if(foraMoeCasa().includes(st.moe))abrirMoe=true}
   renderMetBtns();renderMoeBtns();renderKit();render();try{renderEsc()}catch(e){}}
 $("modoBox").addEventListener("click",e=>{const t=e.target;let b;
-  if(b=t.closest("[data-modo]")){MODO=b.dataset.modo;kitAberto=MODO!=="casa"&&!kitOk();saveModo();aplicaModo();return}
+  if(b=t.closest("[data-modo]")){MODO=MODO===b.dataset.modo?"":b.dataset.modo;kitAberto=MODO!==""&&MODO!=="casa"&&!kitOk();aplicaModo();return}
   if(t.closest("#kitTrocar")){kitAberto=true;renderKit();return}
   if(t.closest("#kitPronto")){kitAberto=false;saveModo();aplicaModo();return}
   const tg=(arr,v)=>{const i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else arr.push(v)};
-  if(b=t.closest("[data-tm]")){tg(TRAB.met,b.dataset.tm);const fo=TRAB.met;KIT.met=KIT.met.filter(x=>VIAG_M.includes(x)||fo.includes(x));if(KIT.esp&&!ESPI.includes(KIT.esp))KIT.esp="";saveModo();renderKit();return}
-  if(b=t.closest("[data-tg]")){tg(TRAB.moe,b.dataset.tg);if(KIT.moe&&!VIAG_G.includes(KIT.moe)&&!TRAB.moe.includes(KIT.moe))KIT.moe="";saveModo();renderKit();return}
+  if(b=t.closest("[data-tm]")){tg(LST[MODO].met,b.dataset.tm);KIT.met=KIT.met.filter(x=>VIAG_M.includes(x)||TRAB.met.includes(x));saveModo();renderKit();return}
+  if(b=t.closest("[data-tg]")){tg(LST[MODO].moe,b.dataset.tg);if(KIT.moe&&!VIAG_G.includes(KIT.moe)&&!TRAB.moe.includes(KIT.moe))KIT.moe="";saveModo();renderKit();return}
   if(b=t.closest("[data-km]")){const k=b.dataset.km,i=KIT.met.indexOf(k);if(i>=0)KIT.met.splice(i,1);else if(KIT.met.length>=2){toast("No máximo dois métodos: desmarque um antes");return}else KIT.met.push(k);saveModo();renderKit();return}
   if(b=t.closest("[data-ke]")){KIT.esp=KIT.esp===b.dataset.ke?"":b.dataset.ke;saveModo();renderKit();return}
   if(b=t.closest("[data-kg]")){KIT.moe=KIT.moe===b.dataset.kg?"":b.dataset.kg;saveModo();renderKit();return}});
+$("novoCafe").addEventListener("click",()=>{if(MODO){MODO="";kitAberto=false;aplicaModo()}});
 {const rm=renderMetBtns;renderMetBtns=function(){rm();
+  {const b=document.querySelector('#metodos button[data-v="espresso"]');if(b)b.remove()}
   if(MODO==="casa"){const fo=FORA_CASA();document.querySelectorAll("#metodos button[data-v]").forEach(b=>{const ids=idsG(b.dataset.v);if(ids.length&&ids.every(id=>fo.includes(id)))b.remove()});return}
   if(!viag())return;
-  $("metodos").innerHTML=`<span class="grp">${MODO==="trabalho"?"No trabalho":"Seu kit de viagem"}</span>`+kitItens().map(([k,n,f])=>`<button type="button" data-kit="${k}">${icKit(f())}<span>${esc(n)}</span></button>`).join("")}}
+  $("metodos").innerHTML=`<span class="grp">${LOCN[MODO]}</span>`+kitItens().map(([k,n,f])=>`<button type="button" data-kit="${k}">${icKit(f())}<span>${esc(n)}</span></button>`).join("")}}
 $("metodos").addEventListener("click",e=>{const b=e.target.closest("[data-kit]");if(!b)return;e.stopImmediatePropagation();
   const it=kitItens().find(x=>x[0]===b.dataset.kit);if(!it)return;const ids=it[2](),g=G(M.find(x=>x.id===ids[0])),l=(st.gsel||{})[g];
   marca("met");st.met=ids.includes(l)?l:(ids.find(id=>!(M.find(x=>x.id===id)||{}).cap)||ids[0]);recPend=false;abrirMet=false;abrirRec=false;render()},true);
 {const rmo=renderMoeBtns;renderMoeBtns=function(){rmo();
-  if(MODO==="casa"){document.querySelectorAll("#moedores button").forEach(b=>{if(TRAB.moe.includes(b.dataset.v))b.remove()});return}
+  if(MODO==="casa"){const fo=foraMoeCasa();document.querySelectorAll("#moedores button").forEach(b=>{if(fo.includes(b.dataset.v))b.remove()});return}
   if(!viag())return;const km=kitMoes();document.querySelectorAll("#moedores button").forEach(b=>{if(!km.includes(b.dataset.v))b.remove()});const a=$("moedores").querySelector(".addT");if(a)a.remove();document.querySelectorAll("#moedores .grp").forEach(g=>g.remove())}}
-{const r8=render;render=function(){r8();try{const m=cur();
+{const r8=render;render=function(){
+  // se a receita atual não existe neste local, passa para outra do mesmo método que exista
+  try{const m=cur();if(!permitido(m.id)){const al=idsG(G(m)).find(id=>permitido(id)&&!(M.find(x=>x.id===id)||{}).cap)||idsG(G(m)).find(permitido);if(al)st.met=al}}catch(e){}
+  r8();try{const m=cur();
   const filtra=ok=>{[...$("recVar").options].forEach(o=>{if(o.value&&!ok(o.value))o.remove()});$("recVar").dataset.h="";
     const nv=[...$("recVar").options].filter(o=>o.value).length;if(nv<2){$("recVar").hidden=true;$("lRecVar").hidden=true}};
   {let rc=moeCasa(m);if(viag()){const km=kitMoes();rc=rc.filter(x=>km.includes(x));if(!rc.length){const f=km.find(x=>m.g&&m.g[x]&&!m.g[x][3]);if(f)rc=[f]}}
-   document.querySelectorAll("#moedores button").forEach(b=>b.classList.toggle("rec",km1(rc,b.dataset.v)))}
-  if(!viag()){if(MODO==="casa"){const fo=FORA_CASA();filtra(v=>!fo.includes(v))}}
-  else{const ok=kitIds();filtra(v=>ok.includes(v));
-    const ds=[...$("devSel").options];ds.forEach(o=>{if(!M.some(x=>x.dev===o.value&&ok.includes(x.id)))o.remove()});$("devSel").dataset.h="";if($("devSel").options.length<2)$("devBox").hidden=true;
+   document.querySelectorAll("#moedores button").forEach(b=>b.classList.toggle("rec",rc.includes(b.dataset.v)))}
+  if(!viag()){if(MODO==="casa")filtra(permitido)}
+  else{filtra(permitido);
+    const ds=[...$("devSel").options];const ok=kitIds();ds.forEach(o=>{if(!M.some(x=>x.dev===o.value&&ok.includes(x.id)))o.remove()});$("devSel").dataset.h="";if($("devSel").options.length<2)$("devBox").hidden=true;
     {const it=kitDe(m.id),bt=$("metChipBtn");if(it&&bt&&!$("metChip").hidden){const vs=it[2]().length>1;bt.innerHTML=svgI(icMet(m))+"<span>"+esc(it[1]+(vs?" · "+vn(m):""))+"</span>"}}}
   }catch(e){}}}
-function km1(rc,v){return rc.includes(v)}
-$("modoIc").innerHTML=svgI('<path d="M10 30L32 12l22 18"/><path d="M16 26v24h32V26"/><path d="M28 50V38h8v12"/>');
+$("modoIc").innerHTML=$("modoIp").innerHTML=svgI('<path d="M10 30L32 12l22 18"/><path d="M16 26v24h32V26"/><path d="M28 50V38h8v12"/>');
 $("modoIt").innerHTML=svgI('<rect x="10" y="14" width="44" height="28" rx="3"/><path d="M26 42v8M38 42v8M20 50h24"/><path d="M40 22h6v6"/>');
 $("modoIv").innerHTML=svgI('<rect x="10" y="20" width="44" height="30" rx="5"/><path d="M24 20v-6h16v6"/><path d="M10 32h44"/><path d="M20 50v4M44 50v4"/>');
-renderMetBtns();renderMoeBtns();renderKit();if(viag()){const ms=kitMoes();if(ms.length===1)st.moe=ms[0]}
+renderMetBtns();renderMoeBtns();renderKit();
 
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
