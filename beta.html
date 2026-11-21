@@ -2111,7 +2111,11 @@ let viagG=false;function viagCafe(){if(!ehV()||viagG)return;const v=POT.p[0];if(
 {const rpm=renderPotes;renderPotes=function(){rpm();const l=locObj();if(!l||!l.mini)return;
   const tr=el=>{if(!el)return;const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode())if(/Pote \d/.test(n.nodeValue))n.nodeValue=n.nodeValue.replace(/Pote (\d+)/g,"Mini pote $1")};
   ["potGrid","potes","pOrdem"].forEach(id=>tr($(id)));[...$("poteSel").options].forEach(o=>o.textContent=o.textContent.replace(/Pote (\d+)/,"Mini pote $1"));
-  const a=$("addPote");if(a){const s2=a.querySelector("span");if(s2)s2.textContent="Adicionar mini pote"}}}
+  const a=$("addPote");if(a){const s2=a.querySelector("span");if(s2)s2.textContent="Adicionar mini pote"}
+  // mini pote só recebe café que está nos potes de origem
+  {const o=potesDe(l.mini.de),ok=new Set(o?(o.x.p||[]).slice(0,o.x.n||5).filter((v,i)=>v&&!ISD(v)&&(o.x.g||[])[i]>0):[]),nm=(locById(l.mini.de)||{}).curto||"";
+   document.querySelectorAll("#potes select[data-pote]").forEach(sel=>{const cur=sel.value;[...sel.querySelectorAll("option")].forEach(op=>{if(op.value&&op.value!==cur&&!ok.has(op.value))op.remove()});
+     const og=sel.querySelector("optgroup");if(og){og.label="Dos potes de "+nm;if(!og.children.length)og.remove()}if(!ok.size&&!sel.querySelector(".semCafe"))sel.insertAdjacentHTML("beforeend",`<option class="semCafe" disabled>Nenhum café nos potes de ${nm}</option>`)})}}}
 const potesDe=id=>{const l=locById(id);if(!l)return null;const k=l.pkey||("calcPotes_"+l.id);try{const x=JSON.parse(localStorage.getItem(k)||"null");return x&&typeof x==="object"?{k,x}:null}catch(e){return null}};
 {const fp=filaPotes;filaPotes=function(){const l=locObj();if(!l||!l.mini)return fp();const o=potesDe(l.mini.de);if(!o)return[];const usados=new Set(POT.p.slice(0,POT.n).filter(Boolean));
   const ids=[...new Set((o.x.p||[]).slice(0,o.x.n||5).filter((v,i)=>v&&!ISD(v)&&(o.x.g||[])[i]>0))].filter(v=>!usados.has(v));return ids.map(v=>CAF.find(c=>c.id===v)).filter(Boolean)}}
