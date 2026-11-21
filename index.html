@@ -357,7 +357,7 @@ body:not(.escPote) #potPanel{display:none!important}
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 105 · 21/11/2026 · iCoffee: Café moído passa a se chamar Expresso pressurizado</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 106 · 21/11/2026 · iCoffee com três receitas: Expresso pressurizado, Basket Plus e cápsula Nespresso</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -840,15 +840,9 @@ const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Padr�
  {id:"portatil",rn:"Expresso pressurizado",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:9,qs:0.5,r:[4,8,5.5,0.5],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00 com água fria",g:gEP,
   steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no cesto inox, nivele e compacte de leve`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (a xícara da máquina é de 50 ml). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Monte a máquina no suporte da iCoffee sobre a xícara, ligue e aperte o botão"],["2:30","Com água fria, a extração começa quando a água esquenta (com água quente, bem antes)"],["3:00","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
   tip:"Dados da caixa da iCoffee Linha Barista: até 20 bar, aquece em cerca de 2:30, até 8 xícaras de 50 ml por carga, carga completa em 2,5 h (30 W). 30 a 40 ml na xícara é espresso; mais água vira lungo. A proporção aqui é água no reservatório : café."},
- {id:"epIcofBp",grp:"portatil",rn:"Basket Plus da OutIn (dose dupla)",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:17,qs:0.5,r:[3,5,4,0.5],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00 com água fria",g:gEP,
+ {id:"epIcofBp",grp:"portatil",rn:"Basket Plus (dose dupla)",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:17,qs:0.5,r:[3,5,4,0.5],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00 com água fria",g:gEP,
   steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no Basket Plus da OutIn, distribua e compacte firme e nivelado`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (sem passar da linha máxima). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Encaixe o Basket Plus na iCoffee, monte no suporte da iCoffee sobre a xícara, ligue e aperte o botão"],["2:30","Com água fria, a extração começa quando a água esquenta (com água quente, bem antes)"],["3:00","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
   tip:"O Basket Plus da OutIn encaixa na iCoffee: leva 16 a 18 g e faz espresso duplo. A proporção aqui é água no reservatório : café. Se sair rápido e aguado, moa mais fino ou compacte mais; se travar, moa mais grosso."},
- {id:"epOutBp",grp:"portatil",rn:"Receita OutIn · Basket Plus (dose dupla)",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:17,qs:0.5,r:[3,5,4,0.5],temp:"Aquecimento automático",tempo:"30 a 40 s de extração",g:gEP,
-  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no Basket Plus, distribua e compacte firme e nivelado`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (sem passar da linha máxima). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Monte a máquina e ligue: ela aquece a água e começa a extração"],["0:30–0:40","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
-  tip:"Receita da OutIn para o Basket Plus: 16 a 18 g, espresso duplo, extração curta de 30 a 40 s. A proporção aqui é água no reservatório : café. Se sair rápido e aguado, moa mais fino ou compacte mais; se travar, moa mais grosso."+PROV},
- {id:"epNano1",grp:"portatil",rn:"Receita OutIn · cesto padrão (dose simples)",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:9,qs:0.5,r:[4,7,5,0.5],temp:"Aquecimento automático",tempo:"25 a 35 s de extração",g:gEP,
-  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no cesto padrão, distribua e compacte firme`],["Preparo",`Encha o reservatório com ${f(a)} ml de água. Água já quente encurta o aquecimento`],["0:00","Monte a máquina e ligue: ela aquece a água e começa a extração"],["0:25–0:35","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
-  tip:"Receita da OutIn para dose simples no cesto padrão. A proporção aqui é água no reservatório : café."+PROV},
  {id:"epIcofNs",grp:"portatil",rn:"Cápsula Nespresso",n:"iCoffee Barista",cls:"Cápsula",cap:true,q:40,qs:5,r:[1,30,8,1],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00",
   g:{k7:[0,0,0],r3:[0,0,0],pro:[0,0,0],oster:[0,0,0],mongdio:[0,0,0],icoffee:[0,0,0]},
   steps:(c,a)=>[["Preparo","Encaixe a cápsula no adaptador de cápsula (o que tem a agulha)"],["Preparo",`Encha o reservatório com ${f(a)} ml de água: 25 ml ristretto, 40 ml espresso, até 50 ml lungo`],["0:00","Monte o adaptador, coloque a máquina no suporte sobre a xícara, ligue e aperte o botão"],["2:30","Extração automática (com água já quente, bem antes)"],["3:00","Fim: retire e descarte a cápsula com cuidado, ela sai quente"]],
@@ -1966,7 +1960,7 @@ $("escBox").addEventListener("click",e=>{const o=e.target.closest("[data-esc]");
 $("escIg").innerHTML=svgI('<path d="M14 12h36L38 30H26z"/><path d="M29 30v5M35 30v5"/><path d="M17 39h30v6a9 9 0 0 1-9 9H26a9 9 0 0 1-9-9z"/><path d="M47 42h3a4 4 0 0 1 0 8h-4"/>');$("escIp").innerHTML=potSvg(180,250);
 renderEsc();
 // v102: a OutIn Nano saiu (o Jeff não tem a máquina); receitas antigas da Nano e da iCoffee passam para o iCoffee Barista
-{const MAP={epIcof:"portatil",epIcofDg:"epIcofNs"},fx=v=>MAP[v]||v;let mud=false;
+{const MAP={epIcof:"portatil",epIcofDg:"epIcofNs",epOutBp:"epIcofBp",epNano1:"portatil"},fx=v=>MAP[v]||v;let mud=false;
  if(MAP[st.met]){st.met=fx(st.met);mud=true}
  if(st.gsel&&MAP[st.gsel.portatil]){st.gsel.portatil=fx(st.gsel.portatil);mud=true}
  for(const k of ["q","r","c","x","base"])if(st[k]&&st[k].epIcof!=null){st[k].portatil=st[k].epIcof;delete st[k].epIcof;mud=true}
