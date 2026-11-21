@@ -358,6 +358,7 @@ body:not(.escPote) #potPanel{display:none!important}
 body.locViagem #escBox,body.locViagem #cSel,body.locViagem label[for="cSel"],body.locViagem #addCafe,body.locViagem #addPote,body.locViagem #pOrdemBox,body.locViagem #pDica,body.locViagem #pN,body.locViagem label[for="pN"]{display:none!important}
 body.locViagem[data-pag="cafe"] #potPanel{display:block!important}
 body.locIpa #aBox,body.locIpa #sdBox,body.locSemPen #ajPen{display:none!important}
+body.cadOn #escBox{display:none!important}
 .kitRes{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--soft);font-size:.88rem;line-height:1.35}
 
 </style>
@@ -369,7 +370,7 @@ body.locIpa #aBox,body.locIpa #sdBox,body.locSemPen #ajPen{display:none!importan
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 115 · 21/11/2026 · Sem peneira no trabalho; local sem balança marcada mostra todas para escolher</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 116 · 21/11/2026 · Cadastrar café volta a abrir o formulário na tela</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -1637,7 +1638,10 @@ function renderPotGrid(){const el=$("potGrid");if(!el)return;const h=[];
 $("potGrid").addEventListener("click",e=>{const t=e.target.closest("[data-pt]");
   if(t){const i=+t.dataset.pt;$("poteSel").value=String(potSel===i?-1:i);$("poteSel").dispatchEvent(new Event("change",{bubbles:true}));if(potSel>=0)$("potes").scrollIntoView({behavior:"smooth",block:"nearest"});return}
   if(e.target.closest("#addPote")){loadPot();if(POT.n>=12)return;$("pN").value=String(POT.n+1);$("pN").dispatchEvent(new Event("change",{bubbles:true}));toast("Pote "+POT.n+" adicionado")}});
-$("addCafe").onclick=()=>{$("cSel").value="novo";$("cSel").dispatchEvent(new Event("change",{bubbles:true}))};
+$("addCafe").onclick=()=>{try{escPor="";escGrp="";renderEsc()}catch(e){}$("cSel").value="novo";$("cSel").dispatchEvent(new Event("change",{bubbles:true}));
+  setTimeout(()=>{const n=$("cNome");if(n&&n.offsetParent){n.scrollIntoView({block:"center",behavior:"smooth"});try{n.focus({preventScroll:true})}catch(e){}}},120)};
+// durante o cadastro, a escolha pelos potes some para o formulário ficar logo abaixo
+{const rc=render;render=function(){rc();document.body.classList.toggle("cadOn",st.csel==="novo")}}
 
 // ===== Receitas em desenho =====
 function renderRecGrid(){const el=$("recGrid");if(!el)return;
