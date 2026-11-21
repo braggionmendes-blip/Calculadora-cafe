@@ -355,6 +355,8 @@ body:not(.escPote) #potPanel{display:none!important}
 .kitG button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .kitG button.rec:not([aria-pressed="true"]),#moedores button.rec:not([aria-pressed="true"]){border:2px dashed var(--accent)!important}
 .kitLeg{font-size:.78rem;color:var(--muted);margin:0}
+body.locViagem #escBox,body.locViagem #cSel,body.locViagem label[for="cSel"],body.locViagem #addCafe,body.locViagem #addPote,body.locViagem #pOrdemBox,body.locViagem #pDica,body.locViagem #pN,body.locViagem label[for="pN"]{display:none!important}
+body.locViagem[data-pag="cafe"] #potPanel{display:block!important}
 .kitRes{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--soft);font-size:.88rem;line-height:1.35}
 
 </style>
@@ -366,7 +368,7 @@ body:not(.escPote) #potPanel{display:none!important}
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 111 · 21/11/2026 · Em casa - Itabira e Em casa - Ipatinga (com potes próprios); Wacaco em três métodos; Fluire 01 e 02</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 112 · 21/11/2026 · Em viagem: um pote só (Airscape 250 g), café fixo e métodos só depois do kit</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -2042,7 +2044,15 @@ const moeCasa=m=>{const g=G(m);if(["moka","me26","portatil","espresso"].includes
 function moeLista(gk){if(viag()){const t=kitMoes();return[...(MOEPREF[gk]||[]).filter(x=>t.includes(x)),...t]}return(MOEPREF[gk]||[]).filter(x=>!(MODO==="casa"&&foraMoeCasa().includes(x)))}
 // métodos e moedores permitidos no local atual (null = sem filtro)
 function permitido(id){if(viag())return kitIds().includes(id);if(MODO==="casa")return !FORA_CASA().includes(id);return true}
-function trocaPotes(){const k=MODO==="ipatinga"?"calcPotesIpa":"calcPotes";if(LOCPOT===k)return;LOCPOT=k;Object.assign(POT,{n:5,p:[],g:[],u:[],h:[],log:[],t:[]});loadPot();usoPote=-1;potSel=-1;potArm=-1;try{renderPotes()}catch(e){}}
+function trocaPotes(){document.body.classList.toggle("locViagem",MODO==="viagem");
+  {const l=document.querySelector("#potPanel .lbl");if(l)l.textContent=MODO==="viagem"?"Pote de viagem: Airscape (250 g de café)":MODO==="ipatinga"?"Potes de Ipatinga":"Meus potes de café aberto"}
+  const k=MODO==="ipatinga"?"calcPotesIpa":MODO==="viagem"?"calcPotesViagem":"calcPotes";if(LOCPOT===k){viagCafe();return}LOCPOT=k;Object.assign(POT,{n:5,p:[],g:[],u:[],h:[],log:[],t:[]});loadPot();if(k==="calcPotesViagem")POT.n=1;usoPote=-1;potSel=-1;potArm=-1;try{renderPotes()}catch(e){}viagCafe()}
+// Na viagem o café é sempre o do Airscape
+let viagG=false;function viagCafe(){if(MODO!=="viagem"||viagG)return;const v=POT.p[0];if(!v||ISD(v))return;const k=CAF.find(c=>c.id===v);if(!k)return;
+  if(st.csel===v&&usoPote===0)return;viagG=true;try{st.csel=v;st.cafe={...k};cEdit=false;cDelArm=false;usoPote=0;marca("caf");render()}finally{viagG=false}}
+{const rpv=renderPotes;renderPotes=function(){if(LOCPOT==="calcPotesViagem")POT.n=1;rpv();if(MODO!=="viagem")return;
+  const tr=el=>{if(!el)return;const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode())if(/Pote 1\b/.test(n.nodeValue))n.nodeValue=n.nodeValue.replace(/Pote 1\b/g,"Airscape")};
+  ["potGrid","potes","pOrdem"].forEach(id=>tr($(id)));[...$("poteSel").options].forEach(o=>o.textContent=o.textContent.replace(/Pote 1\b/,"Airscape"));setTimeout(viagCafe,0)}}
 function renderKit(){document.querySelectorAll("[data-modo]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.modo===MODO)));
   const kb=$("kitBox");kb.hidden=!(ehLista()||MODO==="viagem");if(kb.hidden)return;
   const bt=(id,n,ids,on,attr,rec)=>`<button type="button" ${attr}="${id}" aria-pressed="${on}" class="${rec?"rec":""}">${ids?icKit(ids):svgI(GI[id]||GI.k7)}<span>${esc(n)}</span></button>`;
@@ -2076,6 +2086,7 @@ $("modoBox").addEventListener("click",e=>{const t=e.target;let b;
 $("novoCafe").addEventListener("click",()=>{if(MODO){MODO="";kitAberto=false;aplicaModo()}});
 {const rm=renderMetBtns;renderMetBtns=function(){rm();
   {const b=document.querySelector('#metodos button[data-v="espresso"]');if(b)b.remove()}
+  if(MODO==="viagem"&&!kitOk()){$("metodos").innerHTML='<p class="kitLeg" style="grid-column:1/-1">Monte o kit de viagem na página Café. Os métodos aparecem aqui depois que você escolher.</p>';return}
   if(MODO==="casa"){const fo=FORA_CASA();document.querySelectorAll("#metodos button[data-v]").forEach(b=>{const ids=idsG(b.dataset.v);if(ids.length&&ids.every(id=>fo.includes(id)))b.remove()});return}
   if(!viag())return;
   $("metodos").innerHTML=`<span class="grp">${LOCN[MODO]}</span>`+kitItens().map(([k,n,f])=>`<button type="button" data-kit="${k}">${icKit(f())}<span>${esc(n)}</span></button>`).join("")}}
@@ -2083,6 +2094,7 @@ $("metodos").addEventListener("click",e=>{const b=e.target.closest("[data-kit]")
   const it=kitItens().find(x=>x[0]===b.dataset.kit);if(!it)return;const ids=it[2](),g=G(M.find(x=>x.id===ids[0])),l=(st.gsel||{})[g];
   marca("met");st.met=ids.includes(l)?l:(ids.find(id=>!(M.find(x=>x.id===id)||{}).cap)||ids[0]);recPend=false;abrirMet=false;abrirRec=false;render()},true);
 {const rmo=renderMoeBtns;renderMoeBtns=function(){rmo();
+  if(MODO==="viagem"&&!kitOk()){$("moedores").innerHTML='<p class="kitLeg" style="grid-column:1/-1">O moedor aparece aqui depois que você montar o kit de viagem.</p>';return}
   if(MODO==="casa"){const fo=foraMoeCasa();document.querySelectorAll("#moedores button").forEach(b=>{if(fo.includes(b.dataset.v))b.remove()});return}
   if(!viag())return;const km=kitMoes();document.querySelectorAll("#moedores button").forEach(b=>{if(!km.includes(b.dataset.v))b.remove()});const a=$("moedores").querySelector(".addT");if(a)a.remove();document.querySelectorAll("#moedores .grp").forEach(g=>g.remove())}}
 {const r8=render;render=function(){
