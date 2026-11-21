@@ -827,13 +827,13 @@ CAF=CAF.map(san).filter(Boolean);
 let usoPote=-1;
 let AVAL=[];try{const x=JSON.parse(localStorage.getItem("calcAval")||"[]");if(Array.isArray(x))AVAL=x}catch(e){}
 const saveAval=()=>{try{localStorage.setItem("calcAval",JSON.stringify(AVAL))}catch(e){}};
-var LOCPOT="calcPotes";
+var LOCPOT="calcPotes",POTCAP=250;
 let POT={n:5,p:[],g:[],u:[],h:[],log:[],t:[]};
 const BAL={rec:[],on:false,dev:null,cmd:null,w:null,alvoCafe:0,cap:false,semAuto:false,base:0,autoBase:false,hist:[],est:null,cand:null,bip:new Set()};
-function loadPot(){try{const x=JSON.parse(localStorage.getItem(LOCPOT)||"null");if(x&&typeof x==="object"){POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
+function loadPot(){try{const x=JSON.parse(localStorage.getItem(LOCPOT)||"null");if(x&&typeof x==="object"){POT.tr=Array.isArray(x.tr)?x.tr:[];POT.tc=Array.isArray(x.tc)?x.tc:[];POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
 loadPot();
 const logPot=(ev,i)=>{const d=new Date(),p2=n=>String(n).padStart(2,"0");POT.log.unshift(`${p2(d.getDate())}/${p2(d.getMonth()+1)} ${p2(d.getHours())}:${p2(d.getMinutes())} · Pote ${i+1} · ${ev}`);POT.log=POT.log.slice(0,40)};
-const savePot=()=>{try{localStorage.setItem(LOCPOT,JSON.stringify(POT))}catch(e){}};
+let savePot=()=>{try{localStorage.setItem(LOCPOT,JSON.stringify(POT))}catch(e){}};
 let potArm=-1,potSel=-1;
 const saveCaf=()=>{try{localStorage.setItem("calcCafes",JSON.stringify(CAF))}catch(e){}};saveCaf();
 if(!st.csel){const o=st.cafe&&!st.cafe.desc&&CAF.find(c=>c.nome===st.cafe.nome);st.csel=o?o.id:(st.cafe&&st.cafe.desc?"desc":(CAF[0]?CAF[0].id:"desc"))}
@@ -1633,7 +1633,7 @@ const potSvg=(g,max)=>{const h=g==null?0:Math.max(3,Math.min(1,g/max)*34),y=54-h
 function renderPotGrid(){const el=$("potGrid");if(!el)return;const h=[];
   for(let i=0;i<POT.n;i++){const v=POT.p[i]||"",sel=potSel===i?" sel":"";
     if(!v){h.push(`<button type="button" class="pt vz${sel}" data-pt="${i}">${potSvg(null)}<span class="n">Pote ${i+1} vazio</span><span class="d">toque para encher</span></button>`);continue}
-    const k=CAF.find(c=>c.id===v),d=k?dias(k.data):null,g=POT.g[i],u=POT.u[i]||{},max=Math.max(250,Number(u.ini)||0,Number(g)||0);
+    const k=CAF.find(c=>c.id===v),d=k?dias(k.data):null,g=POT.g[i],u=POT.u[i]||{},max=Math.max(POTCAP,Number(u.ini)||0,Number(g)||0);
     h.push(`<button type="button" class="pt${sel}" data-pt="${i}">${potSvg(g==null?null:Math.max(0,g),max)}<span class="n">${esc(potNome(v))}</span><span class="g">${g==null?"sem peso":f(Math.max(0,g))+" g"}</span>${d!=null?`<span class="d">torrado há ${d} dia${d===1?"":"s"}</span>`:""}${usoPote===i?'<span class="tag">NO PREPARO</span>':""}</button>`)}
   if(POT.n<12)h.push(`<div class="pt vz addT" role="button" tabindex="0" id="addPote" style="min-height:0">${svgI('<rect x="20" y="10" width="24" height="7" rx="2"/><path d="M22 17h20v36a3 3 0 0 1-3 3H25a3 3 0 0 1-3-3z"/><path d="M32 28v16M24 36h16"/>')}<span>Adicionar pote</span></div>`);
   el.innerHTML=h.join("")}
@@ -2047,7 +2047,7 @@ function cfgPadrao(){
   const bals={};for(const b of balLista())bals[b.id]={loc:BL[b.id]||"casa",viagem:b.id==="dot"||BL[b.id]==="trabalho"};
   return{v:1,
     locais:[{id:"casa",n:"Em casa - Itabira",curto:"Itabira",ic:"casa",tipo:"fixo",pkey:"calcPotes"},{id:"ipatinga",n:"Em casa - Ipatinga",curto:"Ipatinga",ic:"casa",tipo:"fixo",pkey:"calcPotesIpa"},
-      {id:"trabalho",n:"No trabalho",curto:"Trabalho",ic:"trabalho",tipo:"fixo",usaPotesDe:"casa"},{id:"viagem",n:"Em viagem",curto:"Viagem",ic:"mala",tipo:"viagem",pkey:"calcPotesViagem",pote:"Airscape 250 g",lim:{metodos:2,espresso:1}}],
+      {id:"trabalho",n:"No trabalho",curto:"Trabalho",ic:"trabalho",tipo:"fixo",pkey:"calcPotesTrab",mini:{de:"casa",cap:30}},{id:"viagem",n:"Em viagem",curto:"Viagem",ic:"mala",tipo:"viagem",pkey:"calcPotesViagem",pote:"Airscape 250 g",lim:{metodos:2,espresso:1}}],
     grupos:[{k:"esp",n:"Espressos",ic:"portatil"},{k:"coa",n:"Coados",ic:"v60"},{k:"ita",n:"Italiana",ic:"moka"},{k:"pre",n:"Prensa francesa",ic:"prensa"}],
     itens,metFora:["espresso"],ocultas:[],moes,moesFora:[],bals,balsFora:[],
     acess:[{k:"star",n:"LilyDrip Starflower (com CFS)",loc:["casa"]},{k:"lotos",n:"LOTOS",loc:["casa"]},{k:"sd",n:"Timemore SimpleDrip",loc:["casa"]}],
@@ -2059,6 +2059,7 @@ if(!CFG||CFG.v!==1)CFG=cfgPadrao();
  for(const u of METU)if(!CFG.itens.some(i=>i.k===u.id))CFG.itens.push(P.itens.find(i=>i.k===u.id));
  for(const k of [...MOEB.map(x=>x[0]),...MOEU.map(u=>u.id)])if(!CFG.moes.some(m=>m.k===k))CFG.moes.push({k,loc:["casa"]});
  for(const b of balLista())if(!CFG.bals[b.id])CFG.bals[b.id]={loc:(CFG.locais.find(l=>l.tipo==="fixo")||{}).id||"",viagem:false}}
+if(!CFG.mig2){const t=CFG.locais.find(l=>l.id==="trabalho");if(t&&t.usaPotesDe==="casa"&&!t.mini){delete t.usaPotesDe;t.pkey="calcPotesTrab";t.mini={de:"casa",cap:30}}CFG.mig2=1}
 const saveCfg=()=>{try{localStorage.setItem("calcCfg",JSON.stringify(CFG))}catch(e){}};
 saveCfg();
 const idsOf=i=>{if(!i||!i.src)return[];const a=i.src.ids?i.src.ids.filter(id=>M.some(x=>x.id===id)):idsG(i.src.g).filter(id=>!(i.src.ex||[]).includes(id));const b=a.filter(id=>!CFG.ocultas.includes(id));return b.length?b:a};
@@ -2094,19 +2095,41 @@ function permitido(id){if(viag())return kitIds().includes(id);return !CFG.oculta
 function dispLoc(){const l=locObj();if(!l)return{star:true,lotos:true,sd:true,inox:true,kit:true};const L=l.id,has=(arr,k)=>{const x=arr.find(a=>a.k===k);if(!x||!x.loc.includes(L))return false;if(l.tipo==="viagem"&&x.soCom&&!x.soCom.includes(KIT.moe))return false;return true};
   return{star:has(CFG.acess,"star"),lotos:has(CFG.acess,"lotos"),sd:has(CFG.acess,"sd"),inox:has(CFG.pens,"inox"),kit:has(CFG.pens,"kit")}}
 let ipaSave=null;
-function trocaPotes(){const l=locObj(),d=dispLoc(),acc=d.star||d.lotos,pen=d.inox||d.kit;
+function trocaPotes(){const l=locObj(),d=dispLoc(),acc=d.star||d.lotos,pen=d.inox||d.kit;POTCAP=l&&l.mini?(+l.mini.cap||30):250;
   const cl=document.body.classList;cl.toggle("locViagem",ehV());cl.toggle("locSemAcc",!acc);cl.toggle("locSemSD",!d.sd);cl.toggle("locSemPen",!pen);cl.toggle("locSemInox",!d.inox);cl.toggle("locSemKitPen",!d.kit);cl.toggle("locSemStar",!d.star);cl.toggle("locSemLotos",!d.lotos);
   if(ipaSave){st.acc=ipaSave.acc;if(st.pen){st.pen.on=ipaSave.pen;st.pen.sel=ipaSave.sel;st.pen.esc=ipaSave.esc}if(st.sd)st.sd.on=ipaSave.sd;ipaSave=null}
   if(l){ipaSave={acc:st.acc,pen:!!(st.pen&&st.pen.on),sel:st.pen&&st.pen.sel,esc:st.pen&&st.pen.esc,sd:!!(st.sd&&st.sd.on)};
     if(st.acc&&!d[st.acc])st.acc="";if(!pen&&st.pen)st.pen.on=false;if(!d.sd&&st.sd)st.sd.on=false;
     if(st.pen&&pen){if(st.pen.sel==="inox"&&!d.inox){st.pen.sel="300";st.pen.esc=false}else if(st.pen.sel!=="inox"&&!d.kit){st.pen.sel="inox";st.pen.esc=false}}}
   try{const ps=$("pSel");if(ps)ps.value=st.pen.sel;if(typeof syncPick==="function")syncPick("pSel")}catch(e){}
-  {const lb=document.querySelector("#potPanel .lbl");if(lb)lb.textContent=ehV()?`Pote de viagem: ${l.pote||"pote único"}`:l?(l.usaPotesDe?`Potes de ${(locById(l.usaPotesDe)||{}).curto||""}`:`Potes de ${l.curto}`):"Meus potes de café aberto"}
+  {const lb=document.querySelector("#potPanel .lbl");if(lb)lb.textContent=ehV()?`Pote de viagem: ${l.pote||"pote único"}`:l&&l.mini?`Mini potes (até ${POTCAP} g), abastecidos dos potes de ${(locById(l.mini.de)||{}).curto||""}`:l?(l.usaPotesDe?`Potes de ${(locById(l.usaPotesDe)||{}).curto||""}`:`Potes de ${l.curto}`):"Meus potes de café aberto"}
   const src=l&&l.usaPotesDe?locById(l.usaPotesDe)||l:l;const k=!src?"calcPotes":(src.pkey||("calcPotes_"+src.id));
-  if(LOCPOT===k){if(ehV())POT.n=1;viagCafe();return}LOCPOT=k;Object.assign(POT,{n:5,p:[],g:[],u:[],h:[],log:[],t:[]});loadPot();if(ehV())POT.n=1;usoPote=-1;potSel=-1;potArm=-1;try{renderPotes()}catch(e){}viagCafe()}
+  if(LOCPOT===k){if(ehV())POT.n=1;viagCafe();return}LOCPOT=k;Object.assign(POT,{n:src&&src.mini?3:5,p:[],g:[],u:[],h:[],log:[],t:[]});loadPot();if(ehV())POT.n=1;usoPote=-1;potSel=-1;potArm=-1;try{renderPotes()}catch(e){}viagCafe()}
 // Na viagem o café é sempre o do pote único
 let viagG=false;function viagCafe(){if(!ehV()||viagG)return;const v=POT.p[0];if(!v||ISD(v))return;const k=CAF.find(c=>c.id===v);if(!k)return;
   if(st.csel===v&&usoPote===0)return;viagG=true;try{st.csel=v;st.cafe={...k};cEdit=false;cDelArm=false;usoPote=0;marca("caf");render()}finally{viagG=false}}
+{const rpm=renderPotes;renderPotes=function(){rpm();const l=locObj();if(!l||!l.mini)return;
+  const tr=el=>{if(!el)return;const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode())if(/Pote \d/.test(n.nodeValue))n.nodeValue=n.nodeValue.replace(/Pote (\d+)/g,"Mini pote $1")};
+  ["potGrid","potes","pOrdem"].forEach(id=>tr($(id)));[...$("poteSel").options].forEach(o=>o.textContent=o.textContent.replace(/Pote (\d+)/,"Mini pote $1"));
+  const a=$("addPote");if(a){const s2=a.querySelector("span");if(s2)s2.textContent="Adicionar mini pote"}}}
+const potesDe=id=>{const l=locById(id);if(!l)return null;const k=l.pkey||("calcPotes_"+l.id);try{const x=JSON.parse(localStorage.getItem(k)||"null");return x&&typeof x==="object"?{k,x}:null}catch(e){return null}};
+{const fp=filaPotes;filaPotes=function(){const l=locObj();if(!l||!l.mini)return fp();const o=potesDe(l.mini.de);if(!o)return[];const usados=new Set(POT.p.slice(0,POT.n).filter(Boolean));
+  const ids=[...new Set((o.x.p||[]).slice(0,o.x.n||5).filter((v,i)=>v&&!ISD(v)&&(o.x.g||[])[i]>0))].filter(v=>!usados.has(v));return ids.map(v=>CAF.find(c=>c.id===v)).filter(Boolean)}}
+// mini potes: o café que entra sai dos potes de origem (um tempo depois da última mudança, para não contar a digitação)
+let miniT=null;
+function miniTransfere(){const l=locObj();if(!l||!l.mini)return;const o=potesDe(l.mini.de);const cap=+l.mini.cap||30;POT.tr=POT.tr||[];POT.tc=POT.tc||[];let msg=[];
+  for(let i=0;i<POT.n;i++){const v=POT.p[i];let g=POT.g[i];if(!v||ISD(v)||g==null){POT.tr[i]=g||0;POT.tc[i]=v||"";continue}
+    if(POT.tc[i]!==v){POT.tr[i]=0;POT.tc[i]=v}
+    if(g>cap){g=POT.g[i]=cap;msg.push(`O mini pote ${i+1} leva até ${cap} g`)}
+    const d=Math.round((g-(POT.tr[i]||0))*10)/10;
+    if(d>0){if(!o){msg.push("Não achei os potes de origem");POT.tr[i]=g;continue}let falta=d;const X=o.x;X.g=X.g||[];X.log=X.log||[];
+      for(let j=0;j<(X.n||5)&&falta>0;j++){if(X.p&&X.p[j]===v&&X.g[j]>0){const t=Math.min(falta,X.g[j]);X.g[j]=Math.round((X.g[j]-t)*10)/10;falta=Math.round((falta-t)*10)/10;
+        const dn=new Date(),p2=n=>String(n).padStart(2,"0");X.log.unshift(`${p2(dn.getDate())}/${p2(dn.getMonth()+1)} ${p2(dn.getHours())}:${p2(dn.getMinutes())} · Pote ${j+1} · −${f(t,1)} g para o mini pote ${i+1} (${l.curto})`);X.log=X.log.slice(0,40)}}
+      try{localStorage.setItem(o.k,JSON.stringify(X))}catch(e){}
+      const tirado=Math.round((d-falta)*10)/10;if(tirado>0)msg.push(`Tirei ${f(tirado,1)} g de ${potNome(v)} dos potes de ${(locById(l.mini.de)||{}).curto||""}`);if(falta>0)msg.push(`Faltaram ${f(falta,1)} g de ${potNome(v)} nos potes de ${(locById(l.mini.de)||{}).curto||""}`)}
+    POT.tr[i]=g}
+  try{localStorage.setItem(LOCPOT,JSON.stringify(POT))}catch(e){}if(msg.length)toast(msg.join(". "));try{renderPotes()}catch(e){}}
+{const sp=savePot;savePot=function(){sp();const l=locObj();if(l&&l.mini){clearTimeout(miniT);miniT=setTimeout(miniTransfere,1500)}}}
 {const rpv=renderPotes;renderPotes=function(){if(ehV())POT.n=1;rpv();if(!ehV())return;const nm=(locObj()||{}).pote||"Pote de viagem";
   const tr=el=>{if(!el)return;const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode())if(/Pote 1\b/.test(n.nodeValue))n.nodeValue=n.nodeValue.replace(/Pote 1\b/g,nm)};
   ["potGrid","potes","pOrdem"].forEach(id=>tr($(id)));[...$("poteSel").options].forEach(o=>o.textContent=o.textContent.replace(/Pote 1\b/,nm));setTimeout(viagCafe,0)}}
@@ -2279,7 +2302,7 @@ const TELAS_C={
    ${cIt_('data-cn="receitas"',CI.receita,"Minhas receitas",REC.length+" salva"+(REC.length===1?"":"s"))}
    <button class="btn pri" id="pfMail" style="padding:13px">Enviar minhas receitas para o meu e-mail</button><p class="cHint">Abre o seu app de e-mail com as receitas escritas, prontas para enviar.</p>`],
  receitas:()=>["Minhas receitas",REC.length?REC.map((r,i)=>`<div class="cCard"><b>${esc(r.nome)}</b><span class="cHint">${esc(recTxt(r).split("\n").slice(1).join(" · "))}</span></div>`).join(""):`<p class="cHint">Nenhuma receita salva. No preparo, use Salvar receita.</p>`],
- locais:()=>["Locais",`<button class="cAdd" data-cnovo="locais">+ Adicionar local</button>`+CFG.locais.map(l=>cIt_(`data-ced="locais|${esc(l.id)}"`,LIC[l.ic]||LIC.local,l.n,l.tipo==="viagem"?`Viagem: kit de até ${limDe(l).metodos} métodos · pote ${l.pote||"único"}`:`${itensEm(l.id).length} métodos · ${moesEm(l.id).length} moedores · ${l.usaPotesDe?"usa os potes de "+((locById(l.usaPotesDe)||{}).curto||""):potN(l)+" potes"}`)).join("")],
+ locais:()=>["Locais",`<button class="cAdd" data-cnovo="locais">+ Adicionar local</button>`+CFG.locais.map(l=>cIt_(`data-ced="locais|${esc(l.id)}"`,LIC[l.ic]||LIC.local,l.n,l.tipo==="viagem"?`Viagem: kit de até ${limDe(l).metodos} métodos · pote ${l.pote||"único"}`:`${itensEm(l.id).length} métodos · ${moesEm(l.id).length} moedores · ${l.mini?potN(l)+" mini potes de até "+l.mini.cap+" g, abastecidos de "+((locById(l.mini.de)||{}).curto||""):l.usaPotesDe?"usa os potes de "+((locById(l.usaPotesDe)||{}).curto||""):potN(l)+" potes"}`)).join("")],
  metodos:()=>["Métodos",`<button class="cAdd" data-cnovo="metodos">+ Adicionar método</button>`+CFG.grupos.concat([{k:"",n:"Sem tipo de preparo"}]).map(g=>{const xs=CFG.itens.filter(i=>(i.grupo||"")===g.k||(!g.k&&!CFG.grupos.some(x=>x.k===i.grupo)));return xs.length?`<span class="lbl" style="margin:6px 0 0">${esc(g.n)}</span>`+xs.map(i=>cIt_(`data-ced="metodos|${esc(i.k)}"`,CI.metodo,i.n,`${idsOf(i).length} receita${idsOf(i).length===1?"":"s"} · ${nLoc(i.loc)}`)).join(""):""}).join("")],
  moedores:()=>["Moedores",`<button class="cAdd" data-cnovo="moedores">+ Adicionar moedor</button>`+CFG.moes.filter(m=>!CFG.moesFora.includes(m.k)).map(m=>cIt_(`data-ced="moedores|${esc(m.k)}"`,CI.moedor,moeNome(m.k),nLoc(m.loc),["icoffee","hibrew","m9"].includes(m.k)?'<span class="cTag">provisório</span>':"")).join("")],
  balancas:()=>["Balanças",`<button class="cAdd" data-cnovo="balancas">+ Adicionar balança</button>`+balLista().filter(b=>!CFG.balsFora.includes(b.id)).map(b=>{const c=CFG.bals[b.id]||{};return cIt_(`data-ced="balancas|${esc(b.id)}"`,CI.balanca,b.n,`${b.bt?"Bluetooth":"sem Bluetooth"} · fica ${((locById(c.loc)||{}).curto)||"sem local"}${c.viagem?" · pode ir na viagem":""}`)}).join("")],
@@ -2289,10 +2312,10 @@ const TELAS_C={
  grupos:()=>["Tipos de preparo",`<p class="cHint">Os grupos de "Pelo tipo de preparo". O app indica os 3 melhores cafés dos potes para cada um.</p><button class="cAdd" data-cnovo="grupos">+ Adicionar tipo de preparo</button>`+CFG.grupos.map(g=>cIt_(`data-ced="grupos|${esc(g.k)}"`,CI.grupo,g.n,CFG.itens.filter(i=>i.grupo===g.k).map(i=>i.n).join(", ")||"nenhum método")).join("")],
  prefs:()=>["Preferências",`<div class="cCard"><label class="cSw"><span>Som de aviso nos despejos</span><input type="checkbox" data-cp="som" ${CFG.prefs.som!==false?"checked":""}></label>
    <label class="cSw"><span>Ajustar o preparo pela torra e pelo frescor do café</span><input type="checkbox" data-cp="auto" ${st.auto!==false?"checked":""}></label></div>
-   <div class="cCard"><span class="lbl" style="margin:0">Configuração</span><button class="btn" id="cRestaura">Voltar à configuração original</button><p class="cHint">Desfaz as mudanças de locais, métodos, moedores, balanças, acessórios e peneiras feitas aqui. Cafés, potes e receitas não mudam.</p></div>`]};
+   <div class="cCard"><span class="lbl" style="margin:0">Configuração</span><button class="btn" id="cRestaura">Voltar à configuração original</button><a class="btn" href="index.html" style="text-align:center;text-decoration:none">Voltar para a versão atual do app</a><p class="cHint">Desfaz as mudanças de locais, métodos, moedores, balanças, acessórios e peneiras feitas aqui. Cafés, potes e receitas não mudam.</p></div>`]};
 function cTela(){const k=cPilha[cPilha.length-1]||"raiz";const[t,h]=TELAS_C[k]();$("cTit").textContent=t;$("cCorpo").innerHTML=h;cfgOv.scrollTop=0}
 const limDe=l=>Object.assign({metodos:2,espresso:1},l.lim||{});
-function potN(l){try{const x=JSON.parse(localStorage.getItem(l.pkey||("calcPotes_"+l.id))||"null");return x&&x.n?x.n:5}catch(e){return 5}}
+function potN(l){const d=l.mini?3:5;try{const x=JSON.parse(localStorage.getItem(l.pkey||("calcPotes_"+l.id))||"null");return x&&x.n?x.n:d}catch(e){return d}}
 function potSet(l,n){const k=l.pkey||("calcPotes_"+l.id);let x=null;try{x=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}x=x&&typeof x==="object"?x:{n:5,p:[],g:[],u:[],h:[],log:[],t:[]};x.n=Math.min(12,Math.max(1,n));try{localStorage.setItem(k,JSON.stringify(x))}catch(e){}if(LOCPOT===k){loadPot();try{renderPotes()}catch(e){}}}
 const recTxt=r=>{const m=M.find(x=>x.id===r.met);return `${r.nome}\nMétodo: ${m?m.n+(m.grp||m.rn?" · "+vn(m):""):r.met}\nCafé: ${(r.cafe&&r.cafe.nome)||"—"}\nDose: ${f(r.c,1)} g de café · ${f(r.a||r.q)} g${r.r?" (1:"+f(r.r,1)+")":""}\nMoedor: ${moeNome(r.moe)} no ${f(r.gr)}`};
 const aposMudar=()=>{saveCfg();montaGrupos();renderMetBtns();renderMoeBtns();aplicaModo()};
@@ -2304,7 +2327,8 @@ function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(se
   if(k==="locais"){x=novo?{id:"",n:"",ic:"casa",tipo:"fixo"}:locById(id);if(!x)return;tit=novo?"Novo local":"Editar local";const fix=CFG.locais.filter(l=>l.tipo==="fixo"&&l.id!==x.id);
     h=nome(x.n,"ex.: Casa da praia")+`<span class="lbl">Ícone</span>${un("ic",[["casa","Casa"],["trabalho","Trabalho"],["mala","Viagem"],["local","Outro"]],x.ic)}
      <span class="lbl">Tipo</span>${un("tipo",[["fixo","Fixo: o que tem lá fica lá"],["viagem","Viagem: monto um kit"]],x.tipo)}
-     <div id="cfFixo" ${x.tipo==="viagem"?"hidden":""} style="display:grid;gap:10px"><span class="lbl">Potes</span>${un("pot",[["proprio","Potes próprios"],...fix.map(l=>[l.id,"Usa os de "+(l.curto||curtoDe(l.n))])],x.usaPotesDe||"proprio")}
+     <div id="cfFixo" ${x.tipo==="viagem"?"hidden":""} style="display:grid;gap:10px"><span class="lbl">Potes</span>${un("pot",[["proprio","Potes próprios"],...fix.map(l=>[l.id,"Usa os de "+(l.curto||curtoDe(l.n))]),...fix.map(l=>["mini:"+l.id,"Mini potes abastecidos dos de "+(l.curto||curtoDe(l.n))])],x.mini?"mini:"+x.mini.de:x.usaPotesDe||"proprio")}
+      <div class="cSw" id="cfCapB" ${x.mini?"":"hidden"}><span>Capacidade de cada mini pote (g)</span><span class="cNum"><button type="button" data-cap="-5">−</button><span id="cfCap">${x.mini?x.mini.cap:30}</span><button type="button" data-cap="5">+</button></span></div>
       <div class="cSw" id="cfPotN" ${x.usaPotesDe?"hidden":""}><span>Quantidade de potes</span><span class="cNum"><button type="button" data-pn="-1">−</button><span id="cfPot">${novo?4:potN(x)}</span><button type="button" data-pn="1">+</button></span></div>
       ${novo?"":`<span class="lbl">O que tem aqui</span><span class="cHint">Toque para marcar ou desmarcar.</span>
       <span class="lbl" style="font-size:.7rem">Métodos</span><div style="display:flex;flex-wrap:wrap;gap:6px">${CFG.itens.map(i=>`<button type="button" class="cChip" data-inv="itens|${esc(i.k)}" aria-pressed="${i.loc.includes(x.id)}">${esc(i.n)}</button>`).join("")}</div>
@@ -2339,9 +2363,10 @@ function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(se
     if(t===v||t.closest("#cfCan")){fecha();return}
     if(b=t.closest("[data-cl] [data-cv]")){const g=b.parentElement;if(g.dataset.cl==="u"){g.querySelectorAll("[data-cv]").forEach(c=>c.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true")}else b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true"));return}
     if(b=t.closest("[data-un] [data-v]")){b.parentElement.querySelectorAll("[data-v]").forEach(c=>c.setAttribute("aria-pressed",String(c===b)));const u=b.parentElement.dataset.un;
-      if(u==="tipo"&&k==="locais"){v.querySelector("#cfFixo").hidden=b.dataset.v==="viagem";v.querySelector("#cfViag").hidden=b.dataset.v!=="viagem"}if(u==="pot")v.querySelector("#cfPotN").hidden=b.dataset.v!=="proprio";return}
+      if(u==="tipo"&&k==="locais"){v.querySelector("#cfFixo").hidden=b.dataset.v==="viagem";v.querySelector("#cfViag").hidden=b.dataset.v!=="viagem"}if(u==="pot"){const pv=b.dataset.v;v.querySelector("#cfPotN").hidden=!(pv==="proprio"||pv.startsWith("mini:"));v.querySelector("#cfCapB").hidden=!pv.startsWith("mini:")}return}
     if(b=t.closest("[data-inv]")){b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true"));if(b.dataset.inv.startsWith("bals|")&&b.getAttribute("aria-pressed")==="true")toast("Ao salvar, esta balança passa a ficar só aqui");return}
     if(b=t.closest("[data-pn]")){const s=v.querySelector("#cfPot");s.textContent=Math.min(12,Math.max(1,+s.textContent+ +b.dataset.pn));return}
+    if(b=t.closest("[data-cap]")){const s2=v.querySelector("#cfCap");s2.textContent=Math.min(250,Math.max(5,+s2.textContent+ +b.dataset.cap));return}
     if(b=t.closest("[data-lm]")){const s=v.querySelector("#cfLm");s.textContent=Math.min(4,Math.max(1,+s.textContent+ +b.dataset.lm));return}
     if(t.closest("#cfCafEd")){fecha();cfgOv.hidden=true;homeOv.hidden=true;st.csel=x.id;st.cafe={...x};cEdit=true;cDelArm=false;irPag("cafe");render();setTimeout(()=>{try{$("cNome").scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}},120);return}
     if(t.closest("#cfCafFim")){x.fim=!x.fim;saveCaf();fecha();cTela();try{renderPotes();render()}catch(e){}toast(x.fim?"Marcado como acabou":"Café reativado");return}
@@ -2360,7 +2385,7 @@ function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(se
       const lm=()=>[...v.querySelectorAll('[data-cl="m"] [aria-pressed="true"]')].map(q=>q.dataset.cv),lu=()=>{const q=v.querySelector('[data-cl="u"] [aria-pressed="true"]');return q?q.dataset.cv:""};
       if(k==="locais"){const tipo=uv("tipo")||"fixo";const o=novo?{id:uidC()}:x;o.n=n;o.curto=curtoDe(n);o.ic=uv("ic")||"casa";o.tipo=tipo;
         if(tipo==="viagem"){o.pote=v.querySelector("#cfPote").value.trim()||"Pote de viagem";o.lim={metodos:+v.querySelector("#cfLm").textContent,espresso:v.querySelector("#cfLe").checked?1:0};if(!o.pkey)o.pkey="calcPotes_"+o.id;delete o.usaPotesDe}
-        else{const p=uv("pot");if(p&&p!=="proprio")o.usaPotesDe=p;else{delete o.usaPotesDe;potSet(o,+v.querySelector("#cfPot").textContent)}
+        else{const p=uv("pot");if(!o.pkey)o.pkey="calcPotes_"+o.id;if(p&&p.startsWith("mini:")){delete o.usaPotesDe;o.mini={de:p.slice(5),cap:+v.querySelector("#cfCap").textContent};potSet(o,+v.querySelector("#cfPot").textContent)}else if(p&&p!=="proprio"){o.usaPotesDe=p;delete o.mini}else{delete o.usaPotesDe;delete o.mini;potSet(o,+v.querySelector("#cfPot").textContent)}
           if(!novo)v.querySelectorAll("[data-inv]").forEach(q=>{const[t2,kk]=q.dataset.inv.split("|"),on=q.getAttribute("aria-pressed")==="true";
             if(t2==="bals"){if(on)CFG.bals[kk]={...(CFG.bals[kk]||{viagem:false}),loc:o.id};else if((CFG.bals[kk]||{}).loc===o.id)CFG.bals[kk].loc="";return}
             const z=CFG[t2].find(a=>(a.k)===kk);if(!z)return;const i=z.loc.indexOf(o.id);if(on&&i<0)z.loc.push(o.id);if(!on&&i>=0)z.loc.splice(i,1)})}
