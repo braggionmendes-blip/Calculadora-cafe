@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 120 · 21/11/2026 · Escolher o café no pote leva ao Preparo · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 121 · 21/11/2026 · Retirar do pote sem marcar que acabou · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -2214,6 +2214,22 @@ $("potes").addEventListener("click",e=>{const pi=e.target.closest("[data-pind]")
   recPend=false;abrirMet=false;abrirRec=false;potSel=-1;escPor="";try{renderEsc()}catch(err){}render();toast("Café, método e moedor selecionados");irPag("preparo");window.scrollTo({top:0})},true);
 $("potes").addEventListener("click",e=>{const u=e.target.closest("[data-pusar]");if(!u)return;const i=+u.dataset.pusar;
   setTimeout(()=>{if(usoPote===i&&POT.p[i]===st.csel){const km=kitMoes();if(km.length===1){st.moe=km[0];marca("moe")}potSel=-1;escPor="";try{renderEsc()}catch(err){}render();irPag("preparo");window.scrollTo({top:0})}},0)});
+// --- retirar o café do pote (escolha errada) sem marcar que acabou ---
+let retArm=-1;
+{const rr=renderPotes;renderPotes=function(){rr();document.querySelectorAll('#potes [data-pfim]').forEach(b=>{const i=+b.dataset.pfim;if(b.parentElement.querySelector('[data-pret]'))return;
+  b.insertAdjacentHTML("beforebegin",`<button class="btn" type="button" data-pret="${i}">${retArm===i?"Confirmar: retirar":"Retirar do pote"}</button>`)});
+  const a=document.querySelector('#potes .acts');if(a)a.style.flexWrap="wrap"}}
+$("potes").addEventListener("click",e=>{const b=e.target.closest("[data-pret]");if(!b)return;e.stopImmediatePropagation();const i=+b.dataset.pret;
+  if(retArm!==i){retArm=i;renderPotes();return}retArm=-1;loadPot();const v=POT.p[i],g=POT.g[i],l=locObj();let msg=`${potNome(v)} retirado do ${l&&l.mini?"mini pote":"pote"} ${i+1}`;
+  // mini pote: o que tinha sido tirado do pote de origem volta para ele
+  if(l&&l.mini&&v&&!ISD(v)){const volta=Math.min(Number(g)||0,Number((POT.tr||[])[i])||0);const o=potesDe(l.mini.de);
+    if(volta>0&&o){const X=o.x;X.g=X.g||[];X.log=X.log||[];const j=(X.p||[]).findIndex((pv,jj)=>pv===v&&jj<(X.n||5));
+      if(j>=0){X.g[j]=Math.round(((Number(X.g[j])||0)+volta)*10)/10;const dn=new Date(),p2=n=>String(n).padStart(2,"0");X.log.unshift(`${p2(dn.getDate())}/${p2(dn.getMonth()+1)} ${p2(dn.getHours())}:${p2(dn.getMinutes())} · Pote ${j+1} · +${f(volta,1)} g devolvidos do mini pote ${i+1} (${l.curto})`);X.log=X.log.slice(0,40);try{localStorage.setItem(o.k,JSON.stringify(X))}catch(err){}msg+=`. Devolvi ${f(volta,1)} g ao pote ${j+1} de ${(locById(l.mini.de)||{}).curto||""}`}
+      else msg+=`. Não achei ${potNome(v)} nos potes de ${(locById(l.mini.de)||{}).curto||""} para devolver ${f(volta,1)} g`}}
+  logPot(`retirado (sem acabar): ${potNome(v)}${g!=null?" · "+f(g,1)+" g":""}`,i);
+  POT.p[i]="";POT.g[i]=null;POT.u[i]=null;if(POT.t)POT.t[i]=null;if(POT.tr)POT.tr[i]=0;if(POT.tc)POT.tc[i]="";
+  try{localStorage.setItem(LOCPOT,JSON.stringify(POT))}catch(err){}
+  if(usoPote===i){usoPote=-1;if(st.csel===v){st.csel="desc";st.cafe={...CAFE0}}}potArm=-1;render();renderPotes();toast(msg)},true);
 // --- mostra no app as receitas da Configuração ---
 renderMetBtns();renderMoeBtns();renderKit();
 // ===== Tela de início, cadastro e Configurações (v119) =====
