@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 122 · 22/11/2026 · Sugestão tracejada do método e do moedor no Preparo · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 123 · 22/11/2026 · Ajuda (?) com cafés, métodos e equipamentos; moedor sugerido pelo perfil do café · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -1955,7 +1955,7 @@ document.addEventListener("click",e=>{if(e.target.closest("#fixBtn,#preNx,#preVo
 let escPor="",escGrp="";
 const GRUPOS=[["esp","Espressos","espresso",["espresso","me26","portatil"]],["coa","Coados","v60",["wacaco","v60","b75","origami","melitta","pano","fluire","switch","chemex","clever","coador"]],["ita","Italiana","moka",["moka"]],["pre","Prensa francesa","prensa",["prensa","aeropress"]]];
 const MOEPREF={esp:["hibrew","pro","k7","r3"],coa:["k7","r3","pro","mongdio","hibrew","icoffee","oster"],ita:["hibrew","k7","pro","r3"],pre:["k7","oster","r3","pro","hibrew"]};
-function escMoe(gk,r,k){const m=M.find(y=>y.id===r.id)||M.find(y=>y.id===r.g);if(!m||m.cap||!m.g)return null;for(const id of moeLista(gk)){const v=m.g[id];if(!v||v[3])continue;let gv=v[2];
+function escMoe(gk,r,k){const m=M.find(y=>y.id===r.id)||M.find(y=>y.id===r.g);if(!m||m.cap||!m.g)return null;for(const id of moeLista(gk,k)){const v=m.g[id];if(!v||v[3])continue;let gv=v[2];
   if(k){const sv={cafe:st.cafe,moe:st.moe,csel:st.csel};try{st.cafe={...k};st.csel=k.id;st.moe=id;gv=st.gr[gKey(m)]??Math.max(0,v[2]+ajuste(m).off)}catch(e){}finally{st.cafe=sv.cafe;st.moe=sv.moe;st.csel=sv.csel}}
   return{id,n:GN[id]||id,v:gv}}return null}
 function rankEsc(k){const rk=rankMetodos(k);if(!viag())return rk;const ok=kitIds();
@@ -2089,7 +2089,7 @@ const locTxt=()=>ehV()?"Seu kit de viagem":"O que está "+(locObj()?("em "+locOb
 const FORA_CASA=()=>[];
 const icKit=ids=>{const m=M.find(x=>x.id===ids[0]);return svgI(icMet(m||M[0]))};
 const moeCasa=m=>{const g=G(m);if(["moka","me26","portatil","espresso"].includes(g))return["hibrew"];if(g==="prensa")return["k7","oster"];return["k7"]};
-function moeLista(gk){if(viag()){const t=kitMoes();return[...(MOEPREF[gk]||[]).filter(x=>t.includes(x)),...t]}return(MOEPREF[gk]||[]).filter(x=>!CFG.moesFora.includes(x))}
+function moeLista(gk,k){const P=typeof prefCafe==="function"?prefCafe(gk,k):(MOEPREF[gk]||[]);if(viag()){const t=kitMoes();return[...P.filter(x=>t.includes(x)),...t]}return P.filter(x=>!CFG.moesFora.includes(x))}
 function permitido(id){if(viag())return kitIds().includes(id);return !CFG.ocultas.includes(id)||true}
 // --- acessórios, SimpleDrip e peneiras disponíveis no local ---
 function dispLoc(){const l=locObj();if(!l)return{star:true,lotos:true,sd:true,inox:true,kit:true};const L=l.id,has=(arr,k)=>{const x=arr.find(a=>a.k===k);if(!x||!x.loc.includes(L))return false;if(l.tipo==="viagem"&&x.soCom&&!x.soCom.includes(KIT.moe))return false;return true};
@@ -2308,9 +2308,9 @@ const curtoDe=n=>{const t=String(n||"").replace(/^Em casa - /,"").replace(/^(No|
 const homeOv=document.createElement("div");homeOv.id="homeOv";homeOv.className="ov";homeOv.hidden=true;
 homeOv.innerHTML=`<div class="hb"><button class="ovIb" id="hPerfil" aria-label="Meu cadastro">${S24.perfil}</button><button class="ovIb" id="hCfg" aria-label="Configurações">${S24.gear}</button></div>
  <div class="hero">${svgI(CI.xicara)}<h1>Calculadora de Café</h1><span class="hNome" id="hNome"></span><span class="lbl" style="margin:6px 0 0">Onde você está?</span><div class="cLocs" id="hLocs"></div></div>
- <button class="go" id="hGo">Bora fazer esse café</button>`;
+ <div style="display:grid;gap:10px;justify-items:center"><button class="go" id="hGo">Bora fazer esse café</button><span class="cHint" id="hVer" style="text-align:center"></span></div>`;
 document.body.appendChild(homeOv);
-function homeTela(){$("hNome").textContent=st.nome||"cafezeiro";$("hLocs").innerHTML=CFG.locais.map(l=>`<button class="cChip" data-hl="${esc(l.id)}" aria-pressed="${MODO===l.id}">${esc(l.curto||curtoDe(l.n))}</button>`).join("")}
+function homeTela(){{const m=(document.body.textContent.match(/Versão (\d+) · (\d{2}\/\d{2}\/\d{4})/)||[]);$("hVer").innerHTML=(m[1]?`Versão ${m[1]} · ${m[2]}<br>`:"")+"by Jefferson Braggion"}$("hNome").textContent=st.nome||"cafezeiro";$("hLocs").innerHTML=CFG.locais.map(l=>`<button class="cChip" data-hl="${esc(l.id)}" aria-pressed="${MODO===l.id}">${esc(l.curto||curtoDe(l.n))}</button>`).join("")}
 homeOv.addEventListener("click",e=>{const t=e.target;let b;
   if(b=t.closest("[data-hl]")){setModo(b.dataset.hl);homeTela();return}
   if(t.closest("#hPerfil")){cfgAbre(["perfil"]);return}
@@ -2455,6 +2455,70 @@ cfgOv.addEventListener("click",e=>{const t=e.target;let b;
 cfgOv.addEventListener("input",e=>{const t=e.target;if(t.dataset.pf){if(t.dataset.pf==="nome"){st.nome=t.value.trim().slice(0,30);try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(err){}try{nomeTela()}catch(err){}}else CFG.perfil[t.dataset.pf]=t.value;saveCfg()}});
 cfgOv.addEventListener("change",e=>{const t=e.target;if(t.dataset.cp==="som"){CFG.prefs.som=t.checked;saveCfg()}if(t.dataset.cp==="auto"){st.auto=t.checked;render()}});
 {const s0=som;som=function(...a){if(CFG.prefs&&CFG.prefs.som===false)return;return s0.apply(this,a)}}
+// ===== Moedores: perfil sensorial (análises Coffee Chronicler e CoffeeGeek; fabricante quando não há análise) =====
+const MOEINFO={
+ k7:{perfil:"Equilibrado, centrado no meio da boca: acidez equilibrada e corpo com substância, mostra as camadas do café. Menos nítido que moedores de topo; em moagem fina pode deixar retrogosto secante.",cafes:"Cafés de torra média e média-clara, doces e achocolatados, blends e naturais. Em torras muito claras e florais entrega menos definição.",metodos:"Coados (melhor resultado na parte mais grossa), AeroPress, prensa. Espresso funciona, sem se destacar.",fonte:"Coffee Chronicler"},
+ r3:{perfil:"Doce e encorpado, com bom desempenho geral. Menos cristalino que os melhores manuais; a peneira do kit limpa a xícara (sem exagerar, para não perder corpo).",cafes:"Tolerante a várias torras. Brilha em cafés doces, naturais e de torra média. Em espresso de torra clara tende a ficar turvo e adstringente.",metodos:"Coados e prensa com a peneira do kit (500 µm no coado, 850 µm na prensa), AeroPress, espresso de torra média.",fonte:"Coffee Chronicler e CoffeeGeek"},
+ pro:{perfil:"Mó Rapidity-3 com lâminas heptagonal (45°) e prisma revestido de titânio (70°), feita para cortar fino com menos esforço. Não achei análise independente do sabor.",cafes:"Pelo desenho da mó, pensado para espresso e moagens finas.",metodos:"Espresso portátil (iCoffee Barista, i Cafilas), moka. Também faz coado.",fonte:"Fabricante (MHW-3Bomber)"},
+ hibrew:{perfil:"Mó cônica de 38 mm, elétrica, ajuste contínuo de 0 a 100. O dial dedica 0 a 60 ao espresso e só 81 a 90 ao coado.",cafes:"Qualquer torra no espresso e na moka.",metodos:"Espresso e moka. Para coado, o K7 é melhor.",fonte:"Fabricante (HiBrew)"},
+ m9:{perfil:"Ainda sem dados: os números do app são provisórios até chegar o manual.",cafes:"—",metodos:"—",fonte:"—"},
+ oster:{perfil:"Elétrico de mesa, 18 níveis. Mói rápido e muito café de uma vez; menos uniforme que os manuais.",cafes:"Qualquer café para moagem grossa.",metodos:"Prensa e cold brew em quantidade.",fonte:"Fabricante (Oster)"},
+ mongdio:{perfil:"Elétrico portátil com mó cerâmica e 38 ajustes. Prático; uniformidade de moedor de entrada.",cafes:"Cafés do dia a dia.",metodos:"Coados (Melitta no 20 ficou ótimo) e prensa.",fonte:"Seu uso"},
+ icoffee:{perfil:"Elétrico portátil com 30 ajustes. Números do app provisórios.",cafes:"Cafés do dia a dia.",metodos:"Coados e prensa.",fonte:"—"}};
+// sugestão de moedor considera o perfil do café: claros e ácidos pedem equilíbrio e camadas (K7); doces e encorpados pedem o Blade R3
+function prefCafe(gk,k){const base=(MOEPREF[gk]||[]).slice();if(!k||!["coa","pre"].includes(gk))return base;
+  const claro=["Clara","Média-clara"].includes(k.torra)||(+k.acidez||0)>=8,doce=["Média","Média-escura","Escura"].includes(k.torra)||(+k.corpo||0)>=8||(+k.docura||0)>=8;
+  const ord=claro&&!doce?["k7","pro","r3"]:doce&&!claro?["r3","k7","pro"]:["k7","r3","pro"];return [...ord,...base.filter(x=>!ord.includes(x))]}
+// ===== Ajuda =====
+const AJ_MET={v60:"Cone com furo grande e ranhuras em espiral. Escoa rápido e dá xícara limpa e aromática, realçando acidez e florais. Pede despejo controlado.",
+ joinout:"Cone de silicone dobrável, para viagem. Comporta-se como um cone de furo único: limpo, um pouco menos controlável.",
+ b75:"Fundo plano com ondulações (tipo Kalita). Extração mais uniforme e perdoa erros de despejo; xícara doce e equilibrada.",
+ origami:"Dripper de cerâmica que aceita filtro cônico ou de fundo plano. Escoa rápido; com filtro cônico lembra a V60, com plano lembra a Kalita.",
+ melitta:"Fundo reto com furos pequenos: escoa devagar e dá mais corpo. Perdoa bastante.",
+ pano:"Filtro de pano deixa passar óleos: corpo maior e sabor mais redondo, sem gosto de papel.",
+ switch:"V60 com válvula: permite imersão (válvula fechada) e percolação. Une doçura da imersão com a limpeza do coado.",
+ fluire:"Pressca Fluire: porta-filtro vazado, escoa muito rápido. Moa mais fino se terminar antes do tempo. 01 para 1 a 2 xícaras, 02 para 2 a 4.",
+ wacaco:"Prestina: cafeteira portátil de imersão e filtragem, para café coado em viagem.",
+ wCup:"Cuppamoka: coador portátil com recipiente; xícara limpa como um coado.",
+ wPip:"Pipamoka: imersão com pressão a vácuo, sem eletricidade; corpo médio e prático.",
+ aeropress:"Imersão com pressão manual. Muito versátil: do café limpo e doce ao concentrado. A invertida evita gotejar antes da hora.",
+ prensa:"Imersão total com filtro metálico: corpo alto e textura oleosa. Moagem grossa; beba logo para não amargar.",
+ moka:"Cafeteira italiana: pressão de vapor, café forte e encorpado, entre o coado e o espresso. Moagem fina, sem compactar.",
+ me26:"Espresso portátil i Cafilas ME2604: café moído, cápsulas Nespresso e Dolce Gusto.",
+ portatil:"iCoffee Barista: espresso portátil elétrico de 20 bar, aquece a água sozinha (2:30). Café moído, Basket Plus (dose dupla) e Nespresso.",
+ clever:"Imersão com válvula no fundo: simples e consistente, xícara doce.",chemex:"Filtro grosso de papel: xícara muito limpa e leve, ótima para cafés florais.",
+ coador:"Cafeteira elétrica: prática para várias xícaras; menos controle.",sifao:"Sifão a vácuo: xícara limpa e aromática, preparo teatral.",turco:"Moagem finíssima fervida com a água, sem filtro: corpo pesado.",cold:"Imersão em água fria por 12 a 24 h: doce, pouca acidez."};
+const AJ_TORRA=[["Clara","Mais acidez, florais e frutados; pede água mais quente e moagem um pouco mais fina."],["Média-clara","Equilíbrio entre acidez e doçura; vai bem em quase todo método."],["Média","Doçura de caramelo e chocolate, corpo médio; ótima para prensa, moka e espresso."],["Média-escura e escura","Amargor e corpo; água um pouco mais fria e moagem mais grossa."]];
+const AJ_PROC=[["Natural","Seco com a fruta: mais doce, frutado e encorpado."],["Lavado","Sem a fruta antes de secar: mais limpo e ácido."],["Honey / Cereja descascado","Meio-termo: doçura com limpeza."],["Fermentado","Notas intensas e licorosas; costuma brilhar em coados."]];
+const ajOv=document.createElement("div");ajOv.id="ajOv";ajOv.className="ov";ajOv.hidden=true;
+ajOv.innerHTML=`<div class="ovTop"><button class="ovIb" id="ajVoltar" aria-label="Voltar">${S24.voltar}</button><h2 id="ajTit">Ajuda</h2><span></span></div><div class="ovC" id="ajCorpo"></div>`;
+document.body.appendChild(ajOv);
+let ajPilha=[];
+const ajSec=(t,h)=>`<div class="cCard"><b>${t}</b>${h}</div>`;
+const ajP=t=>`<span class="cHint" style="color:var(--fg)">${t}</span>`;
+const AJ={
+ raiz:()=>["Ajuda",`<div class="cTiles">${[["cafes","Cafés",CI.cafe],["metodos","Métodos",CI.metodo],["moedores","Moedores",CI.moedor],["balancas","Balanças",CI.balanca],["acess","Acessórios e peneiras",CI.peneira],["locais","Locais e potes",CI.local],["indica","Como o app indica",CI.grupo],["preparo","Preparo",CI.receita]].map(([k,n,ic])=>`<button class="cTile" data-aj="${k}">${svgI(ic)}${n}</button>`).join("")}</div>`],
+ cafes:()=>["Cafés",ajSec("Torra",AJ_TORRA.map(([a,b])=>ajP(`<b>${a}:</b> ${b}`)).join(""))+ajSec("Processo",AJ_PROC.map(([a,b])=>ajP(`<b>${a}:</b> ${b}`)).join(""))+
+   ajSec("Frescor",ajP("Do 4º ao 30º dia depois da torra é a melhor janela. Muito fresco solta gás e extrai de forma irregular; depois de 6 semanas perde aroma. O app ajusta a receita pelos dias desde a torra."))+
+   `<span class="lbl" style="margin:6px 0 0">Seus cafés</span>`+CAF.filter(c=>!c.fim).map(k=>{let rk=[];try{rk=rankPote(k).slice(0,3)}catch(e){}const mo=rk[0]?escMoe(grpDe(rk[0].g),rk[0],k):null;
+     return ajSec(esc(k.nome),ajP([k.torra&&"Torra "+k.torra.toLowerCase(),k.processo,k.tipo,k.data&&"torrado em "+dataBR(k.data)].filter(Boolean).join(" · ")||"Sem dados")+(rk.length?ajP("Melhores aqui: "+rk.map(r=>esc(((M.find(x=>x.id===r.id)||M.find(x=>x.id===r.g)||{}).n||r.g)+" ("+r.nota+"%)")).join(", ")+(mo?". Moedor: "+esc(mo.n):"")):""))}).join("")],
+ metodos:()=>["Métodos",CFG.grupos.map(g=>ajSec(esc(g.n),CFG.itens.filter(i=>i.grupo===g.k).map(i=>{const b=(i.src.g||G(M.find(x=>x.id===(i.src.ids||[])[0])||{id:""}));const t=AJ_MET[i.k]||AJ_MET[b]||AJ_MET[(M.find(x=>x.id===b)||{}).like]||"Método cadastrado por você.";return ajP(`<b>${esc(i.n)}:</b> ${t}`)}).join("")||ajP("Nenhum método."))).join("")],
+ moedores:()=>["Moedores",CFG.moes.filter(m=>!CFG.moesFora.includes(m.k)).map(m=>{const x=MOEINFO[m.k]||{perfil:"Moedor cadastrado por você, com os ajustes do moedor parecido.",cafes:"—",metodos:"—",fonte:"—"};
+   return ajSec(esc(moeNome(m.k)),ajP(`<b>Perfil:</b> ${x.perfil}`)+ajP(`<b>Cafés:</b> ${x.cafes}`)+ajP(`<b>Métodos:</b> ${x.metodos}`)+`<span class="cHint">Fonte: ${x.fonte}</span>`)}).join("")+ajSec("Como o app escolhe o moedor",ajP("Nos coados e na prensa, cafés claros e ácidos puxam o K7 (equilíbrio e camadas); doces e encorpados puxam o Blade R3. No espresso e na moka, o HiBrew em casa e o R3 Pro na viagem. A sugestão aparece tracejada; a escolha é sua."))],
+ balancas:()=>["Balanças",ajSec("Com Bluetooth",ajP("A Timemore Dot conecta ao app: o tempo começa sozinho no primeiro despejo e o peso aparece no card do temporizador."))+ajSec("Sem Bluetooth",ajP("Nas outras balanças o card mostra o peso que você deve atingir em cada etapa."))+ajSec("Por local",ajP("Cada balança fica em um lugar só (Configurações > Balanças). Na viagem você escolhe qual levar."))],
+ acess:()=>["Acessórios e peneiras",ajSec("LilyDrip Starflower (com CFS)",ajP("Peça de cerâmica no fundo do cone que acelera a vazão e uniformiza a extração; o app ajusta tempo e moagem."))+ajSec("LOTOS",ajP("Acessório que distribui o fluxo no cone; o app ajusta a receita."))+ajSec("Timemore SimpleDrip",ajP("Dispersor sobre o coador: a água cai como chuveiro. Basta despejar até o peso de cada etapa."))+
+   ajSec("Peneiras",ajP("Tiram os finos depois de moer: xícara mais limpa e doce. Peneira demais tira corpo. A inox (copo) fica em casa; as do kit do Blade R3 / R3 Pro (300 a 850 µm) podem ir na viagem com esses moedores."))],
+ locais:()=>["Locais e potes",ajSec("Locais",ajP("Escolha onde você está na tela de início. Local fixo: aparece só o que está lá. Local de viagem: você monta um kit (métodos, espresso, moedor e balança)."))+
+   ajSec("Potes",ajP("Cada local tem seus potes. Um local pode usar os potes de outro."))+ajSec("Mini potes",ajP("Abastecidos dos potes de outro local: o peso que entra no mini pote sai do pote de origem. Retirar do pote devolve o café."))+ajSec("Viagem",ajP("Um pote só, com o café fixo da viagem."))],
+ indica:()=>["Como o app indica",ajSec("Pelo tipo de preparo",ajP("Para cada grupo (espressos, coados, italiana, prensa), o app compara torra, processo, notas e frescor de cada café dos potes com o perfil de cada método e mostra os 3 melhores, com método e moedor."))+ajSec("Pelo pote",ajP("Você escolhe o café; no Preparo o melhor método e o melhor moedor aparecem tracejados como sugestão."))+ajSec("A nota",ajP("A porcentagem diz o quanto o café combina com o método. Acima de 85% é ótima combinação."))],
+ preparo:()=>["Preparo",ajSec("Antes de começar",ajP("Os passos sem tempo (moer, peneirar, escaldar) aparecem antes. Com a balança Bluetooth, o tempo começa no primeiro despejo."))+ajSec("Despejos",ajP("O card mostra o peso de cada etapa. Ao terminar, toque na xícara para encerrar: o café sai do pote e o app pede a avaliação."))+ajSec("Ajustes",ajP("Se o café ficar amargo ou adstringente, moa mais grosso; se ficar ácido ou aguado, moa mais fino. A avaliação ensina o app para a próxima vez."))]};
+function ajTela(){const k=ajPilha[ajPilha.length-1]||"raiz";const[t,h]=AJ[k]();$("ajTit").textContent=t;$("ajCorpo").innerHTML=h;ajOv.scrollTop=0}
+const ajAbre=k=>{ajPilha=k?["raiz",k]:["raiz"];ajOv.hidden=false;ajTela()};
+ajOv.addEventListener("click",e=>{const t=e.target;let b;if(t.closest("#ajVoltar")){if(ajPilha.length>1){ajPilha.pop();ajTela()}else ajOv.hidden=true;return}if(b=t.closest("[data-aj]")){ajPilha.push(b.dataset.aj);ajTela()}});
+{const q='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.7c0 1.7-2.4 2.1-2.4 3.8"/><path d="M12 17h.01"/></svg>';
+ const bar=$("appBar");if(bar&&!$("appAj")){const b=document.createElement("button");b.id="appAj";b.type="button";b.setAttribute("aria-label","Ajuda");b.innerHTML=q;b.onclick=()=>ajAbre();bar.appendChild(b)}
+ const hb=document.querySelector("#homeOv .hb");if(hb&&!$("hAj")){const b=document.createElement("button");b.id="hAj";b.className="ovIb";b.type="button";b.setAttribute("aria-label","Ajuda");b.innerHTML=q;b.onclick=()=>ajAbre();hb.insertBefore(b,hb.lastElementChild)}
+ const cs=document.createElement("style");cs.textContent='#appAj{border:0;background:transparent;color:var(--fg);width:36px;height:36px;display:grid;place-items:center;cursor:pointer;flex:none}#appAj svg,#hAj svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}#homeOv .hb{gap:8px}#homeOv .hb #hAj{margin-left:auto}';document.head.appendChild(cs)}
 // ao abrir: tela de início (ou volta para Configurações depois de adicionar método/moedor)
 {let reab=null;try{reab=sessionStorage.getItem("calcCfgAbre");sessionStorage.removeItem("calcCfgAbre")}catch(e){}
  if(reab){cfgAbre(["raiz",reab]);toast("Adicionado")}else if(st.nome){$("ola").hidden=true;mostraHome()}}
