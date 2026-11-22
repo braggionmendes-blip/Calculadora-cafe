@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 121 · 21/11/2026 · Retirar do pote sem marcar que acabou · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 122 · 22/11/2026 · Sugestão tracejada do método e do moedor no Preparo · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -2230,6 +2230,14 @@ $("potes").addEventListener("click",e=>{const b=e.target.closest("[data-pret]");
   POT.p[i]="";POT.g[i]=null;POT.u[i]=null;if(POT.t)POT.t[i]=null;if(POT.tr)POT.tr[i]=0;if(POT.tc)POT.tc[i]="";
   try{localStorage.setItem(LOCPOT,JSON.stringify(POT))}catch(err){}
   if(usoPote===i){usoPote=-1;if(st.csel===v){st.csel="desc";st.cafe={...CAFE0}}}potArm=-1;render();renderPotes();toast(msg)},true);
+// --- sugestão tracejada no Preparo: o melhor método para o café escolhido e o melhor moedor para o método (a escolha continua sua) ---
+{const css=document.createElement("style");css.textContent='#metodos button.sug:not([aria-pressed="true"]):not(.on){border:2px dashed var(--accent)!important}#metodos button.sug::after{content:"sugerido";display:block;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);margin-top:2px}';document.head.appendChild(css)}
+{const rs=render;render=function(){rs();try{const k=CAF.find(c=>c.id===st.csel);document.querySelectorAll("#metodos button.sug").forEach(b=>b.classList.remove("sug"));
+  if(!k)return;const rk=rankPote(k);const best=rk[0];if(!best)return;
+  let b=document.querySelector(`#metodos button[data-v="${best.g}"]`);
+  if(!b)b=[...document.querySelectorAll("#metodos button[data-kit]")].find(x=>{const it=kitItens().find(y=>y[0]===x.dataset.kit);return it&&it[2]().some(id=>{const m=M.find(z=>z.id===id);return m&&(id===best.id||G(m)===best.g)})});
+  if(b)b.classList.add("sug");
+  const m=cur(),mo=escMoe(grpDe(G(m)),{id:m.id,g:G(m)},k);if(mo)document.querySelectorAll("#moedores button[data-v]").forEach(x=>x.classList.toggle("rec",x.dataset.v===mo.id))}catch(e){}}}
 // --- mostra no app as receitas da Configuração ---
 renderMetBtns();renderMoeBtns();renderKit();
 // ===== Tela de início, cadastro e Configurações (v119) =====
