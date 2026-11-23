@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 123 · 22/11/2026 · Ajuda (?) com cafés, métodos e equipamentos; moedor sugerido pelo perfil do café · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 124 · 22/11/2026 · Excluir café pelas Configurações agora funciona · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -2418,6 +2418,7 @@ function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(se
       else if(k==="moedores"){const mu=MOEU.findIndex(u=>u.id===id);if(mu>=0){MOEU.splice(mu,1);try{localStorage.setItem("calcMoeU",JSON.stringify(MOEU))}catch(e){}CFG.moes=CFG.moes.filter(m=>m.k!==id)}else CFG.moesFora.push(id);if(KIT.moe===id)KIT.moe=""}
       else if(k==="balancas"){const bu=BALU.findIndex(u=>u.id===id);if(bu>=0){BALU.splice(bu,1);saveBalU()}else CFG.balsFora.push(id);delete CFG.bals[id];if(KIT.bal===id)KIT.bal=""}
       else if(k==="acess"||k==="pens")CFG[k]=CFG[k].filter(a=>a.k!==id);
+      else if(k==="cafes"){CAF=CAF.filter(c=>c.id!==id);saveCaf();if(st.csel===id){st.csel="desc";st.cafe={...CAFE0};usoPote=-1;cEdit=false;cDelArm=false}}
       else if(k==="grupos"){CFG.grupos=CFG.grupos.filter(g=>g.k!==id);CFG.itens.forEach(i=>{if(i.grupo===id)i.grupo=""})}
       saveModo();aposMudar();fecha();cTela();toast("Excluído");return}
     if(t.closest("#cfOk")){const n=v.querySelector("#cfN").value.trim();if(!n){v.querySelector("#cfN").focus();toast("Dê um nome");return}
