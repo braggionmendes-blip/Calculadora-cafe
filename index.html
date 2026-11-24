@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 129 · 24/11/2026 · OutIn Fino e OutIn Nano; R3 Pro no espresso corrigido (24 com o seu café) · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 130 · 24/11/2026 · Café só para espresso; OutIn Fino e OutIn Nano; R3 Pro no espresso corrigido · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -811,7 +811,7 @@ const san=(x)=>{if(!x||typeof x!=="object"||x.desc)return null;const o={id:typeo
   nome:String(x.nome||"").slice(0,60),tipo:String(x.tipo||"").slice(0,60),origem:String(x.origem||"").slice(0,60),
   processo:String(x.processo||"").slice(0,60),produtor:String(x.produtor||"").slice(0,80),altitude:String(x.altitude||"").slice(0,30),
   pontos:(()=>{const v=Number(String(x.pontos??"").replace(",","."));return x.pontos!=null&&x.pontos!==""&&v>=60&&v<=100?v:null})(),
-  data:/^\d{4}-\d{2}-\d{2}$/.test(x.data||"")?x.data:"",torra:TORRAS.includes(x.torra)?x.torra:"",escala:10,fim:x.fim===true?true:undefined};
+  data:/^\d{4}-\d{2}-\d{2}$/.test(x.data||"")?x.data:"",torra:TORRAS.includes(x.torra)?x.torra:"",escala:10,fim:x.fim===true?true:undefined,so:["esp","coa","ita","pre"].includes(x.so)?x.so:undefined};
   const old=x.escala!==10;for(const[id]of CAR){let v=x[id];v=(v===null||v===undefined||v==="")?null:Number(v);
     if(old)v=(v>=1&&v<=5)?v*2:null;o[id]=(Number.isFinite(v)&&v>=0&&v<=10)?Math.round(v):null}return o};
 const ISD=v=>v==="desc"||v==="descpo";
@@ -1091,7 +1091,7 @@ function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,c
   return Object.entries(PERF).filter(([g])=>MEUS.includes(g)&&M.some(m=>m.id===g)).map(([g,pf])=>{const contrib=Object.keys(w).map(kk=>[kk,Math.max(0,w[kk])*pf[kk]]);const sc=contrib.reduce((x,y)=>x+y[1],0)/(nw*(Math.hypot(...Object.values(pf))||1));
     const top=contrib.filter(x=>x[1]>0).sort((x,y)=>y[1]-x[1]).slice(0,2).map(x=>ROT[x[0]]);
     let id=g,k46=null;if(g==="switch")id=dd>60?"swU1":(w.b>=1.5&&w.d>=1.5?"swTC":"switch");if(g==="v60"&&w.d>=1.5&&!(w.c>=3))id="k46v60",k46={s:"doce",c:"normal"};if(g==="v60"&&w.c>=3)id="k46v60",k46={s:"acido",c:"normal"};
-    return{g,id,k46,nota:Math.round(sc*100),why:top.length?"favorece "+top.join(" e "):"pouco a ver com o perfil deste café"}}).sort((x,y)=>y.nota-x.nota)}
+    return{g,id,k46,nota:Math.round(sc*100),why:top.length?"favorece "+top.join(" e "):"pouco a ver com o perfil deste café"}}).filter(r=>!k.so||(GRUPOS.find(z=>z[3].includes(r.g))||[])[0]===k.so).sort((x,y)=>y.nota-x.nota)}
 function renderCafe(){
   const k=st.cafe,sel=st.csel;
   $("cSel").innerHTML=`<option value="desc">Café em grãos desconhecido</option><option value="descpo">Café em pó desconhecido</option>`+(CAF.length?`<optgroup label="Meus cafés">${CAF.map(c=>`<option value="${esc(c.id)}">${esc(c.nome||"Sem nome")}${c.tipo?" · "+esc(c.tipo):""}${c.fim?" · acabou":""}</option>`).join("")}</optgroup>`:"")+`<option value="novo">+ Cadastrar novo café</option>`;
