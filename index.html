@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 128 · 24/11/2026 · Salvar sempre visível nas Configurações; acessórios antigos ganham função e desenho · Item novo aparece na hora · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 129 · 24/11/2026 · OutIn Fino e OutIn Nano; R3 Pro no espresso corrigido (24 com o seu café) · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -785,7 +785,7 @@ M.push(
  {...k46base,id:"k46sw",grp:"switch",rn:"Método 4:6 (Kasuya)",n:"Switch · 4:6",steps:k46steps("Válvula aberta o tempo todo: escalde o filtro e descarte a água"),tip:K46TIP+" No Switch, mantenha a válvula aberta: o 4:6 é percolação pura."});
 M.push(
  {id:"me26",n:"i Cafilas ME2604",rn:"Espresso com café moído",cls:"Fina",dose:true,tank:true,q:8,qs:0.5,r:[3,6,5,0.5],temp:"92 °C (automático)",tempo:"cerca de 3:30",
-  g:{k7:[35,45,40],r3:[25,45,35],pro:[8,24,15],oster:[1,3,1,'Pode não chegar à finura de espresso'],mongdio:[3,9,6,'Pode não chegar à finura de espresso'],icoffee:[2,7,5,'Pode não chegar à finura de espresso']},
+  g:{k7:[35,45,40],r3:[25,45,35],pro:[18,32,25],oster:[1,3,1,'Pode não chegar à finura de espresso'],mongdio:[3,9,6,'Pode não chegar à finura de espresso'],icoffee:[2,7,5,'Pode não chegar à finura de espresso']},
   steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no cesto do adaptador de pó, nivele e compacte de leve (sem socar forte)`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (máx. 80 ml). Água já quente da chaleira encurta o aquecimento e poupa a bateria`],["0:00","Monte o adaptador, ligue e aperte o botão: a máquina aquece a água"],["3:20","Com água fria, a extração começa sozinha ao chegar a 92 °C (com água quente, bem antes)"],["3:50","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
   tip:"Na ME2604 a quantidade de bebida é definida pela água que você põe no reservatório: 30 a 40 ml é espresso, 60 a 80 ml é lungo. A proporção aqui é água no reservatório : café. Se sair rápido e aguado, moa mais fino ou compacte um pouco mais; se travar ou pingar, moa mais grosso."},
  {id:"me26ns",grp:"me26",rn:"Cápsula Nespresso",n:"ME2604 · cápsula Nespresso",cls:"Cápsula",cap:true,q:40,qs:5,r:[1,30,8,1],temp:"92 °C (automático)",tempo:"cerca de 3:30",
@@ -852,7 +852,7 @@ const saveRec=()=>{try{localStorage.setItem("calcReceitas",JSON.stringify(REC))}
 const $=id=>document.getElementById(id);
 const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Receita sugerida");
 // ===== iCoffee Barista (espresso portátil): café moído, Basket Plus da OutIn e cápsula Nespresso. Receitas provisórias até o Jeff mandar as caixas/manuais =====
-{const gEP={k7:[35,45,40],r3:[25,45,35],pro:[8,24,15],oster:[1,3,1,'Pode não chegar à finura de espresso'],mongdio:[3,9,6,'Pode não chegar à finura de espresso'],icoffee:[2,7,5,'Pode não chegar à finura de espresso']},
+{const gEP={k7:[35,45,40],r3:[25,45,35],pro:[18,32,25],oster:[1,3,1,'Pode não chegar à finura de espresso'],mongdio:[3,9,6,'Pode não chegar à finura de espresso'],icoffee:[2,7,5,'Pode não chegar à finura de espresso']},
   PROV=" Receita provisória: será ajustada com os dados da caixa e do manual.";
  M.push(
  {id:"portatil",rn:"Expresso pressurizado",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:9,qs:0.5,r:[4,8,5.5,0.5],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00 com água fria",g:gEP,
@@ -865,6 +865,20 @@ const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Recei
   g:{k7:[0,0,0],r3:[0,0,0],pro:[0,0,0],oster:[0,0,0],mongdio:[0,0,0],icoffee:[0,0,0]},
   steps:(c,a)=>[["Preparo","Encaixe a cápsula no adaptador de cápsula (o que tem a agulha)"],["Preparo",`Encha o reservatório com ${f(a)} ml de água: 25 ml ristretto, 40 ml espresso, até 50 ml lungo`],["0:00","Monte o adaptador, coloque a máquina no suporte sobre a xícara, ligue e aperte o botão"],["2:30","Extração automática (com água já quente, bem antes)"],["3:00","Fim: retire e descarte a cápsula com cuidado, ela sai quente"]],
   tip:"Cápsula não usa moedor nem balança de café. A caixa diz que a máquina aceita cápsulas e café moído; confira no manual quais cápsulas o adaptador recebe."});}
+// ===== OutIn Nano (espresso portátil): café moído no cesto pressurizado, Basket Plus e cápsula Nespresso =====
+{const gN={k7:[35,45,40],r3:[25,45,35],pro:[18,32,25],oster:[1,3,1,'Pode não chegar à finura de espresso'],mongdio:[3,9,6,'Pode não chegar à finura de espresso'],icoffee:[2,7,5,'Pode não chegar à finura de espresso'],hibrew:[45,62,53],fino:[7,9,7]},
+  gNb={...gN,fino:[6,9,7]},TN="Aquece sozinha até cerca de 92 °C (cerca de 3:20 com água fria)";
+ M.push(
+ {id:"nano",rn:"Café moído (cesto pressurizado)",n:"OutIn Nano",cls:"Fina",dose:true,tank:true,q:8,qs:0.5,r:[4,10,6.5,0.5],temp:TN,tempo:"cerca de 4:00 com água fria",g:gN,
+  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído no cesto pressurizado da Nano, nivele e compacte de leve`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (máximo 80 ml). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Monte a Nano, coloque sobre a xícara e ligue no aquecimento automático"],["3:20","Com água fria, a extração começa quando a água chega a cerca de 92 °C (com água quente, bem antes)"],["4:00","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
+  tip:"OutIn Nano: 20 bar, reservatório de até 80 ml, aquece até cerca de 92 °C em cerca de 200 s, bateria de 2.500 mAh (até 5 extrações aquecendo a água; com água quente, bem mais). O cesto pressurizado leva 7 a 8 g. No Fino, a OutIn indica começar no 2-1."},
+ {id:"nanoBp",grp:"nano",rn:"Basket Plus (dose dupla)",n:"OutIn Nano",cls:"Fina",dose:true,tank:true,q:17,qs:0.5,r:[3,4.6,4,0.1],temp:TN,tempo:"cerca de 4:00 com água fria",g:gNb,
+  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído no Basket Plus, faça o WDT, nivele e compacte firme`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (máximo 80 ml). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Encaixe o Basket Plus na Nano, coloque sobre a xícara aquecida e ligue no aquecimento automático"],["3:20","Com água fria, a extração começa quando a água chega a cerca de 92 °C (com água quente, bem antes)"],["4:00","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
+  tip:"O Basket Plus é o cesto sem pressurização feito para a Nano: leva 16 a 18 g (até 20 g em torra clara a média). Moa um pouco mais grosso que para outras máquinas, porque moagem fina demais trava o cesto. Torras claras sofrem com os 92 °C; prefira médias. Se sair rápido e aguado, moa mais fino; se travar, mais grosso."},
+ {id:"nanoNs",grp:"nano",rn:"Cápsula Nespresso",n:"OutIn Nano",cls:"Cápsula",cap:true,q:40,qs:5,r:[1,30,8,1],temp:TN,tempo:"cerca de 4:00",
+  g:{k7:[0,0,0],r3:[0,0,0],pro:[0,0,0],oster:[0,0,0],mongdio:[0,0,0],icoffee:[0,0,0],hibrew:[0,0,0],fino:[0,0,0],m9:[0,0,0]},
+  steps:(c,a)=>[["Preparo","Encaixe a cápsula Nespresso no adaptador de cápsula da Nano"],["Preparo",`Encha o reservatório com ${f(a)} ml de água: 25 ml ristretto, 40 ml espresso, até 80 ml lungo`],["0:00","Monte o adaptador, coloque a Nano sobre a xícara e ligue no aquecimento automático"],["3:20","Extração automática (com água já quente, bem antes)"],["4:00","Fim: retire e descarte a cápsula com cuidado, ela sai quente"]],
+  tip:"Cápsula não usa moedor nem balança de café. A Nano aceita cápsulas no padrão Nespresso Original."});}
 // ===== Wacaco (Prestina, Cuppamoka, Pipamoka): um método com lista de equipamentos e receitas de cada um =====
 {const gPres={k7:[75,90,82],r3:[110,140,125],pro:[75,95,85],oster:[10,13,11],mongdio:[20,26,23],icoffee:[15,20,17]},
        gCup={k7:[65,80,72],r3:[95,125,110],pro:[60,90,75],oster:[8,10,9],mongdio:[16,21,18],icoffee:[12,16,14]},
@@ -904,7 +918,7 @@ const icMet=m=>IC[m&&m.ic]||IC[m&&G(m)]||IC[m&&m.like]||IC.v60;
 var METU=[];try{const x=JSON.parse(localStorage.getItem("calcMetU")||"[]");if(Array.isArray(x))METU=x}catch(e){}
 for(const u of METU){const b=M.find(x=>x.id===u.like);if(!b||M.some(x=>x.id===u.id))continue;M.push({...b,id:u.id,n:u.n,grp:undefined,dev:undefined,rn:undefined,like:b.id,ic:u.ic||G(b)})}
 const COAD=["v60","origami","switch","fluire","b75","melitta","pano","clever","chemex","coador"];
-const OUT=["aeropress","prensa","moka","espresso","portatil","me26","wacaco","sifao","turco","cold"];
+const OUT=["aeropress","prensa","moka","espresso","portatil","nano","me26","wacaco","sifao","turco","cold"];
 function renderMetBtns(){const bt=m=>`<button type="button" data-v="${m.id}">${svgI(icMet(m))}<span>${esc(m.n)}</span></button>`,base=M.filter(m=>!m.grp);
   $("metodos").innerHTML=`<span class="grp">Coados</span>${COAD.map(id=>base.find(m=>m.id===id)).filter(Boolean).map(bt).join("")}<span class="grp">Pressão, imersão e outros</span>${[...OUT.map(id=>base.find(m=>m.id===id)).filter(Boolean),...base.filter(m=>!COAD.includes(m.id)&&!OUT.includes(m.id)&&!m.like)].map(bt).join("")}`
    +(METU.length?`<span class="grp">Meus métodos</span>${base.filter(m=>m.like).map(bt).join("")}`:"")+`<div class="addT" role="button" tabindex="0" id="addMet">${svgI('<path d="M32 18v28M18 32h28"/>')}<span>Adicionar método</span></div>`}
@@ -1064,7 +1078,7 @@ const PERF={v60:{c:3,b:1,i:0,d:2,e:0},b75:{c:3,b:1,i:0,d:3,e:0},origami:{c:2,b:2
   espresso:{c:0,b:3,i:0,d:2,e:3},me26:{c:0,b:3,i:0,d:2,e:3},turco:{c:0,b:3,i:1,d:0,e:1}};
 // Métodos que o Jeff tem
 const MEUS=["v60","b75","origami","melitta","pano","fluire","switch","prensa","me26"];
-PERF.wacaco={c:2,b:2,i:2,d:2,e:0};PERF.portatil={c:0,b:3,i:0,d:2,e:3};MEUS.push("wacaco","aeropress","portatil","moka");
+PERF.wacaco={c:2,b:2,i:2,d:2,e:0};PERF.portatil={c:0,b:3,i:0,d:2,e:3};PERF.nano={c:0,b:3,i:0,d:2,e:3};MEUS.push("wacaco","aeropress","portatil","nano","moka");
 
 const ROT={c:"clareza para acidez e aromas",b:"corpo",i:"imersão, que extrai melhor café menos fresco",d:"doçura",e:"concentração (espresso)"};
 function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,co=k.corpo,d=k.docura,ar=k.aroma,dd=dias(k.data),tx=(k.nome+" "+k.processo+" "+k.tipo).toLowerCase();
@@ -1133,15 +1147,15 @@ function render(){
   $("lAgua").textContent=m.dose?"Na xícara":"Água";
   $("oAgua").innerHTML=f(a,m.dose?1:0)+"<small>g</small>";
   const gr=m.g[st.moe], aj=ajuste(m), sv=Math.max(0,gr[2]+aj.off), gv=st.gr[gKey(m)]??sv, custom=st.gr[gKey(m)]!=null&&st.gr[gKey(m)]!==sv;
-  const unit={oster:"Moagem · posição",mongdio:"Moagem · número do anel",icoffee:"Moagem · ajuste (de 30)",hibrew:"Moagem · ajuste (de 100)",m9:"Moagem · número no disco"}[st.moe]||((MOEU.find(x=>x.id===st.moe)||{}).u==="num"?"Moagem · número":"Moagem · cliques");
+  const unit={oster:"Moagem · posição",mongdio:"Moagem · número do anel",icoffee:"Moagem · ajuste (de 30)",hibrew:"Moagem · ajuste (de 100)",m9:"Moagem · número no disco",fino:"Moagem · anel (número-passo)"}[st.moe]||((MOEU.find(x=>x.id===st.moe)||{}).u==="num"?"Moagem · número":"Moagem · cliques");
   $("padrao").hidden=st.r[m.id]==null||Number(st.r[m.id])===Number(m.r[2]);
   $("lMoag").textContent=unit; $("lMoagIn").textContent=unit;
-  $("gUnit").textContent=st.moe==="m9"?"disco":st.moe==="oster"?"posição":st.moe==="mongdio"?"nº":st.moe==="icoffee"?"ajuste":(MOEU.find(x=>x.id===st.moe)||{}).u==="num"?"nº":"cliques";
-  $("moag").step=st.moe==="m9"?"0.1":"1";if(document.activeElement!==$("moag")) $("moag").value=st.moe==="m9"?(gv/10).toFixed(1):gv;
-  $("gSug").innerHTML=`Sugerida ${gD(sv,st.moe)} · faixa ${gD(gr[0],st.moe)} a ${gD(gr[1],st.moe)}${st.moe==="m9"?" · zona "+m9Zona(sv)+" no disco":""}`+(aj.off?` <details style="display:inline"><summary style="display:inline;color:var(--accent);cursor:pointer;font-weight:600">por quê?</summary><span style="display:block;margin-top:4px">Base ${gD(gr[2],st.moe)}, ajustada ${esc(aj.src.join(", "))}.</span></details>`:"");
+  $("gUnit").textContent=st.moe==="m9"?"disco":st.moe==="fino"?"anel":st.moe==="oster"?"posição":st.moe==="mongdio"?"nº":st.moe==="icoffee"?"ajuste":(MOEU.find(x=>x.id===st.moe)||{}).u==="num"?"nº":"cliques";
+  $("moag").step=st.moe==="m9"||st.moe==="fino"?"0.1":"1";if(document.activeElement!==$("moag")) $("moag").value=st.moe==="m9"?(gv/10).toFixed(1):st.moe==="fino"?finoTxt(gv).replace("-","."):gv;
+  $("gSug").innerHTML=`Sugerida ${gD(sv,st.moe)} · faixa ${gD(gr[0],st.moe)} a ${gD(gr[1],st.moe)}${st.moe==="m9"?" · zona "+m9Zona(sv)+" no disco":st.moe==="fino"?" · "+finoZona(sv):""}`+(aj.off?` <details style="display:inline"><summary style="display:inline;color:var(--accent);cursor:pointer;font-weight:600">por quê?</summary><span style="display:block;margin-top:4px">Base ${gD(gr[2],st.moe)}, ajustada ${esc(aj.src.join(", "))}.</span></details>`:"");
   $("gReset").hidden=!custom;
   $("oMoag").textContent=gD(gv,st.moe);
-  $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+gD(sv,st.moe)+" · ":aj.off?`Ajustada ${aj.src.join(", ")} · base ${gD(gr[2],st.moe)} · `:"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${gD(gr[0],st.moe)} a ${gD(gr[1],st.moe)} · ${st.moe==="m9"?"zona "+m9Zona(gv)+" no disco":m.cls}`);
+  $("oFaixa").textContent=(custom?"Ajustada por você · sugerida "+gD(sv,st.moe)+" · ":aj.off?`Ajustada ${aj.src.join(", ")} · base ${gD(gr[2],st.moe)} · `:"")+(gr[3]?gr[3]+" · ":"")+(gr[0]===gr[1]?`Limite do moedor · ${m.cls}`:`Faixa ${gD(gr[0],st.moe)} a ${gD(gr[1],st.moe)} · ${st.moe==="m9"?"zona "+m9Zona(gv)+" no disco":st.moe==="fino"?finoZona(gv):m.cls}`);
   let steps=m.steps(c,a);
   if(aj.fresh){steps=steps.map((s0,i)=>{const t=s0[0].replace(/(\d+):(\d\d)/g,(_,mm,ss)=>{const v=+mm*60+ +ss;return v>0?tm(v+15):"0:00"});
     const first=i===steps.findIndex(x=>/^0:00/.test(x[0]));return [t,first?s0[1]+" · café fresco: espere 40 a 45 s antes do próximo despejo":s0[1]]})}
@@ -1210,7 +1224,7 @@ $("qtd").addEventListener("input",e=>{const m=cur(),v=Number(e.target.value)||0,
 $("base").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const m=cur(),k=calc(m);
   if(b.dataset.v==="cafe"){st.c[m.id]=Math.round(k.c*10)/10}else if(b.dataset.v==="xicara"){st.x[m.id]=Math.round(k.b/5)*5}else{st.q[m.id]=Math.round(k.a)}
   st.base[m.id]=b.dataset.v;render()});
-$("moag").addEventListener("input",e=>{const v=e.target.value;if(v==="")return;st.gr[gKey(cur())]=st.moe==="m9"?Math.round(Number(String(v).replace(",","."))*10):Number(v);render()});
+$("moag").addEventListener("input",e=>{const v=e.target.value;if(v==="")return;st.gr[gKey(cur())]=st.moe==="m9"?Math.round(Number(String(v).replace(",","."))*10):st.moe==="fino"?(()=>{const t=String(v).replace(",",".").split(/[.-]/);return Math.max(0,Number(t[0]||0)*3+Math.min(2,Number((t[1]||"0")[0])))})():Number(v);render()});
 $("moag").addEventListener("blur",render);
 const gbump=d=>{const m=cur(),gr=m.g[st.moe],sv=Math.max(0,gr[2]+ajuste(m).off);st.gr[gKey(m)]=Math.max(0,(st.gr[gKey(m)]??sv)+d);render()};
 $("gMenos").onclick=()=>gbump(-1); $("gMais").onclick=()=>gbump(1);
@@ -1954,8 +1968,8 @@ document.addEventListener("click",e=>{if(e.target.closest("#fixBtn,#preNx,#preVo
 {const bp0=balPronto;balPronto=function(){return armado&&bp0()}}
 // Escolher o café dos potes pelo grupo de preparo (os 3 melhores) ou pelo pote; começa sem nada marcado
 let escPor="",escGrp="";
-const GRUPOS=[["esp","Espressos","espresso",["espresso","me26","portatil"]],["coa","Coados","v60",["wacaco","v60","b75","origami","melitta","pano","fluire","switch","chemex","clever","coador"]],["ita","Italiana","moka",["moka"]],["pre","Prensa francesa","prensa",["prensa","aeropress"]]];
-const MOEPREF={esp:["hibrew","pro","k7","r3"],coa:["k7","r3","pro","mongdio","hibrew","icoffee","oster"],ita:["hibrew","k7","pro","r3"],pre:["k7","oster","r3","pro","hibrew"]};
+const GRUPOS=[["esp","Espressos","espresso",["espresso","me26","portatil","nano"]],["coa","Coados","v60",["wacaco","v60","b75","origami","melitta","pano","fluire","switch","chemex","clever","coador"]],["ita","Italiana","moka",["moka"]],["pre","Prensa francesa","prensa",["prensa","aeropress"]]];
+const MOEPREF={esp:["hibrew","fino","pro","k7","r3"],coa:["k7","fino","r3","pro","mongdio","hibrew","icoffee","oster"],ita:["hibrew","fino","k7","pro","r3"],pre:["k7","oster","fino","r3","pro","hibrew"]};
 function escMoe(gk,r,k){const m=M.find(y=>y.id===r.id)||M.find(y=>y.id===r.g);if(!m||m.cap||!m.g)return null;for(const id of moeLista(gk,k)){const v=m.g[id];if(!v||v[3])continue;let gv=v[2];
   if(k){const sv={cafe:st.cafe,moe:st.moe,csel:st.csel};try{st.cafe={...k};st.csel=k.id;st.moe=id;gv=st.gr[gKey(m)]??Math.max(0,v[2]+ajuste(m).off)}catch(e){}finally{st.cafe=sv.cafe;st.moe=sv.moe;st.csel=sv.csel}}
   return{id,n:GN[id]||id,v:gv}}return null}
@@ -2019,7 +2033,7 @@ renderEsc();
  GI.m9='<path d="M32 8v6"/><path d="M32 9h14"/><circle cx="48" cy="9" r="3"/><path d="M24 14h16l-2 10H26z"/><rect x="23" y="24" width="18" height="30" rx="4"/><path d="M27 34h10"/>';
  MOEB.push(["m9","iCoffee M9","man"]);GN.m9="iCoffee M9";MOE.m9="disco";
  // iCoffee M9: o app guarda risquinhos (10 por número do disco) e mostra a leitura do disco (0 a 9.9). Zonas impressas no disco: turco 0–2.0, espresso 2.0–4.0, moka/AeroPress 4.0–6.0, coado/sifão 6.0–8.0, prensa 8.0–0 (uma volta)
-function gD(v,moe){v=Number(v)||0;return moe==="m9"?(v/10).toFixed(1):pfmt(v)}
+function gD(v,moe){v=Number(v)||0;return moe==="m9"?(v/10).toFixed(1):moe==="fino"?finoTxt(v):pfmt(v)}
 try{if(!localStorage.getItem("calcM9disco")){for(const k of Object.keys(st.gr||{}))if(k.endsWith("|m9"))delete st.gr[k];localStorage.setItem("calcM9disco","1")}}catch(e){}
 function m9Zona(v){v=(Number(v)||0)/10;return v<2?"Café turco":v<4?"Espresso":v<6?"Moka e AeroPress":v<8?"Coado manual e sifão":"Prensa francesa"}
 {const P=[[0,0],[20,18],[30,25],[40,35],[45,40],[55,50],[62,60],[90,80],[110,92],[130,99]];const cv=k=>{if(k>=130)return 99;for(let i=1;i<P.length;i++)if(k<=P[i][0]){const[a,b]=P[i-1],[c,d]=P[i];return Math.round(b+(d-b)*(k-a)/(c-a))}return 99};
@@ -2032,24 +2046,31 @@ const uidC=()=>"x"+Date.now().toString(36)+Math.random().toString(36).slice(2,5)
 const MOEN0={k7:"KINGrinder K7",r3:"Blade R3",pro:"R3 Pro",oster:"Oster BVSTBMH24",mongdio:"Mongdio HB-991",icoffee:"iCoffee elétrico",hibrew:"HiBrew G5 Mini",m9:"iCoffee M9"};
 const moeNome=k=>MOEN0[k]||((MOEU.find(u=>u.id===k)||{}).n)||GN[k]||k;
 const MOEN=new Proxy({},{get:(o,k)=>moeNome(k)});
+
+// ===== OutIn Fino: anel externo, números de 0 a 10 com 3 passos cada; o app guarda passos (número×3 + passo) e mostra "2-1" =====
+GI.fino=GI.hibrew;IC.nano=IC.portatil;MOEB.push(["fino","OutIn Fino","port"]);GN.fino="OutIn Fino";MOE.fino="anel";MOEN0.fino="OutIn Fino";
+{const P=[[0,0],[20,2],[30,4],[40,7],[45,9],[55,14],[62,18],[75,21],[90,25],[105,29],[120,30]];const cv=k=>{if(k>=120)return 30;for(let i=1;i<P.length;i++)if(k<=P[i][0]){const[a,b]=P[i-1],[c,d]=P[i];return Math.round(b+(d-b)*(k-a)/(c-a))}return 30};
+ for(const m of M)if(m.g&&m.g.k7&&!m.g.fino){const k=m.g.k7;m.g.fino=[cv(k[0]),cv(k[1]),cv(k[2])]}}
+function finoTxt(v){v=Math.max(0,Math.round(Number(v)||0));return Math.floor(v/3)+"-"+(v%3)}
+function finoZona(v){v=Number(v)||0;return v<3?"mais fino que espresso":v<9?"espresso (1-0 a 2-2; na Nano, 2-1 a 3-0)":v<18?"moka e AeroPress (3-0 a 5-2)":"coado e prensa (6-0 a 10-0)"}
 // --- padrão: o que já estava configurado no app (listas do trabalho e de Ipatinga, kit de viagem, balanças) ---
 function cfgPadrao(){
   let LT={met:["pViagem","fluire01","aeropress"],moe:["mongdio"]},LI={met:["v60","prensa"],moe:["oster","m9"]},BL={mchef:"ipatinga"};
   try{const t=JSON.parse(localStorage.getItem("calcTrab")||"null");if(t&&Array.isArray(t.met))LT=t}catch(e){}
   try{const t=JSON.parse(localStorage.getItem("calcIpa")||"null");if(t&&Array.isArray(t.met))LI=t}catch(e){}
   try{const t=JSON.parse(localStorage.getItem("calcBalLoc")||"null");if(t&&typeof t==="object")BL=t}catch(e){}
-  const VM=["joinout","prestina","cuppamoka","pipamoka","aeropress","pViagem","moka","me26","portatil"];
+  const VM=["joinout","prestina","cuppamoka","pipamoka","aeropress","pViagem","moka","me26","portatil","nano"];
   const it=(k,n,grupo,src)=>{const loc=[];if(!LT.met.includes(k))loc.push("casa");if(LI.met.includes(k))loc.push("ipatinga");if(LT.met.includes(k))loc.push("trabalho");if(VM.includes(k)||LT.met.includes(k))loc.push("viagem");return{k,n,grupo,src,loc}};
   const itens=[it("v60","V60 / Kalita","coa",{g:"v60",ex:["joinout"]}),it("joinout","Kit portátil Joinout","coa",{ids:["joinout"]}),it("b75","Timemore B75","coa",{g:"b75"}),
     it("origami","Origami","coa",{g:"origami"}),it("melitta","Melitta","coa",{g:"melitta"}),it("pano","Coador de pano","coa",{g:"pano"}),it("switch","Hario Switch","coa",{g:"switch"}),
     it("fluire02","Fluire 02","coa",{ids:["fluire"]}),it("fluire01","Fluire 01","coa",{ids:["fluire01"]}),it("prestina","Wacaco Prestina","coa",{g:"wacaco"}),
     it("cuppamoka","Wacaco Cuppamoka","coa",{g:"wCup"}),it("pipamoka","Wacaco Pipamoka","coa",{g:"wPip"}),it("aeropress","AeroPress (iCoffee)","pre",{g:"aeropress"}),
     it("prensa","Prensa francesa","pre",{g:"prensa",ex:["pViagem"]}),it("pViagem","Prensa portátil i Cafilas","pre",{ids:["pViagem"]}),it("moka","Moka","ita",{g:"moka"}),
-    it("me26","i Cafilas ME2604","esp",{g:"me26"}),it("portatil","iCoffee Barista","esp",{g:"portatil"}),
+    it("me26","i Cafilas ME2604","esp",{g:"me26"}),it("portatil","iCoffee Barista","esp",{g:"portatil"}),it("nano","OutIn Nano","esp",{g:"nano"}),
     {k:"clever",n:"Clever",grupo:"coa",src:{g:"clever"},loc:["casa"]},{k:"chemex",n:"Chemex",grupo:"coa",src:{g:"chemex"},loc:["casa"]},{k:"coador",n:"Cafeteira elétrica",grupo:"coa",src:{g:"coador"},loc:["casa"]},
     {k:"sifao",n:"Sifão",grupo:"",src:{g:"sifao"},loc:["casa"]},{k:"turco",n:"Turco",grupo:"",src:{g:"turco"},loc:["casa"]},{k:"cold",n:"Cold brew",grupo:"",src:{g:"cold"},loc:["casa"]}];
-  for(const u of METU)if(!itens.some(i=>i.k===u.id)){const b=M.find(x=>x.id===u.like),gb=b?G(b):"";itens.push({k:u.id,n:u.n,grupo:["me26","portatil","espresso"].includes(gb)?"esp":gb==="moka"?"ita":["prensa","aeropress"].includes(gb)?"pre":"coa",src:{g:u.id},loc:["casa"]})}
-  const moes=[...MOEB.map(x=>x[0]),...MOEU.map(u=>u.id)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>{const loc=[];if(k==="m9")loc.push("ipatinga");else if(!LT.moe.includes(k))loc.push("casa");if(LI.moe.includes(k)&&k!=="m9")loc.push("ipatinga");if(LT.moe.includes(k))loc.push("trabalho");if(["r3","pro"].includes(k)||LT.moe.includes(k))loc.push("viagem");return{k,loc}});
+  for(const u of METU)if(!itens.some(i=>i.k===u.id)){const b=M.find(x=>x.id===u.like),gb=b?G(b):"";itens.push({k:u.id,n:u.n,grupo:["me26","portatil","nano","espresso"].includes(gb)?"esp":gb==="moka"?"ita":["prensa","aeropress"].includes(gb)?"pre":"coa",src:{g:u.id},loc:["casa"]})}
+  const moes=[...MOEB.map(x=>x[0]),...MOEU.map(u=>u.id)].filter((v,i,a)=>a.indexOf(v)===i).map(k=>{const loc=[];if(k==="m9")loc.push("ipatinga");else if(!LT.moe.includes(k))loc.push("casa");if(LI.moe.includes(k)&&k!=="m9")loc.push("ipatinga");if(LT.moe.includes(k))loc.push("trabalho");if(["r3","pro","fino"].includes(k)||LT.moe.includes(k))loc.push("viagem");return{k,loc}});
   const bals={};for(const b of balLista())bals[b.id]={loc:BL[b.id]||"casa",viagem:b.id==="dot"||BL[b.id]==="trabalho"};
   return{v:1,
     locais:[{id:"casa",n:"Em casa - Itabira",curto:"Itabira",ic:"casa",tipo:"fixo",pkey:"calcPotes"},{id:"ipatinga",n:"Em casa - Ipatinga",curto:"Ipatinga",ic:"casa",tipo:"fixo",pkey:"calcPotesIpa"},
@@ -2094,7 +2115,7 @@ const kitMoes=()=>{const l=locObj();if(!l)return[];return l.tipo==="viagem"?(KIT
 const locTxt=()=>ehV()?"Seu kit de viagem":"O que está "+(locObj()?("em "+locObj().curto):"aqui");
 const FORA_CASA=()=>[];
 const icKit=ids=>{const m=M.find(x=>x.id===ids[0]);return svgI(icMet(m||M[0]))};
-const moeCasa=m=>{const g=G(m);if(["moka","me26","portatil","espresso"].includes(g))return["hibrew"];if(g==="prensa")return["k7","oster"];return["k7"]};
+const moeCasa=m=>{const g=G(m);if(["moka","me26","portatil","nano","espresso"].includes(g))return["hibrew"];if(g==="prensa")return["k7","oster"];return["k7"]};
 function moeLista(gk,k){const P=typeof prefCafe==="function"?prefCafe(gk,k):(MOEPREF[gk]||[]);if(viag()){const t=kitMoes();return[...P.filter(x=>t.includes(x)),...t]}return P.filter(x=>!CFG.moesFora.includes(x))}
 function permitido(id){if(viag())return kitIds().includes(id);return !CFG.ocultas.includes(id)||true}
 // --- acessórios, SimpleDrip e peneiras disponíveis no local ---
@@ -2156,7 +2177,7 @@ function renderKit(){cardsLocais();document.querySelectorAll("[data-modo]").forE
   const bt=(id,n,ids,on,attr,rec)=>`<button type="button" ${attr}="${id}" aria-pressed="${on}" class="${rec?"rec":""}">${ids?icKit(ids):svgI(GI[id]||GI.k7)}<span>${esc(n)}</span></button>`;
   if(l.tipo!=="viagem"){const it=itensEm(l.id),mo=moesEm(l.id),ba=balLista().filter(b=>!CFG.balsFora.includes(b.id)&&(CFG.bals[b.id]||{}).loc===l.id);
     kb.innerHTML=`<div class="kitRes"><span><b>${esc(l.n)}</b><br>${it.length} método${it.length===1?"":"s"} · ${mo.length?esc(mo.map(moeNome).join(", ")):"nenhum moedor"}${ba.length?" · balança "+esc(ba.map(b=>b.n).join(", ")):""}</span><button class="lnk" type="button" id="kitAlterar">Alterar</button></div>`;return}
-  const o=optViagem(),lim=limV(),REC_V=["joinout","aeropress","portatil","pro","dot"];
+  const o=optViagem(),lim=limV(),REC_V=["joinout","aeropress","nano","fino","dot"];
   if(kitOk()&&!kitAberto){const b=balLista().find(b=>b.id===KIT.bal);kb.innerHTML=`<div class="kitRes"><span><b>Seu kit de viagem</b><br>${esc(kitItens().map(x=>x[1]).join(", "))} · moedor ${esc(moeNome(KIT.moe))}${b?" · balança "+esc(b.n):""}</span><button class="lnk" type="button" id="kitTrocar">Trocar kit</button></div>`;return}
   kb.innerHTML=`<p class="kitLeg">Monte o kit que vai levar. A linha tracejada marca a recomendação, mas a escolha é sua.</p>
    <span class="lbl" style="margin:0">Métodos (até ${lim.metodos}) · ${KIT.met.length}/${lim.metodos}</span><div class="kitG">${o.m.map(k=>{const i=itemK(k);return bt(k,i.n,idsOf(i),KIT.met.includes(k),"data-km",REC_V.includes(k))}).join("")||'<p class="kitLeg">Nenhum método marcado como "pode ir na viagem". Marque em Configurações.</p>'}</div>
@@ -2365,6 +2386,9 @@ const limDe=l=>Object.assign({metodos:2,espresso:1},l.lim||{});
 function potN(l){const d=l.mini?3:5;try{const x=JSON.parse(localStorage.getItem(l.pkey||("calcPotes_"+l.id))||"null");return x&&x.n?x.n:d}catch(e){return d}}
 function potSet(l,n){const k=l.pkey||("calcPotes_"+l.id);let x=null;try{x=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}x=x&&typeof x==="object"?x:{n:5,p:[],g:[],u:[],h:[],log:[],t:[]};x.n=Math.min(12,Math.max(1,n));try{localStorage.setItem(k,JSON.stringify(x))}catch(e){}if(LOCPOT===k){loadPot();try{renderPotes()}catch(e){}}}
 const recTxt=r=>{const m=M.find(x=>x.id===r.met);return `${r.nome}\nMétodo: ${m?m.n+(m.grp||m.rn?" · "+vn(m):""):r.met}\nCafé: ${(r.cafe&&r.cafe.nome)||"—"}\nDose: ${f(r.c,1)} g de café · ${f(r.a||r.q)} g${r.r?" (1:"+f(r.r,1)+")":""}\nMoedor: ${moeNome(r.moe)} no ${gD(r.gr,r.moe)}`};
+// v129: OutIn Fino e OutIn Nano entram em Itabira e na viagem
+try{if(CFG&&Array.isArray(CFG.moes)&&!CFG.moes.some(x=>x.k==="fino")){CFG.moes.push({k:"fino",loc:["casa","viagem"]});saveCfg()}
+ if(CFG&&Array.isArray(CFG.itens)&&!CFG.itens.some(x=>x.k==="nano")){CFG.itens.push({k:"nano",n:"OutIn Nano",grupo:"esp",src:{g:"nano"},loc:["casa","viagem"]});saveCfg()}}catch(e){}
 const aposMudar=()=>{saveCfg();montaGrupos();renderMetBtns();renderMoeBtns();aplicaModo();try{accCustom()}catch(e){}};
 // --- folha de edição ---
 function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(sel,multi,soFixo)=>`<div class="chips" data-cl="${multi?"m":"u"}" style="display:flex;flex-wrap:wrap;gap:6px">${CFG.locais.filter(l=>!soFixo||l.tipo!=="viagem").map(l=>`<button type="button" class="cChip" data-cv="${esc(l.id)}" aria-pressed="${multi?(sel||[]).includes(l.id):sel===l.id}">${esc(l.tipo==="viagem"?"Pode ir na viagem":l.curto||curtoDe(l.n))}</button>`).join("")}</div>`;
@@ -2474,7 +2498,8 @@ const MOEINFO={
  m9:{perfil:"Manual, com disco de 0 a 9.9 em uma volta e 10 risquinhos entre cada número. O app mostra a leitura do disco, contada a partir do 0 (o ponto mais apertado). Sem análise independente de sabor publicada.",cafes:"Cafés do dia a dia; ajuste fino pelo paladar.",metodos:"Zonas impressas no disco: café turco de 0 a 2.0, espresso de 2.0 a 4.0, moka e AeroPress de 4.0 a 6.0, coado manual e sifão de 6.0 a 8.0, prensa francesa de 8.0 até voltar ao 0. Em Ipatinga, vai bem na V60 e na prensa.",fonte:"Disco do moedor (I-Coffee)"},
  oster:{perfil:"Elétrico de mesa, 18 níveis. Mói rápido e muito café de uma vez; menos uniforme que os manuais.",cafes:"Qualquer café para moagem grossa.",metodos:"Prensa e cold brew em quantidade.",fonte:"Fabricante (Oster)"},
  mongdio:{perfil:"Elétrico portátil com mó cerâmica e 38 ajustes. Prático; uniformidade de moedor de entrada.",cafes:"Cafés do dia a dia.",metodos:"Coados (Melitta no 20 ficou ótimo) e prensa.",fonte:"Seu uso"},
- icoffee:{perfil:"Elétrico portátil com 30 ajustes. Números do app provisórios.",cafes:"Cafés do dia a dia.",metodos:"Coados e prensa.",fonte:"—"}};
+ icoffee:{perfil:"Elétrico portátil com 30 ajustes. Números do app provisórios.",cafes:"Cafés do dia a dia.",metodos:"Coados e prensa.",fonte:"—"},
+ fino:{perfil:"Elétrico portátil, mó cônica de 38 mm com 7 pontas em aço 420 e rolamento duplo. Moagem muito uniforme, com poucos finos e quase nenhuma retenção; silencioso. O anel externo tem números de 0 a 10 com 3 passos cada (2-1 = número 2, passo 1).",cafes:"Qualquer torra no coado; no espresso, torras médias rendem mais na Nano e na iCoffee.",metodos:"Pela OutIn: espresso 1-0 a 2-2, OutIn Nano 2-1 a 3-0, moka 3-0 a 5-2, AeroPress 2-0 a 6-2, sifão 3-2 a 7-2, coado e prensa 6-0 a 10-0. Mói até 25 g por vez.",fonte:"OutIn e análises (The Way to Coffee, Coffeeness)"}};
 // sugestão de moedor considera o perfil do café: claros e ácidos pedem equilíbrio e camadas (K7); doces e encorpados pedem o Blade R3
 function prefCafe(gk,k){const base=(MOEPREF[gk]||[]).slice();if(!k||!["coa","pre"].includes(gk))return base;
   const claro=["Clara","Média-clara"].includes(k.torra)||(+k.acidez||0)>=8,doce=["Média","Média-escura","Escura"].includes(k.torra)||(+k.corpo||0)>=8||(+k.docura||0)>=8;
@@ -2546,7 +2571,7 @@ function accFnDe(n){n=nrmT(n);if(/modelad|shaper|cfs|molde|dobrad|formador/.test
 function penUmDe(n){const m=nrmT(n).match(/(\d{3})/);return m?+m[1]:null}
 function penFnDe(n){const u=penUmDe(n);if(u){let b="300",d=1e9;for(const k of ["300","400","500","600","850"]){const e=Math.abs(+k-u);if(e<d){d=e;b=k}}return b}return"inox"}
 function balIcDe(n){n=nrmT(n);for(const[r,k]of [[/acaia/,"acaia"],[/felicita/,"felicita"],[/decent/,"decent"],[/bookoo/,"bookoo"],[/varia/,"varia"],[/eureka/,"eureka"],[/timemore|dot/,"dot"],[/master ?chef|mchef/,"mchef"],[/redond|round|circ/,"redonda"]])if(r.test(n))return k;return"quad"}
-function grpIcDe(n){n=nrmT(n);for(const[r,k]of [[/fluire|pressca/,"fluire"],[/expres|espres/,"espresso"],[/moka|italian/,"moka"],[/aero/,"aeropress"],[/cold|gelad|frio/,"cold"],[/turc/,"turco"],[/sifao|siphon|syphon/,"sifao"],[/chemex/,"chemex"],[/clever/,"clever"],[/pano/,"pano"],[/melitta/,"melitta"],[/origami/,"origami"],[/switch/,"switch"],[/b75|timemore/,"b75"],[/wacaco|pipamoka|cuppamoka|prestina/,"wacaco"],[/prensa|french/,"prensa"],[/portat/,"portatil"],[/v60|hario|kalita|coad|filtr|pour|drip/,"v60"]])if(r.test(n))return k;return null}
+function grpIcDe(n){n=nrmT(n);for(const[r,k]of [[/fluire|pressca/,"fluire"],[/expres|espres/,"espresso"],[/moka|italian/,"moka"],[/aero/,"aeropress"],[/cold|gelad|frio/,"cold"],[/turc/,"turco"],[/sifao|siphon|syphon/,"sifao"],[/chemex/,"chemex"],[/clever/,"clever"],[/pano/,"pano"],[/melitta/,"melitta"],[/origami/,"origami"],[/switch/,"switch"],[/b75|timemore/,"b75"],[/wacaco|pipamoka|cuppamoka|prestina/,"wacaco"],[/prensa|french/,"prensa"],[/nano|outin/,"nano"],[/portat/,"portatil"],[/v60|hario|kalita|coad|filtr|pour|drip/,"v60"]])if(r.test(n))return k;return null}
 function locIcDe(n){n=nrmT(n);if(/trabalh|escrit|empresa|office|obra|loja/.test(n))return"trabalho";if(/viag|mala|hotel|trip|ferias/.test(n))return"mala";if(/casa|apto|apart|home|sitio|fazenda|chacara/.test(n))return"casa";return null}
 function likeDe(sel,n){const tk=tokT(n);if(!tk.length)return null;const gi=grpIcDe(n);let best=null,bs=0;
   for(const o of sel.options){const ot=tokT(o.textContent+" "+o.value);let sc=tk.filter(t=>ot.some(u=>u===t||(t.length>3&&u.startsWith(t))||(u.length>3&&t.startsWith(u)))).length*2;
