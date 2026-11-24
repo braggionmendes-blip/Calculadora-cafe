@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 127 · 24/11/2026 · Item novo aparece na hora, com desenho parecido · M9 com a leitura do disco · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 128 · 24/11/2026 · Salvar sempre visível nas Configurações; acessórios antigos ganham função e desenho · Item novo aparece na hora · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -2286,6 +2286,7 @@ renderMetBtns();renderMoeBtns();renderKit();
 .cGrab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 0}
 .cSheet h3{margin:0;font:700 1.15rem var(--display)}
 .cActs{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.cSheet .cActs{position:sticky;bottom:calc(-24px - env(safe-area-inset-bottom,0px));background:var(--bg);padding:10px 0 calc(14px + env(safe-area-inset-bottom,0px));margin-bottom:calc(-24px - env(safe-area-inset-bottom,0px));z-index:2;border-top:1px solid var(--line)}
 .cDel{border:0;background:transparent;color:#b3361f;font:700 .95rem var(--display);padding:10px;cursor:pointer}
 #appHome{border:0;background:transparent;color:var(--fg);width:36px;height:36px;display:grid;place-items:center;cursor:pointer;flex:none}
 #appHome svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -2398,7 +2399,7 @@ function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(se
     h=nome(b?b.n:"","ex.: Acaia Pearl",b&&!BALU.some(u=>u.id===b.id))+(novo||BALU.some(u=>u.id===id)?icsH("balancas",b?b.ic:"quad").replace("data-ics=",(b?'data-man="1" ':"")+"data-ics="):"")+(novo?`<label class="cSw"><span>Tem Bluetooth (uma das marcas que o app conecta)</span><input type="checkbox" id="cfBt"></label>`:"")+
      `<span class="lbl">Onde fica (um lugar só)</span>${chipsL(c.loc,false,true)}<label class="cSw"><span>Pode ir na viagem</span><input type="checkbox" id="cfVg" ${c.viagem?"checked":""}></label>`}
   else if(k==="acess"||k==="pens"){x=novo?null:CFG[k].find(a=>a.k===id);tit=(novo?"Novo ":"Editar ")+(k==="acess"?"acessório":"peneira");
-    const fn0=x?(x.fn||""):(k==="acess"?"out":"inox");h=nome(x?x.n:"",k==="acess"?"ex.: Modelador de filtro":"ex.: Kruve 400 µm")+(x&&!x.fn?"":`<span class="lbl">Funciona como</span>`+un("fn",k==="acess"?ACCFN:PENFN,fn0).replace('data-un="fn"',`data-un="fn" data-k="${k}"${x?' data-man="1"':""}`)+icsH(k,x?(x.ic||x.fn):fn0).replace("data-ics=",(x?'data-man="1" ':"")+"data-ics="))+`<span class="lbl">Onde está</span>${chipsL(x?x.loc:(MODO&&!ehV()?[MODO]:[CFG.locais[0].id]),true)}`}
+    const fab=x&&["star","lotos","sd","inox","kit"].includes(x.k),fn0=x?(x.fn||(k==="acess"?accFnDe(x.n):penFnDe(x.n))):(k==="acess"?"out":"inox");h=nome(x?x.n:"",k==="acess"?"ex.: Modelador de filtro":"ex.: Kruve 400 µm")+(fab?"":`<span class="lbl">Funciona como</span>`+un("fn",k==="acess"?ACCFN:PENFN,fn0).replace('data-un="fn"',`data-un="fn" data-k="${k}"${x?' data-man="1"':""}`)+icsH(k,x?(x.ic||x.fn||fn0):fn0).replace("data-ics=",(x?'data-man="1" ':"")+"data-ics="))+`<span class="lbl">Onde está</span>${chipsL(x?x.loc:(MODO&&!ehV()?[MODO]:[CFG.locais[0].id]),true)}`}
   else if(k==="cafes"){x=CAF.find(c=>c.id===id);if(!x)return;tit=x.nome;
     h=`<div class="cCard"><span class="cHint">${esc([x.torra&&"Torra "+x.torra.toLowerCase(),x.processo,x.tipo,x.data&&"torrado em "+dataBR(x.data)].filter(Boolean).join(" · ")||"Sem dados")}</span></div>
      <button class="btn" id="cfCafEd">Editar os dados no app</button><button class="btn" id="cfCafFim">${x.fim?"Reativar este café":"Marcar que acabou"}</button>`}
@@ -2447,7 +2448,7 @@ function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(se
         x.loc=lm()}
       else if(k==="balancas"){let bid=id;if(novo){bid="b"+Date.now().toString(36);BALU.push({id:bid,n,bt:v.querySelector("#cfBt").checked,ic:icEsc(v)||balIcDe(n)});saveBalU()}else{const bu=BALU.find(u=>u.id===id);if(bu){bu.n=n;if(icEsc(v))bu.ic=icEsc(v);saveBalU()}}
         CFG.bals[bid]={loc:lu(),viagem:v.querySelector("#cfVg").checked}}
-      else if(k==="acess"||k==="pens"){const fn=uv("fn"),ic=icEsc(v);if(novo){const o={k:uidC(),n,loc:lm(),fn:fn||(k==="acess"?accFnDe(n):penFnDe(n))};o.ic=ic||o.fn;if(k==="pens")o.um=penUmDe(n)||null;CFG[k].push(o)}else{x.n=n;x.loc=lm();if(x.fn){if(fn)x.fn=fn;if(ic)x.ic=ic;if(k==="pens")x.um=penUmDe(n)||x.um||null}}}
+      else if(k==="acess"||k==="pens"){const fn=uv("fn"),ic=icEsc(v);if(novo){const o={k:uidC(),n,loc:lm(),fn:fn||(k==="acess"?accFnDe(n):penFnDe(n))};o.ic=ic||o.fn;if(k==="pens")o.um=penUmDe(n)||null;CFG[k].push(o)}else{x.n=n;x.loc=lm();if(!["star","lotos","sd","inox","kit"].includes(x.k)){x.fn=fn||x.fn||(k==="acess"?accFnDe(n):penFnDe(n));x.ic=ic||x.ic||x.fn;if(k==="pens")x.um=penUmDe(n)||x.um||null}}}
       else if(k==="grupos"){const ic=icEsc(v)||grpIcDe(n)||"v60";if(novo)CFG.grupos.push({k:uidC(),n,ic});else{x.n=n;x.ic=ic}}
       saveModo();aposMudar();fecha();cTela();toast(novo?"Adicionado":"Salvo")}});
   setTimeout(()=>{const q=v.querySelector("#cfN");if(q&&novo)q.focus()},60)}
