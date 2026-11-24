@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 126 · 24/11/2026 · iCoffee M9 com a leitura do disco (0 a 9.9) e as zonas impressas nele · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 127 · 24/11/2026 · Item novo aparece na hora, com desenho parecido · M9 com a leitura do disco · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -986,7 +986,7 @@ function comSimpleDrip(steps){const t200=Number(st.sd.t200)||40,rate=200/t200;le
 // Peneira recomendada por classe do método (µm)
 const precOf=m=>PREC[m.id]??PREC[G(m)]??PREC[m.like];
 const PREC={moka:300,aeropress:300,switch:300,v60:300,b75:300,fluire:300,origami:300,melitta:300,pano:300,coador:300,sifao:300,clever:400,chemex:400,prensa:500,cold:600};
-const penUm=()=>st.pen.sel==="inox"?(Number(st.pen.um)||300):Number(st.pen.sel);
+const penUm=()=>{const cu=penCu();if(cu)return Number(cu.um)||(cu.fn==="inox"?(Number(st.pen.um)||300):Number(cu.fn));return st.pen.sel==="inox"?(Number(st.pen.um)||300):Number(st.pen.sel)};
 function peneira(m,c){const r={on:false};if(!st.pen.on)return r;r.on=true;const rec=precOf(m);
   if(!rec){r.bloq=true;r.msg=m.id==="espresso"?"No espresso não se peneira: os finos ajudam a formar a crema e a resistência na extração.":"Neste método o pó vai inteiro para a bebida; não peneire.";return r}
   const um=penUm(),pm=Number(st.pen.perda),medida=pm>0&&pm<=40,perda=medida?pm/100:Math.min(.25,Math.max(.05,.10+(um-rec)/1000));r.medida=medida;
@@ -1006,7 +1006,7 @@ function ajDose(m){const gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.ro
   return {off,nota:`${off>0?"Mais":"Menos"} café (${f(c,1)} g) que a base (${f(cref,1)} g): moagem ${off>0?"+":""}${gD(off,st.moe)} para manter o tempo de escoamento`}}
 function ajuste(m){const o={off:0,temp:null,fresh:false,notas:[],dose:ajDose(m),src:[]};o.off+=o.dose.off;if(o.dose.off)o.src.push("pela quantidade");
   {const pn=peneira(m,calc(m).c),gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
-   o.accOff=0;const ac=accOf(m);if(ac==="star"){o.accOff=-Math.max(1,stp);o.off+=o.accOff;o.src.push("pelo Starflower")}
+   o.accOff=0;const ac=accOf(m);if(accB(ac)==="star"){o.accOff=-Math.max(1,stp);o.off+=o.accOff;o.src.push("pelo "+ACC[ac].n)}
    o.penOff=0;if(pn.on&&!pn.bloq&&PERC.concat(["switch","clever","sifao"]).includes(m.id)){o.penOff=-Math.max(1,Math.floor(stp/2));o.off+=o.penOff;o.src.push("pela peneira")}}
   const off0=o.off;
   if(st.auto===false||ISD(st.csel))return o;const k=st.cafe,gr=m.g[st.moe],w=gr[1]-gr[0],stp=w>0?Math.max(1,Math.round(w*.15)):1;
@@ -1147,8 +1147,9 @@ function render(){
     const first=i===steps.findIndex(x=>/^0:00/.test(x[0]));return [t,first?s0[1]+" · café fresco: espere 40 a 45 s antes do próximo despejo":s0[1]]})}
   const pn=peneira(m,c);
   {const ac=accOf(m);$("aBox").hidden=!CONE.includes(m.id);$("aSel").value=CONE.includes(m.id)?(st.acc||""):"";
-   $("aInfo").textContent=ac?ACC[ac].info+(ac==="star"?` Moagem ${gD(aj.accOff,st.moe)} na sugestão. Se o escoamento terminar bem antes do previsto, afine mais um pouco.`:""):"";
-   if(ac){const k0=steps.findIndex(x=>x[0]==="Preparo");const st0=["Preparo",ACC[ac].passo];if(k0>=0)steps.splice(k0,1,[steps[k0][0],ACC[ac].passo+". "+steps[k0][1]]);else steps=[st0,...steps]}}
+   $("aInfo").textContent=ac?ACC[ac].info+(accB(ac)==="star"?` Moagem ${gD(aj.accOff,st.moe)} na sugestão. Se o escoamento terminar bem antes do previsto, afine mais um pouco.`:""):"";
+   if(ac){const k0=steps.findIndex(x=>x[0]==="Preparo");const st0=["Preparo",ACC[ac].passo];if(k0>=0)steps.splice(k0,1,[steps[k0][0],ACC[ac].passo+". "+steps[k0][1]]);else steps=[st0,...steps]}
+   {const xp=accXP(m);if(xp){const k1=steps.findIndex(x=>x[0]==="Preparo");if(k1>=0)steps.splice(k1,1,[steps[k1][0],xp+". "+steps[k1][1]]);else steps=[["Preparo",xp],...steps]}}}
   if(sdOn(m)){steps=comSimpleDrip(steps);const k0=steps.findIndex(x=>x[0]==="Preparo");const tx="Apoie o SimpleDrip centralizado sobre o coador";if(k0>=0)steps[k0]=[steps[k0][0],steps[k0][1]+". "+tx];else steps=[["Preparo",tx],...steps]}
   $("sdBox").hidden=!sdOk(m);$("sdOn").checked=st.sd.on;$("sdOpts").hidden=!st.sd.on;
   if(document.activeElement!==$("sdT"))$("sdT").value=st.sd.t200||"";
@@ -1189,7 +1190,7 @@ function render(){
     const mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`),ac=accOf(m),pr=[];
     pr.push(pv?`Moer ${f(pn.moer,1)} g · peneira ${pc(pn.perda)}%`:m.cap?"1 cápsula":`Café ${f(c,1)} g`);
     if(!m.cap){pr.push(`1:${rfmt(m,r)}`);pr.push(`${mb?mb.textContent:st.moe} ${gD(gv,st.moe)}`)}
-    if(ac)pr.push(ACC[ac].n);if(sdOk(m))pr.push(sdOn(m)?"com SimpleDrip":"sem SimpleDrip");
+    if(ac)pr.push(ACC[ac].n);accXOn(m).forEach(a=>pr.push(a.n));if(sdOk(m))pr.push(sdOn(m)?"com SimpleDrip":"sem SimpleDrip");
     $("ajTxt").textContent=pr.join(" · ")}}
   {const cp=!!m.cap;if(cp){$("oCafeN").textContent="";$("oAguaN").textContent=""}$("ratio").parentElement.hidden=cp||!!st.ajF;$("lMoagIn").parentElement.hidden=cp||!!st.ajF;$("moedores").parentElement.hidden=cp;$("pOn").parentElement.hidden=cp;if(cp){$("pBox").hidden=true;$("base").hidden=true;$("oCafe").innerHTML="1<small>cápsula</small>";$("oMoag").textContent="—";$("oFaixa").textContent="Cápsula: não usa moedor"}
    if(m.tank||cp){$("lAgua").textContent="Água no reservatório";$("oAgua").innerHTML=f(a)+"<small>ml</small>";$("lQtd").textContent=cp?"Água no reservatório (ml)":"Café no cesto"}}
@@ -2100,12 +2101,12 @@ function permitido(id){if(viag())return kitIds().includes(id);return !CFG.oculta
 function dispLoc(){const l=locObj();if(!l)return{star:true,lotos:true,sd:true,inox:true,kit:true};const L=l.id,has=(arr,k)=>{const x=arr.find(a=>a.k===k);if(!x||!x.loc.includes(L))return false;if(l.tipo==="viagem"&&x.soCom&&!x.soCom.includes(KIT.moe))return false;return true};
   return{star:has(CFG.acess,"star"),lotos:has(CFG.acess,"lotos"),sd:has(CFG.acess,"sd"),inox:has(CFG.pens,"inox"),kit:has(CFG.pens,"kit")}}
 let ipaSave=null;
-function trocaPotes(){const l=locObj(),d=dispLoc(),acc=d.star||d.lotos,pen=d.inox||d.kit;POTCAP=l&&l.mini?(+l.mini.cap||30):250;
-  const cl=document.body.classList;cl.toggle("locViagem",ehV());cl.toggle("locSemAcc",!acc);cl.toggle("locSemSD",!d.sd);cl.toggle("locSemPen",!pen);cl.toggle("locSemInox",!d.inox);cl.toggle("locSemKitPen",!d.kit);cl.toggle("locSemStar",!d.star);cl.toggle("locSemLotos",!d.lotos);
+function trocaPotes(){const l=locObj(),d=dispLoc(),acc=d.star||d.lotos||accCuAqui("acess"),pen=d.inox||d.kit||accCuAqui("pens");POTCAP=l&&l.mini?(+l.mini.cap||30):250;
+  const cl=document.body.classList;cl.toggle("locViagem",ehV());cl.toggle("locSemAcc",!acc);cl.toggle("locSemSD",!d.sd);cl.toggle("locSemPen",!pen);cl.toggle("locSemInox",!d.inox);cl.toggle("locSemKitPen",!d.kit);cl.toggle("locSemStar",!d.star);cl.toggle("locSemLotos",!d.lotos);cl.toggle("locSemFundo",!(d.star||d.lotos||accCuAqui("acess",["star","lotos"])));
   if(ipaSave){st.acc=ipaSave.acc;if(st.pen){st.pen.on=ipaSave.pen;st.pen.sel=ipaSave.sel;st.pen.esc=ipaSave.esc}if(st.sd)st.sd.on=ipaSave.sd;ipaSave=null}
   if(l){ipaSave={acc:st.acc,pen:!!(st.pen&&st.pen.on),sel:st.pen&&st.pen.sel,esc:st.pen&&st.pen.esc,sd:!!(st.sd&&st.sd.on)};
-    if(st.acc&&!d[st.acc])st.acc="";if(!pen&&st.pen)st.pen.on=false;if(!d.sd&&st.sd)st.sd.on=false;
-    if(st.pen&&pen){if(st.pen.sel==="inox"&&!d.inox){st.pen.sel="300";st.pen.esc=false}else if(st.pen.sel!=="inox"&&!d.kit){st.pen.sel="inox";st.pen.esc=false}}}
+    if(st.acc&&!(d[st.acc]||accTem(st.acc)))st.acc="";st.accX=(st.accX||[]).filter(accTem);if(!pen&&st.pen)st.pen.on=false;if(!d.sd&&st.sd)st.sd.on=false;
+    if(st.pen&&pen&&penCu()){if(!accTem(st.pen.sel)){st.pen.sel=d.inox?"inox":d.kit?"300":(CFG.pens.find(a=>a.fn&&accAqui(a))||{k:"inox"}).k;st.pen.esc=false}}else if(st.pen&&pen){if(st.pen.sel==="inox"&&!d.inox){st.pen.sel="300";st.pen.esc=false}else if(st.pen.sel!=="inox"&&!d.kit){st.pen.sel="inox";st.pen.esc=false}}}
   try{const ps=$("pSel");if(ps)ps.value=st.pen.sel;if(typeof syncPick==="function")syncPick("pSel")}catch(e){}
   {const lb=document.querySelector("#potPanel .lbl");if(lb)lb.textContent=ehV()?`Pote de viagem: ${l.pote||"pote único"}`:l&&l.mini?`Mini potes (até ${POTCAP} g), abastecidos dos potes de ${(locById(l.mini.de)||{}).curto||""}`:l?(l.usaPotesDe?`Potes de ${(locById(l.usaPotesDe)||{}).curto||""}`:`Potes de ${l.curto}`):"Meus potes de café aberto"}
   const src=l&&l.usaPotesDe?locById(l.usaPotesDe)||l:l;const k=!src?"calcPotes":(src.pkey||("calcPotes_"+src.id));
@@ -2289,6 +2290,8 @@ renderMetBtns();renderMoeBtns();renderKit();
 #appHome{border:0;background:transparent;color:var(--fg);width:36px;height:36px;display:grid;place-items:center;cursor:pointer;flex:none}
 #appHome svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 @media (max-width:360px){.cTiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+body.locSemFundo #aBox>label[for=aSel],body.locSemFundo #aSelPk,body.locSemFundo #aInfo{display:none!important}
+.cIcs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px}.cIc{flex:0 0 auto;width:46px;height:46px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--fg);display:grid;place-items:center;cursor:pointer;padding:0}.cIc svg{width:32px;height:32px}.cIc[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-fg)}
 body.locSemAcc #aBox,body.locSemSD #sdBox,body.locSemPen #ajPen{display:none!important}
 body.locSemInox #pSelPk [data-pv="inox"],body.locSemInox #pSel option[value="inox"]{display:none!important}
 body.locSemKitPen #pSelPk [data-pv]:not([data-pv="inox"]),body.locSemKitPen #pSel optgroup{display:none!important}
@@ -2348,9 +2351,9 @@ const TELAS_C={
  locais:()=>["Locais",`<button class="cAdd" data-cnovo="locais">+ Adicionar local</button>`+CFG.locais.map(l=>cIt_(`data-ced="locais|${esc(l.id)}"`,LIC[l.ic]||LIC.local,l.n,l.tipo==="viagem"?`Viagem: kit de até ${limDe(l).metodos} métodos · pote ${l.pote||"único"}`:`${itensEm(l.id).length} método${itensEm(l.id).length===1?"":"s"} · ${moesEm(l.id).length} moedor${moesEm(l.id).length===1?"":"es"} · ${l.mini?potN(l)+" mini potes de até "+l.mini.cap+" g, abastecidos de "+((locById(l.mini.de)||{}).curto||""):l.usaPotesDe?"usa os potes de "+((locById(l.usaPotesDe)||{}).curto||""):potN(l)+" potes"}`)).join("")],
  metodos:()=>["Métodos",`<button class="cAdd" data-cnovo="metodos">+ Adicionar método</button>`+CFG.grupos.concat([{k:"",n:"Sem tipo de preparo"}]).map(g=>{const xs=CFG.itens.filter(i=>(i.grupo||"")===g.k||(!g.k&&!CFG.grupos.some(x=>x.k===i.grupo)));return xs.length?`<span class="lbl" style="margin:6px 0 0">${esc(g.n)}</span>`+xs.map(i=>cIt_(`data-ced="metodos|${esc(i.k)}"`,CI.metodo,i.n,`${idsOf(i).length} receita${idsOf(i).length===1?"":"s"} · ${nLoc(i.loc)}`)).join(""):""}).join("")],
  moedores:()=>["Moedores",`<button class="cAdd" data-cnovo="moedores">+ Adicionar moedor</button>`+CFG.moes.filter(m=>!CFG.moesFora.includes(m.k)).map(m=>cIt_(`data-ced="moedores|${esc(m.k)}"`,CI.moedor,moeNome(m.k),nLoc(m.loc),["icoffee","hibrew"].includes(m.k)?'<span class="cTag">provisório</span>':"")).join("")],
- balancas:()=>["Balanças",`<button class="cAdd" data-cnovo="balancas">+ Adicionar balança</button>`+balLista().filter(b=>!CFG.balsFora.includes(b.id)).map(b=>{const c=CFG.bals[b.id]||{};return cIt_(`data-ced="balancas|${esc(b.id)}"`,CI.balanca,b.n,`${b.bt?"Bluetooth":"sem Bluetooth"} · fica ${((locById(c.loc)||{}).curto)||"sem local"}${c.viagem?" · pode ir na viagem":""}`)}).join("")],
- acess:()=>["Acessórios",`<button class="cAdd" data-cnovo="acess">+ Adicionar acessório</button>`+CFG.acess.map(a=>cIt_(`data-ced="acess|${esc(a.k)}"`,CI.acessorio,a.n,nLoc(a.loc))).join("")+`<p class="cHint">O app ajusta a receita para o Starflower, o LOTOS e o SimpleDrip. Os outros ficam só registrados.</p>`],
- pens:()=>["Peneiras",`<button class="cAdd" data-cnovo="pens">+ Adicionar peneira</button>`+CFG.pens.map(a=>cIt_(`data-ced="pens|${esc(a.k)}"`,CI.peneira,a.n,nLoc(a.loc)+(a.soCom?" · na viagem só com "+a.soCom.map(moeNome).join(" ou "):""))).join("")],
+ balancas:()=>["Balanças",`<button class="cAdd" data-cnovo="balancas">+ Adicionar balança</button>`+balLista().filter(b=>!CFG.balsFora.includes(b.id)).map(b=>{const c=CFG.bals[b.id]||{};return cIt_(`data-ced="balancas|${esc(b.id)}"`,BI[b.ic]||CI.balanca,b.n,`${b.bt?"Bluetooth":"sem Bluetooth"} · fica ${((locById(c.loc)||{}).curto)||"sem local"}${c.viagem?" · pode ir na viagem":""}`)}).join("")],
+ acess:()=>["Acessórios",`<button class="cAdd" data-cnovo="acess">+ Adicionar acessório</button>`+CFG.acess.map(a=>cIt_(`data-ced="acess|${esc(a.k)}"`,a.fn?(icSet("acess")[a.ic]||icSet("acess")[a.fn]):CI.acessorio,a.n,nLoc(a.loc)+(a.fn?" · "+((ACCFN.find(z=>z[0]===a.fn)||[])[1]||""):""))).join("")+`<p class="cHint">Cada acessório novo aparece na hora no Preparo, com o desenho e a função escolhidos.</p>`],
+ pens:()=>["Peneiras",`<button class="cAdd" data-cnovo="pens">+ Adicionar peneira</button>`+CFG.pens.map(a=>cIt_(`data-ced="pens|${esc(a.k)}"`,a.fn?(PI[a.ic]||PI[a.fn]):CI.peneira,a.n,nLoc(a.loc)+(a.soCom?" · na viagem só com "+a.soCom.map(moeNome).join(" ou "):""))).join("")],
  cafes:()=>["Cafés",`<button class="cAdd" id="cCadCafe">+ Cadastrar café</button><p class="cHint">O cadastro abre no app, com a leitura do rótulo pela câmera.</p>`+CAF.map(c=>cIt_(`data-ced="cafes|${esc(c.id)}"`,CI.cafe,c.nome,[c.torra,c.processo,c.data&&("torra "+dataBR(c.data))].filter(Boolean).join(" · ")||"sem dados",c.fim?'<span class="cTag">acabou</span>':"")).join("")],
  grupos:()=>["Tipos de preparo",`<p class="cHint">Os grupos de "Pelo tipo de preparo". O app indica os 3 melhores cafés dos potes para cada um.</p><button class="cAdd" data-cnovo="grupos">+ Adicionar tipo de preparo</button>`+CFG.grupos.map(g=>cIt_(`data-ced="grupos|${esc(g.k)}"`,CI.grupo,g.n,CFG.itens.filter(i=>i.grupo===g.k).map(i=>i.n).join(", ")||"nenhum método")).join("")],
  prefs:()=>["Preferências",`<div class="cCard"><label class="cSw"><span>Som de aviso nos despejos</span><input type="checkbox" data-cp="som" ${CFG.prefs.som!==false?"checked":""}></label>
@@ -2361,7 +2364,7 @@ const limDe=l=>Object.assign({metodos:2,espresso:1},l.lim||{});
 function potN(l){const d=l.mini?3:5;try{const x=JSON.parse(localStorage.getItem(l.pkey||("calcPotes_"+l.id))||"null");return x&&x.n?x.n:d}catch(e){return d}}
 function potSet(l,n){const k=l.pkey||("calcPotes_"+l.id);let x=null;try{x=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}x=x&&typeof x==="object"?x:{n:5,p:[],g:[],u:[],h:[],log:[],t:[]};x.n=Math.min(12,Math.max(1,n));try{localStorage.setItem(k,JSON.stringify(x))}catch(e){}if(LOCPOT===k){loadPot();try{renderPotes()}catch(e){}}}
 const recTxt=r=>{const m=M.find(x=>x.id===r.met);return `${r.nome}\nMétodo: ${m?m.n+(m.grp||m.rn?" · "+vn(m):""):r.met}\nCafé: ${(r.cafe&&r.cafe.nome)||"—"}\nDose: ${f(r.c,1)} g de café · ${f(r.a||r.q)} g${r.r?" (1:"+f(r.r,1)+")":""}\nMoedor: ${moeNome(r.moe)} no ${gD(r.gr,r.moe)}`};
-const aposMudar=()=>{saveCfg();montaGrupos();renderMetBtns();renderMoeBtns();aplicaModo()};
+const aposMudar=()=>{saveCfg();montaGrupos();renderMetBtns();renderMoeBtns();aplicaModo();try{accCustom()}catch(e){}};
 // --- folha de edição ---
 function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(sel,multi,soFixo)=>`<div class="chips" data-cl="${multi?"m":"u"}" style="display:flex;flex-wrap:wrap;gap:6px">${CFG.locais.filter(l=>!soFixo||l.tipo!=="viagem").map(l=>`<button type="button" class="cChip" data-cv="${esc(l.id)}" aria-pressed="${multi?(sel||[]).includes(l.id):sel===l.id}">${esc(l.tipo==="viagem"?"Pode ir na viagem":l.curto||curtoDe(l.n))}</button>`).join("")}</div>`;
   const un=(nome,ops,sel)=>`<div style="display:flex;flex-wrap:wrap;gap:6px" data-un="${nome}">${ops.map(([v,n])=>`<button type="button" class="cChip" data-v="${esc(v)}" aria-pressed="${v===sel}">${esc(n)}</button>`).join("")}</div>`;
@@ -2383,23 +2386,23 @@ function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(se
       <label class="cSw"><span>Levar uma máquina de espresso</span><input type="checkbox" id="cfLe" ${limDe(x).espresso?"checked":""}></label>
       <p class="cHint">O que pode ir na viagem você marca em cada método, moedor e balança ("Pode ir na viagem").</p></div>`}
   else if(k==="metodos"){x=novo?null:itemK(id);tit=novo?"Novo método":"Editar método";
-    if(novo){const bases=M.filter(m=>!m.grp&&!m.like&&!m.cap);h=nome("","ex.: Kalita Wave 185")+`<label class="lbl" for="cfLike">Receita base (parecido com)</label><select class="txt" id="cfLike">${bases.map(m=>`<option value="${m.id}">${esc(m.n)}</option>`).join("")}</select>
+    if(novo){const bases=M.filter(m=>!m.grp&&!m.like&&!m.cap);h=nome("","ex.: Kalita Wave 185")+`<label class="lbl" for="cfLike">Receita base (parecido com)</label><select class="txt" id="cfLike" data-k="metodos">${bases.map(m=>`<option value="${m.id}">${esc(m.n)}</option>`).join("")}</select>
       <span class="lbl">Tipo de preparo</span>${un("grupo",[...CFG.grupos.map(g=>[g.k,g.n]),["","Nenhum"]],"coa")}<span class="lbl">Onde está</span>${chipsL(MODO&&!ehV()?[MODO]:[CFG.locais[0].id],true)}<p class="cHint">O app copia as receitas e a moagem do método base. Depois de salvar, o app recarrega.</p>`}
     else{const ids=x.src.ids?x.src.ids:idsG(x.src.g).filter(i=>!(x.src.ex||[]).includes(i));h=nome(x.n,"")+`<span class="lbl">Tipo de preparo</span>${un("grupo",[...CFG.grupos.map(g=>[g.k,g.n]),["","Nenhum"]],x.grupo||"")}<span class="lbl">Onde está</span>${chipsL(x.loc,true)}
       <span class="lbl">Receitas</span><span class="cHint">Desligue as receitas que não quer ver.</span>${ids.map(rid=>{const m=M.find(y=>y.id===rid);return m?`<label class="cSw"><span>${esc(vn(m))}</span><input type="checkbox" data-rec="${rid}" ${CFG.ocultas.includes(rid)?"":"checked"}></label>`:""}).join("")}`}}
   else if(k==="moedores"){x=novo?null:CFG.moes.find(m=>m.k===id);tit=novo?"Novo moedor":"Editar moedor";
-    if(novo)h=nome("","ex.: Comandante C40")+`<label class="lbl" for="cfLike">Ajustes parecidos com</label><select class="txt" id="cfLike">${MOEB.map(([k2,n2])=>`<option value="${k2}">${esc(n2)}</option>`).join("")}</select>
+    if(novo)h=nome("","ex.: Comandante C40")+`<label class="lbl" for="cfLike">Ajustes parecidos com</label><select class="txt" id="cfLike" data-k="moedores">${MOEB.map(([k2,n2])=>`<option value="${k2}">${esc(n2)}</option>`).join("")}</select>
       <span class="lbl">Tipo</span>${un("tipo",[["man","Manual"],["mesa","Elétrico de mesa"],["port","Elétrico portátil"]],"man")}<span class="lbl">Onde está</span>${chipsL(MODO&&!ehV()?[MODO]:[CFG.locais[0].id],true)}<p class="cHint">Depois de salvar, o app recarrega.</p>`;
     else h=nome(moeNome(x.k),"",true)+`<span class="lbl">Onde está</span>${chipsL(x.loc,true)}`}
   else if(k==="balancas"){const b=novo?null:balLista().find(y=>y.id===id);x=b;const c=novo?{loc:(MODO&&!ehV()?MODO:(CFG.locais.find(l=>l.tipo==="fixo")||{}).id),viagem:false}:(CFG.bals[id]||{loc:"",viagem:false});tit=novo?"Nova balança":"Editar balança";
-    h=nome(b?b.n:"","ex.: Acaia Pearl",b&&!BALU.some(u=>u.id===b.id))+(novo?`<label class="cSw"><span>Tem Bluetooth (uma das marcas que o app conecta)</span><input type="checkbox" id="cfBt"></label>`:"")+
+    h=nome(b?b.n:"","ex.: Acaia Pearl",b&&!BALU.some(u=>u.id===b.id))+(novo||BALU.some(u=>u.id===id)?icsH("balancas",b?b.ic:"quad").replace("data-ics=",(b?'data-man="1" ':"")+"data-ics="):"")+(novo?`<label class="cSw"><span>Tem Bluetooth (uma das marcas que o app conecta)</span><input type="checkbox" id="cfBt"></label>`:"")+
      `<span class="lbl">Onde fica (um lugar só)</span>${chipsL(c.loc,false,true)}<label class="cSw"><span>Pode ir na viagem</span><input type="checkbox" id="cfVg" ${c.viagem?"checked":""}></label>`}
   else if(k==="acess"||k==="pens"){x=novo?null:CFG[k].find(a=>a.k===id);tit=(novo?"Novo ":"Editar ")+(k==="acess"?"acessório":"peneira");
-    h=nome(x?x.n:"",k==="acess"?"ex.: Filtro de metal":"ex.: Kruve")+`<span class="lbl">Onde está</span>${chipsL(x?x.loc:(MODO&&!ehV()?[MODO]:[CFG.locais[0].id]),true)}`}
+    const fn0=x?(x.fn||""):(k==="acess"?"out":"inox");h=nome(x?x.n:"",k==="acess"?"ex.: Modelador de filtro":"ex.: Kruve 400 µm")+(x&&!x.fn?"":`<span class="lbl">Funciona como</span>`+un("fn",k==="acess"?ACCFN:PENFN,fn0).replace('data-un="fn"',`data-un="fn" data-k="${k}"${x?' data-man="1"':""}`)+icsH(k,x?(x.ic||x.fn):fn0).replace("data-ics=",(x?'data-man="1" ':"")+"data-ics="))+`<span class="lbl">Onde está</span>${chipsL(x?x.loc:(MODO&&!ehV()?[MODO]:[CFG.locais[0].id]),true)}`}
   else if(k==="cafes"){x=CAF.find(c=>c.id===id);if(!x)return;tit=x.nome;
     h=`<div class="cCard"><span class="cHint">${esc([x.torra&&"Torra "+x.torra.toLowerCase(),x.processo,x.tipo,x.data&&"torrado em "+dataBR(x.data)].filter(Boolean).join(" · ")||"Sem dados")}</span></div>
      <button class="btn" id="cfCafEd">Editar os dados no app</button><button class="btn" id="cfCafFim">${x.fim?"Reativar este café":"Marcar que acabou"}</button>`}
-  else if(k==="grupos"){x=novo?null:CFG.grupos.find(g=>g.k===id);tit=novo?"Novo tipo de preparo":"Editar tipo de preparo";h=nome(x?x.n:"","ex.: Cold brew")}
+  else if(k==="grupos"){x=novo?null:CFG.grupos.find(g=>g.k===id);tit=novo?"Novo tipo de preparo":"Editar tipo de preparo";h=nome(x?x.n:"","ex.: Cold brew")+icsH("grupos",x?x.ic:"v60").replace("data-ics=",(x?'data-man="1" ':"")+"data-ics=")}
   const v=document.createElement("div");v.className="cVeil";v.innerHTML=`<div class="cSheet" role="dialog" aria-label="${esc(tit)}"><div class="cGrab"></div><h3>${esc(tit)}</h3>${h}<div class="cActs">${novo?"<span></span>":`<button class="cDel" id="cfDel">Excluir</button>`}<div style="display:flex;gap:8px"><button class="btn" id="cfCan">Cancelar</button>${k==="cafes"?"":`<button class="btn pri" id="cfOk">Salvar</button>`}</div></div></div>`;
   document.body.appendChild(v);const fecha=()=>v.remove();
   v.addEventListener("click",e=>{const t=e.target;let b;
@@ -2442,10 +2445,10 @@ function cFolha(k,id,extra){const novo=id==null;let h="",tit="";const chipsL=(se
       else if(k==="moedores"){if(novo){const like=v.querySelector("#cfLike").value,nid="u"+Date.now().toString(36);MOEU.push({id:nid,n,like,ic:like,u:"",tipo:uv("tipo")||"man"});try{localStorage.setItem("calcMoeU",JSON.stringify(MOEU))}catch(e){}
           CFG.moes.push({k:nid,loc:lm()});saveCfg();try{sessionStorage.setItem("calcCfgAbre","moedores");sessionStorage.setItem("calcRecarga","1")}catch(e){}location.reload();return}
         x.loc=lm()}
-      else if(k==="balancas"){let bid=id;if(novo){bid="b"+Date.now().toString(36);BALU.push({id:bid,n,bt:v.querySelector("#cfBt").checked,ic:"quad"});saveBalU()}else{const bu=BALU.find(u=>u.id===id);if(bu)bu.n=n,saveBalU()}
+      else if(k==="balancas"){let bid=id;if(novo){bid="b"+Date.now().toString(36);BALU.push({id:bid,n,bt:v.querySelector("#cfBt").checked,ic:icEsc(v)||balIcDe(n)});saveBalU()}else{const bu=BALU.find(u=>u.id===id);if(bu){bu.n=n;if(icEsc(v))bu.ic=icEsc(v);saveBalU()}}
         CFG.bals[bid]={loc:lu(),viagem:v.querySelector("#cfVg").checked}}
-      else if(k==="acess"||k==="pens"){if(novo)CFG[k].push({k:uidC(),n,loc:lm()});else{x.n=n;x.loc=lm()}}
-      else if(k==="grupos"){if(novo)CFG.grupos.push({k:uidC(),n,ic:"v60"});else x.n=n}
+      else if(k==="acess"||k==="pens"){const fn=uv("fn"),ic=icEsc(v);if(novo){const o={k:uidC(),n,loc:lm(),fn:fn||(k==="acess"?accFnDe(n):penFnDe(n))};o.ic=ic||o.fn;if(k==="pens")o.um=penUmDe(n)||null;CFG[k].push(o)}else{x.n=n;x.loc=lm();if(x.fn){if(fn)x.fn=fn;if(ic)x.ic=ic;if(k==="pens")x.um=penUmDe(n)||x.um||null}}}
+      else if(k==="grupos"){const ic=icEsc(v)||grpIcDe(n)||"v60";if(novo)CFG.grupos.push({k:uidC(),n,ic});else{x.n=n;x.ic=ic}}
       saveModo();aposMudar();fecha();cTela();toast(novo?"Adicionado":"Salvo")}});
   setTimeout(()=>{const q=v.querySelector("#cfN");if(q&&novo)q.focus()},60)}
 cfgOv.addEventListener("click",e=>{const t=e.target;let b;
@@ -2513,7 +2516,7 @@ const AJ={
    return ajSec(esc(moeNome(m.k)),ajP(`<b>Perfil:</b> ${x.perfil}`)+ajP(`<b>Cafés:</b> ${x.cafes}`)+ajP(`<b>Métodos:</b> ${x.metodos}`)+`<span class="cHint">Fonte: ${x.fonte}</span>`)}).join("")+ajSec("Como o app escolhe o moedor",ajP("Nos coados e na prensa, cafés claros e ácidos puxam o K7 (equilíbrio e camadas); doces e encorpados puxam o Blade R3. No espresso e na moka, o HiBrew em casa e o R3 Pro na viagem. A sugestão aparece tracejada; a escolha é sua."))],
  balancas:()=>["Balanças",ajSec("Com Bluetooth",ajP("A Timemore Dot conecta ao app: o tempo começa sozinho no primeiro despejo e o peso aparece no card do temporizador."))+ajSec("Sem Bluetooth",ajP("Nas outras balanças o card mostra o peso que você deve atingir em cada etapa."))+ajSec("Por local",ajP("Cada balança fica em um lugar só (Configurações > Balanças). Na viagem você escolhe qual levar."))],
  acess:()=>["Acessórios e peneiras",ajSec("LilyDrip Starflower (com CFS)",ajP("Peça de cerâmica no fundo do cone que acelera a vazão e uniformiza a extração; o app ajusta tempo e moagem."))+ajSec("LOTOS",ajP("Acessório que distribui o fluxo no cone; o app ajusta a receita."))+ajSec("Timemore SimpleDrip",ajP("Dispersor sobre o coador: a água cai como chuveiro. Basta despejar até o peso de cada etapa."))+
-   ajSec("Peneiras",ajP("Tiram os finos depois de moer: xícara mais limpa e doce. Peneira demais tira corpo. A inox (copo) fica em casa; as do kit do Blade R3 / R3 Pro (300 a 850 µm) podem ir na viagem com esses moedores."))],
+   ajSec("Peneiras",ajP("Tiram os finos depois de moer: xícara mais limpa e doce. Peneira demais tira corpo. A inox (copo) fica em casa; as do kit do Blade R3 / R3 Pro (300 a 850 µm) podem ir na viagem com esses moedores."))+CFG.acess.concat(CFG.pens).filter(a=>a.fn).map(a=>ajSec(esc(a.n),ajP("Cadastrado por você: "+(((CFG.pens.includes(a)?PENFN:ACCFN).find(z=>z[0]===a.fn)||[])[1]||"")+". "+(a.fn==="mod"?"No passo a passo, o app lembra de modelar o filtro antes de encaixar no coador.":a.fn==="star"?"O app ajusta a moagem como faz com o Starflower.":a.fn==="lotos"?"O app trata como o LOTOS: use filtro de fundo plano.":a.fn==="sd"?"No passo a passo, o app lembra de despejar a água por ele.":CFG.pens.includes(a)?"O app ajusta a moagem e a perda de finos pela abertura.":"Aparece no passo a passo quando você marca no Preparo.")))).join("")],
  locais:()=>["Locais e potes",ajSec("Locais",ajP("Escolha onde você está na tela de início. Local fixo: aparece só o que está lá. Local de viagem: você monta um kit (métodos, espresso, moedor e balança)."))+
    ajSec("Potes",ajP("Cada local tem seus potes. Um local pode usar os potes de outro."))+ajSec("Mini potes",ajP("Abastecidos dos potes de outro local: o peso que entra no mini pote sai do pote de origem. Retirar do pote devolve o café."))+ajSec("Viagem",ajP("Um pote só, com o café fixo da viagem."))],
  indica:()=>["Como o app indica",ajSec("Pelo tipo de preparo",ajP("Para cada grupo (espressos, coados, italiana, prensa), o app compara torra, processo, notas e frescor de cada café dos potes com o perfil de cada método e mostra os 3 melhores, com método e moedor."))+ajSec("Pelo pote",ajP("Você escolhe o café; no Preparo o melhor método e o melhor moedor aparecem tracejados como sugestão."))+ajSec("A nota",ajP("A porcentagem diz o quanto o café combina com o método. Acima de 85% é ótima combinação."))],
@@ -2531,6 +2534,70 @@ ajOv.addEventListener("click",e=>{const t=e.target;let b;if(t.closest("#ajVoltar
 
 {let sb="aj";try{sb=sessionStorage.getItem("calcSub")||"aj"}catch(e){}irSub(sb,true)}
 {let pg="cafe";try{pg=sessionStorage.getItem("calcPag")||"cafe"}catch(e){}irPag(pg,true)}
+// ===== Itens novos: desenho e função parecidos, na hora (v127) =====
+const MODI='<path d="M12 12h40L34 52h-4z"/><path d="M18 20h28M23 28h18"/><path d="M8 56h48"/><path d="M27 4l5 6 5-6"/>';
+function nrmT(s){return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase()}
+function tokT(s){return nrmT(s).split(/[^a-z0-9]+/).filter(t=>t.length>=2)}
+const ACCFN=[["star","Fundo do coador, como o Starflower"],["lotos","Fundo plano, como o LOTOS"],["sd","Dispersor de água, como o SimpleDrip"],["mod","Modelador de filtro"],["out","Outro (aparece no passo a passo)"]];
+const PENFN=[["inox","Copo, como a inox"],["300","300 µm"],["400","400 µm"],["500","500 µm"],["600","600 µm"],["850","850 µm"]];
+function icSet(k){if(k==="acess")return{star:AI.star,lotos:AI.lotos,sd:SDI,mod:MODI,out:CI.acessorio};if(k==="pens")return PI;if(k==="balancas")return BI;if(k==="grupos")return IC;return{}}
+function accFnDe(n){n=nrmT(n);if(/modelad|shaper|cfs|molde|dobrad|formador/.test(n))return"mod";if(/star|estrela|flor/.test(n))return"star";if(/lotos|lotus|plano|wave|flat/.test(n))return"lotos";if(/drip|dispers|chuveir|gotej|melod/.test(n))return"sd";return"out"}
+function penUmDe(n){const m=nrmT(n).match(/(\d{3})/);return m?+m[1]:null}
+function penFnDe(n){const u=penUmDe(n);if(u){let b="300",d=1e9;for(const k of ["300","400","500","600","850"]){const e=Math.abs(+k-u);if(e<d){d=e;b=k}}return b}return"inox"}
+function balIcDe(n){n=nrmT(n);for(const[r,k]of [[/acaia/,"acaia"],[/felicita/,"felicita"],[/decent/,"decent"],[/bookoo/,"bookoo"],[/varia/,"varia"],[/eureka/,"eureka"],[/timemore|dot/,"dot"],[/master ?chef|mchef/,"mchef"],[/redond|round|circ/,"redonda"]])if(r.test(n))return k;return"quad"}
+function grpIcDe(n){n=nrmT(n);for(const[r,k]of [[/fluire|pressca/,"fluire"],[/expres|espres/,"espresso"],[/moka|italian/,"moka"],[/aero/,"aeropress"],[/cold|gelad|frio/,"cold"],[/turc/,"turco"],[/sifao|siphon|syphon/,"sifao"],[/chemex/,"chemex"],[/clever/,"clever"],[/pano/,"pano"],[/melitta/,"melitta"],[/origami/,"origami"],[/switch/,"switch"],[/b75|timemore/,"b75"],[/wacaco|pipamoka|cuppamoka|prestina/,"wacaco"],[/prensa|french/,"prensa"],[/portat/,"portatil"],[/v60|hario|kalita|coad|filtr|pour|drip/,"v60"]])if(r.test(n))return k;return null}
+function locIcDe(n){n=nrmT(n);if(/trabalh|escrit|empresa|office|obra|loja/.test(n))return"trabalho";if(/viag|mala|hotel|trip|ferias/.test(n))return"mala";if(/casa|apto|apart|home|sitio|fazenda|chacara/.test(n))return"casa";return null}
+function likeDe(sel,n){const tk=tokT(n);if(!tk.length)return null;const gi=grpIcDe(n);let best=null,bs=0;
+  for(const o of sel.options){const ot=tokT(o.textContent+" "+o.value);let sc=tk.filter(t=>ot.some(u=>u===t||(t.length>3&&u.startsWith(t))||(u.length>3&&t.startsWith(u)))).length*2;
+    if(sel.dataset.k==="metodos"&&gi){const m=M.find(x=>x.id===o.value);if(m&&(G(m)===gi||m.id===gi||m.ic===gi))sc+=1}
+    if(sel.dataset.k==="moedores"){const t=nrmT(n);if(/eletr|electr|bateria|usb|recarreg/.test(t)&&/mongdio|hibrew|icoffee/.test(o.value))sc+=o.value==="mongdio"?1.5:1;if(/mesa|bancada/.test(t)&&o.value==="oster")sc+=2}
+    if(sc>bs){bs=sc;best=o.value}}
+  if(!best&&sel.dataset.k==="moedores")best=/eletr|electr|bateria|usb/.test(nrmT(n))?"mongdio":"k7";return best}
+const icsH=(k,sel)=>{const S=icSet(k);return `<span class="lbl">Desenho <span style="text-transform:none;font-weight:400">(o app escolhe pelo nome; toque para trocar)</span></span><div class="cIcs" data-ics="${k}">${Object.keys(S).map(i=>`<button type="button" class="cIc" data-ic="${esc(i)}" aria-pressed="${i===sel}" aria-label="${esc(i)}">${svgI(S[i])}</button>`).join("")}</div>`};
+// sugere na hora enquanto digita o nome
+document.addEventListener("input",e=>{if(e.target.id!=="cfN")return;const v=e.target.closest(".cSheet");if(!v)return;const n=e.target.value;
+  const fnU=v.querySelector('[data-un="fn"]');let fn=null;
+  if(fnU&&!fnU.dataset.man){fn=fnU.dataset.k==="pens"?penFnDe(n):accFnDe(n);fnU.querySelectorAll(".cChip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===fn))}
+  const ic=v.querySelector("[data-ics]");if(ic&&!ic.dataset.man){const k=ic.dataset.ics;let s=null;
+    if(k==="acess"||k==="pens"){const q=fnU&&fnU.querySelector('[aria-pressed="true"]');s=q?q.dataset.v:null}else if(k==="balancas")s=balIcDe(n);else if(k==="grupos")s=grpIcDe(n);
+    if(s)ic.querySelectorAll(".cIc").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ic===s))}
+  const lk=v.querySelector("#cfLike");if(lk&&!lk.dataset.man){const b=likeDe(lk,n);if(b)lk.value=b;
+    if(lk.dataset.k==="moedores"){const tu=v.querySelector('[data-un="tipo"]'),t=nrmT(n);if(tu&&!tu.dataset.man){const tp=/mesa|bancada/.test(t)?"mesa":/eletr|electr|bateria|usb/.test(t)?"port":null;if(tp)tu.querySelectorAll(".cChip").forEach(x=>x.setAttribute("aria-pressed",x.dataset.v===tp))}}}
+  const li=v.querySelector('[data-un="ic"]');if(li&&!li.dataset.man){const s=locIcDe(n);if(s)li.querySelectorAll(".cChip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===s))}},true);
+document.addEventListener("change",e=>{if(e.target.id==="cfLike")e.target.dataset.man="1"},true);
+document.addEventListener("click",e=>{const b=e.target.closest(".cIc");if(b){const c=b.parentElement;c.dataset.man="1";c.querySelectorAll(".cIc").forEach(x=>x.setAttribute("aria-pressed",x===b));return}
+  const ch=e.target.closest(".cSheet [data-un] .cChip");if(ch){const u=ch.parentElement;u.dataset.man="1";
+    if(u.dataset.un==="fn"){setTimeout(()=>{const ic=u.closest(".cSheet").querySelector("[data-ics]");if(ic&&!ic.dataset.man)ic.querySelectorAll(".cIc").forEach(x=>x.setAttribute("aria-pressed",x.dataset.ic===ch.dataset.v))},0)}}},true);
+const icEsc=v=>{const q=v.querySelector('[data-ics] [aria-pressed="true"]');return q?q.dataset.ic:""};
+// ---- no app: acessórios e peneiras cadastrados ----
+function accAqui(a){try{const l=locObj();return !l||a.loc.includes(l.id)}catch(e){return true}}
+function accTem(k){try{const a=CFG.acess.concat(CFG.pens).find(x=>x.k===k&&x.fn);return !!a&&accAqui(a)}catch(e){return false}}
+function accB(k){try{const a=CFG.acess.find(x=>x.k===k&&x.fn);if(a)return a.fn}catch(e){}return k}
+function accCuAqui(t,fns){try{return CFG[t].some(a=>a.fn&&(!fns||fns.includes(a.fn))&&accAqui(a))}catch(e){return false}}
+function accXOn(m){try{if(!CONE.includes(m.id))return[];const on=st.accX||[];return CFG.acess.filter(a=>a.fn&&["sd","mod","out"].includes(a.fn)&&on.includes(a.k)&&accAqui(a))}catch(e){return[]}}
+function accXP(m){return accXOn(m).map(a=>a.fn==="mod"?`Modele o filtro de papel no ${a.n} antes de encaixar no coador`:a.fn==="sd"?`Apoie o ${a.n} sobre o coador e despeje a água por ele`:`Use o ${a.n}`).join(". ")}
+function penCu(){try{return CFG.pens.find(a=>a.k===st.pen.sel&&a.fn)}catch(e){return null}}
+function accCustom(){let C;try{C=CFG}catch(e){return}const S=icSet("acess");
+  for(const k of Object.keys(ACC))if(ACC[k].cu)delete ACC[k];
+  const aS=$("aSel"),aP=$("aSelPk"),pS=$("pSel"),pP=$("pSelPk");if(!aS||!pS)return;
+  [aS,aP,pS,pP].forEach(el=>el&&el.querySelectorAll("[data-cu]").forEach(x=>x.remove()));
+  for(const a of C.acess.filter(a=>a.fn==="star"||a.fn==="lotos")){ACC[a.k]={...ACC[a.fn],n:a.n,cu:1};
+    aS.insertAdjacentHTML("beforeend",`<option value="${esc(a.k)}" data-cu="1">${esc(a.n)}</option>`);
+    if(aP)aP.insertAdjacentHTML("beforeend",`<button type="button" data-pv="${esc(a.k)}" data-cu="1">${svgI(S[a.ic]||S[a.fn])}<span>${esc(a.n)}</span></button>`)}
+  let xb=$("aXBox");if(!xb){$("aInfo").insertAdjacentHTML("afterend",`<div id="aXBox" style="margin-top:12px"><span class="lbl">Outros acessórios</span><div class="pick" id="aXPk"></div></div>`);xb=$("aXBox");
+    $("aXPk").addEventListener("click",e=>{const b=e.target.closest("[data-ax]");if(!b)return;const k=b.dataset.ax,x=st.accX=(st.accX||[]).slice(),i=x.indexOf(k);if(i>=0)x.splice(i,1);else x.push(k);st.accX=x;render()})}
+  $("aXPk").innerHTML=C.acess.filter(a=>["sd","mod","out"].includes(a.fn)).map(a=>`<button type="button" data-ax="${esc(a.k)}">${svgI(S[a.ic]||S[a.fn])}<span>${esc(a.n)}</span></button>`).join("");
+  for(const a of C.pens.filter(a=>a.fn)){pS.insertAdjacentHTML("beforeend",`<option value="${esc(a.k)}" data-cu="1">${esc(a.n)}</option>`);
+    if(pP)pP.insertAdjacentHTML("beforeend",`<button type="button" data-pv="${esc(a.k)}" data-cu="1">${svgI(PI[a.ic]||PI[a.fn])}<span>${esc(a.n)}</span></button>`)}
+  try{trocaPotes()}catch(e){}accVis()}
+function accVis(){const vis=(el,k)=>{el.style.display=accTem(k)?"":"none"};
+  document.querySelectorAll("#aSelPk [data-cu],#pSelPk [data-cu]").forEach(b=>vis(b,b.dataset.pv));
+  let n=0;document.querySelectorAll("#aXPk [data-ax]").forEach(b=>{vis(b,b.dataset.ax);if(b.style.display!=="none")n++;b.setAttribute("aria-pressed",(st.accX||[]).includes(b.dataset.ax))});
+  const xb=$("aXBox");if(xb)xb.hidden=!n;
+  try{const a=$("aSel");if(a&&st.acc&&a.value!==st.acc&&accTem(st.acc)&&!$("aBox").hidden)a.value=st.acc;const p=$("pSel");if(p&&penCu())p.value=st.pen.sel;syncPick("aSel");syncPick("pSel")}catch(e){}}
+{const r1=render;render=function(){r1();try{accVis()}catch(e){}}}
+try{accCustom()}catch(e){}
+
 render();
 if('serviceWorker' in navigator&&!window.Capacitor){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
