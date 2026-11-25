@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 131 · 25/11/2026 · Receita para calibrar o espresso azedo na iCoffee (R3 Pro no 21) · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 132 · 25/11/2026 · Espresso com balança: o tempo começa na 1ª gota e para sozinho · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -2316,6 +2316,7 @@ renderMetBtns();renderMoeBtns();renderKit();
 #appHome svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 @media (max-width:360px){.cTiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 body.locSemFundo #aBox>label[for=aSel],body.locSemFundo #aSelPk,body.locSemFundo #aInfo{display:none!important}
+#tStart.armado{outline:2px dashed var(--accent);outline-offset:3px;animation:pulsa 1.2s ease-in-out infinite}@keyframes pulsa{50%{opacity:.7}}
 .cIcs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px}.cIc{flex:0 0 auto;width:46px;height:46px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--fg);display:grid;place-items:center;cursor:pointer;padding:0}.cIc svg{width:32px;height:32px}.cIc[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-fg)}
 body.locSemAcc #aBox,body.locSemSD #sdBox,body.locSemPen #ajPen{display:none!important}
 body.locSemInox #pSelPk [data-pv="inox"],body.locSemInox #pSel option[value="inox"]{display:none!important}
@@ -2627,6 +2628,24 @@ function accVis(){const vis=(el,k)=>{el.style.display=accTem(k)?"":"none"};
 {const r1=render;render=function(){r1();try{accVis()}catch(e){}}}
 try{accCustom()}catch(e){}
 
+// ===== Espresso com balança: o tempo começa na 1ª gota e para quando o peso estabiliza (v132) =====
+const ESPG=["espresso","me26","portatil","nano"];
+function espAuto(){try{const m=cur();return ESPG.includes(G(m))&&!m.cap&&BAL.on&&BAL.w!=null}catch(e){return false}}
+function desarma(){T.arm=false;$("tStart").classList.remove("armado");$("tStart").textContent="Bora fazer esse café"}
+$("tStart").onclick=e=>{
+  if(T.arm){desarma();BAL.autoBase=true;iniciar(0);T.esp={max:0,tUp:Date.now()};return}
+  if(!espAuto())return iniciar(e);
+  if(novoFalta().length)return;
+  T.arm=true;BAL.base=Math.abs(BAL.w)<0.5?0:BAL.w;
+  $("tStart").classList.add("armado");$("tStart").textContent="Aguardando a 1ª gota na balança… (toque para começar já)";
+  toast("Aperte o botão da máquina: o tempo começa quando a 1ª gota cair na xícara")};
+{const bp=balPeso;balPeso=function(){bp.apply(this,arguments);try{
+  const net=(BAL.w??0)-(BAL.base||0),now=Date.now();
+  if(T.arm&&!T.run&&net>=0.3){desarma();BAL.autoBase=true;iniciar(0);T.esp={max:net,tUp:now};return}
+  if(T.run&&T.esp){if(net>T.esp.max+0.2){T.esp.max=net;T.esp.tUp=now}
+    else if(T.esp.max>=5&&now-T.esp.tUp>=3000&&!T.pausa){const t=Math.max(0,Math.round(decorrido()-(now-T.esp.tUp)/1000)),g=T.esp.max;T.esp=null;
+      T.ultShot={g,t,d:Date.now()};$("tStop").click();setTimeout(()=>toast(`Extração: ${f(g,1)} g em ${t} s`),300)}}}catch(e){}}}
+{const en=encerrar;encerrar=function(){T.esp=null;if(T.arm)desarma();return en.apply(this,arguments)}}
 render();
 if('serviceWorker' in navigator&&!window.Capacitor){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
