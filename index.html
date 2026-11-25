@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 132 · 25/11/2026 · Espresso com balança: o tempo começa na 1ª gota e para sozinho · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 133 · 25/11/2026 · Receita do Jeff no espresso (16 g, R3 Pro 20, 70 ml, ~48 g) como padrão em todos os locais · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -858,24 +858,21 @@ const G=m=>m.grp||m.id, vn=m=>m.rn||(m.grp?m.n.replace(/^[^·]*·\s*/,""):"Recei
  {id:"portatil",rn:"Expresso pressurizado",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:9,qs:0.5,r:[4,8,5.5,0.5],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00 com água fria",g:gEP,
   steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no cesto inox, nivele e compacte de leve`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (a xícara da máquina é de 50 ml). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Monte a máquina no suporte da iCoffee sobre a xícara, ligue e aperte o botão"],["2:30","Com água fria, a extração começa quando a água esquenta (com água quente, bem antes)"],["3:00","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
   tip:"Dados da caixa da iCoffee Linha Barista: até 20 bar, aquece em cerca de 2:30, até 8 xícaras de 50 ml por carga, carga completa em 2,5 h (30 W). 30 a 40 ml na xícara é espresso; mais água vira lungo. A proporção aqui é água no reservatório : café."},
- {id:"epIcofBp",grp:"portatil",rn:"Basket Plus (dose dupla)",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:17,qs:0.5,r:[3,5,4,0.5],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00 com água fria",g:gEP,
-  steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído fino no Basket Plus da OutIn, distribua e compacte firme e nivelado`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (sem passar da linha máxima). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Encaixe o Basket Plus na iCoffee, monte no suporte da iCoffee sobre a xícara, ligue e aperte o botão"],["2:30","Com água fria, a extração começa quando a água esquenta (com água quente, bem antes)"],["3:00","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
-  tip:"O Basket Plus da OutIn encaixa na iCoffee: leva 16 a 18 g e faz espresso duplo. A proporção aqui é água no reservatório : café. Se sair rápido e aguado, moa mais fino ou compacte mais; se travar, moa mais grosso."},
- {id:"epIcofCal",grp:"portatil",rn:"Basket Plus · calibrar (saiu azedo)",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:16,qs:0.5,r:[4,5.5,5,0.5],temp:"Água fervendo no reservatório + máquina e xícara pré-aquecidas",tempo:"25 a 35 s de extração",g:{...gEP,pro:[19,23,21]},
-  steps:(c,a)=>[["Preparo","R3 Pro: feche até as mós encostarem (zero) e volte 21 cliques. O 24 saiu azedo, por isso 3 cliques mais fino"],["Preparo",`Pese ${f(c,1)} g do café, moa de uma vez e passe para o Basket Plus. Faça o WDT até não sobrar grumo, nivele e compacte reto e firme, sem girar no fim`],["Preparo","Ferva a água. Passe só água quente pela iCoffee com o cesto montado e aqueça a xícara com água quente; descarte"],["Preparo",`Encha o reservatório com ${f(a)} ml de água recém-fervida`],["0:00","Monte, coloque a xícara sobre a balança zerada e aperte o botão. Meta: 40 a 45 g na xícara em 25 a 35 s"],["Fim","Ainda azedo e rápido (menos de 20 s): clique 19. Azedo com tempo normal: deixe sair até 50 g. Amargo ou áspero: clique 22 ou 23. Respingos: refaça o WDT e a compactação, sem mexer na moagem"]],
-  tip:"Receita para calibrar o espresso que saiu azedo no clique 24 do R3 Pro. Mude uma coisa por vez e anote gramas, segundos e gosto. Quando acertar, ajuste a moagem na receita normal do Basket Plus e ela fica salva como \"ajustada por você\"."},
+ {id:"epIcofBp",grp:"portatil",rn:"Basket Plus (dose dupla) · receita do Jeff",n:"iCoffee Barista",cls:"Fina",dose:true,tank:true,q:16,qs:0.5,r:[3,5.5,4.375,0.0625],temp:"Água fervendo no reservatório + máquina e xícara pré-aquecidas",tempo:"cerca de 50 s de extração (fluxo ~1,1 g/s)",g:{...gEP,pro:[18,22,20]},
+  steps:(c,a)=>[["Preparo",`Moa ${f(c,1)} g do café de uma vez (R3 Pro no clique 20, contado a partir do zero) e passe para o Basket Plus`],["Preparo","Faça o WDT até o fundo do cesto, sem sobrar grumo; nivele e compacte reto e firme, sem girar no fim"],["Preparo","Ferva a água. Passe só água quente pela iCoffee com o cesto montado e aqueça a xícara com água quente; descarte"],["Preparo",`Encha o reservatório com ${f(a)} ml de água recém-fervida`],["0:00","Monte, coloque a xícara sobre a balança zerada e aperte o botão. Meta: cerca de 48 g na xícara (1:3), em torno de 50 s, fluxo perto de 1,1 g/s"],["Fim","Acidez equilibrada no início e chocolate amargo no retrogosto: é o ponto. Neutro e sem corpo: use 65 ml. Ácido e fino: clique 19. Amargo e seco: clique 21"]],
+  tip:"Receita padrão do Jeff, acertada com o Tiger: 16 g no clique 20 do R3 Pro, 70 ml de água fervendo, cerca de 48 g em 51 s (1,1 g/s). Na iCoffee o tempo é ditado pela bomba: guie-se pelo peso e pelo sabor. Com outro café, ajuste só a moagem, de 1 em 1 clique."},
  {id:"epIcofNs",grp:"portatil",rn:"Cápsula Nespresso",n:"iCoffee Barista",cls:"Cápsula",cap:true,q:40,qs:5,r:[1,30,8,1],temp:"Aquecimento automático (2:30)",tempo:"cerca de 3:00",
   g:{k7:[0,0,0],r3:[0,0,0],pro:[0,0,0],oster:[0,0,0],mongdio:[0,0,0],icoffee:[0,0,0]},
   steps:(c,a)=>[["Preparo","Encaixe a cápsula no adaptador de cápsula (o que tem a agulha)"],["Preparo",`Encha o reservatório com ${f(a)} ml de água: 25 ml ristretto, 40 ml espresso, até 50 ml lungo`],["0:00","Monte o adaptador, coloque a máquina no suporte sobre a xícara, ligue e aperte o botão"],["2:30","Extração automática (com água já quente, bem antes)"],["3:00","Fim: retire e descarte a cápsula com cuidado, ela sai quente"]],
   tip:"Cápsula não usa moedor nem balança de café. A caixa diz que a máquina aceita cápsulas e café moído; confira no manual quais cápsulas o adaptador recebe."});}
 // ===== OutIn Nano (espresso portátil): café moído no cesto pressurizado, Basket Plus e cápsula Nespresso =====
 {const gN={k7:[35,45,40],r3:[25,45,35],pro:[18,32,25],oster:[1,3,1,'Pode não chegar à finura de espresso'],mongdio:[3,9,6,'Pode não chegar à finura de espresso'],icoffee:[2,7,5,'Pode não chegar à finura de espresso'],hibrew:[45,62,53],fino:[7,9,7]},
-  gNb={...gN,fino:[6,9,7]},TN="Aquece sozinha até cerca de 92 °C (cerca de 3:20 com água fria)";
+  gNb={...gN,fino:[6,9,7],pro:[18,22,20]},TN="Aquece sozinha até cerca de 92 °C (cerca de 3:20 com água fria)";
  M.push(
  {id:"nano",rn:"Café moído (cesto pressurizado)",n:"OutIn Nano",cls:"Fina",dose:true,tank:true,q:8,qs:0.5,r:[4,10,6.5,0.5],temp:TN,tempo:"cerca de 4:00 com água fria",g:gN,
   steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído no cesto pressurizado da Nano, nivele e compacte de leve`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (máximo 80 ml). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Monte a Nano, coloque sobre a xícara e ligue no aquecimento automático"],["3:20","Com água fria, a extração começa quando a água chega a cerca de 92 °C (com água quente, bem antes)"],["4:00","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
   tip:"OutIn Nano: 20 bar, reservatório de até 80 ml, aquece até cerca de 92 °C em cerca de 200 s, bateria de 2.500 mAh (até 5 extrações aquecendo a água; com água quente, bem mais). O cesto pressurizado leva 7 a 8 g. No Fino, a OutIn indica começar no 2-1."},
- {id:"nanoBp",grp:"nano",rn:"Basket Plus (dose dupla)",n:"OutIn Nano",cls:"Fina",dose:true,tank:true,q:17,qs:0.5,r:[3,4.6,4,0.1],temp:TN,tempo:"cerca de 4:00 com água fria",g:gNb,
+ {id:"nanoBp",grp:"nano",rn:"Basket Plus (dose dupla) · receita do Jeff",n:"OutIn Nano",cls:"Fina",dose:true,tank:true,q:16,qs:0.5,r:[3,5,4.375,0.0625],temp:TN,tempo:"cerca de 4:00 com água fria",g:gNb,
   steps:(c,a)=>[["Preparo",`Coloque ${f(c,1)} g de café moído no Basket Plus, faça o WDT, nivele e compacte firme`],["Preparo",`Encha o reservatório com ${f(a)} ml de água (máximo 80 ml). Água já quente encurta o aquecimento e poupa a bateria`],["0:00","Encaixe o Basket Plus na Nano, coloque sobre a xícara aquecida e ligue no aquecimento automático"],["3:20","Com água fria, a extração começa quando a água chega a cerca de 92 °C (com água quente, bem antes)"],["4:00","Fim da extração: a bebida sai com cerca de "+f(Math.max(0,a-2*c))+" ml"]],
   tip:"O Basket Plus é o cesto sem pressurização feito para a Nano: leva 16 a 18 g (até 20 g em torra clara a média). Moa um pouco mais grosso que para outras máquinas, porque moagem fina demais trava o cesto. Torras claras sofrem com os 92 °C; prefira médias. Se sair rápido e aguado, moa mais fino; se travar, mais grosso."},
  {id:"nanoNs",grp:"nano",rn:"Cápsula Nespresso",n:"OutIn Nano",cls:"Cápsula",cap:true,q:40,qs:5,r:[1,30,8,1],temp:TN,tempo:"cerca de 4:00",
@@ -1093,7 +1090,7 @@ function rankMetodos(k){if(!k||!k.nome)return[];const t=k.torra||"",a=k.acidez,c
   const nw=Math.hypot(...Object.values(w))||1;
   return Object.entries(PERF).filter(([g])=>MEUS.includes(g)&&M.some(m=>m.id===g)).map(([g,pf])=>{const contrib=Object.keys(w).map(kk=>[kk,Math.max(0,w[kk])*pf[kk]]);const sc=contrib.reduce((x,y)=>x+y[1],0)/(nw*(Math.hypot(...Object.values(pf))||1));
     const top=contrib.filter(x=>x[1]>0).sort((x,y)=>y[1]-x[1]).slice(0,2).map(x=>ROT[x[0]]);
-    let id=g,k46=null;if(g==="switch")id=dd>60?"swU1":(w.b>=1.5&&w.d>=1.5?"swTC":"switch");if(g==="v60"&&w.d>=1.5&&!(w.c>=3))id="k46v60",k46={s:"doce",c:"normal"};if(g==="v60"&&w.c>=3)id="k46v60",k46={s:"acido",c:"normal"};
+    let id={portatil:"epIcofBp",nano:"nanoBp"}[g]||g,k46=null;if(g==="switch")id=dd>60?"swU1":(w.b>=1.5&&w.d>=1.5?"swTC":"switch");if(g==="v60"&&w.d>=1.5&&!(w.c>=3))id="k46v60",k46={s:"doce",c:"normal"};if(g==="v60"&&w.c>=3)id="k46v60",k46={s:"acido",c:"normal"};
     return{g,id,k46,nota:Math.round(sc*100),why:top.length?"favorece "+top.join(" e "):"pouco a ver com o perfil deste café"}}).filter(r=>!k.so||(GRUPOS.find(z=>z[3].includes(r.g))||[])[0]===k.so).sort((x,y)=>y.nota-x.nota)}
 function renderCafe(){
   const k=st.cafe,sel=st.csel;
@@ -1215,7 +1212,7 @@ function render(){
   renderSaved();
   try{localStorage.setItem("calcExtracao",JSON.stringify(st))}catch(e){}
 }
-$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=l&&M.some(x=>x.id===l&&G(x)===g)?l:g;recPend=false;abrirMet=false;abrirRec=false;render()});
+$("metodos").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;marca("met");const g=b.dataset.v,l=(st.gsel||{})[g];st.met=l&&M.some(x=>x.id===l&&G(x)===g)?l:({portatil:"epIcofBp",nano:"nanoBp"}[g]||g);recPend=false;abrirMet=false;abrirRec=false;render()});
 $("k46s").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),s:b.dataset.v};render()});
 $("k46c").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.k46={...(st.k46||{}),c:b.dataset.v};render()});
 $("devSel").addEventListener("change",e=>{const v=M.find(x=>G(x)===G(cur())&&x.dev===e.target.value);if(!v)return;st.met=v.id;st.gsel={...(st.gsel||{}),[G(v)]:v.id};render()});
@@ -2005,7 +2002,7 @@ $("escBox").addEventListener("click",e=>{const o=e.target.closest("[data-esc]");
 $("escIg").innerHTML=svgI('<path d="M14 12h36L38 30H26z"/><path d="M29 30v5M35 30v5"/><path d="M17 39h30v6a9 9 0 0 1-9 9H26a9 9 0 0 1-9-9z"/><path d="M47 42h3a4 4 0 0 1 0 8h-4"/>');$("escIp").innerHTML=potSvg(180,250);
 renderEsc();
 // v102: a OutIn Nano saiu (o Jeff não tem a máquina); receitas antigas da Nano e da iCoffee passam para o iCoffee Barista
-{const MAP={epIcof:"portatil",epIcofDg:"epIcofNs",epOutBp:"epIcofBp",epNano1:"portatil",pBialetti:"prensa"},fx=v=>MAP[v]||v;let mud=false;
+{const MAP={epIcofCal:"epIcofBp",epIcof:"portatil",epIcofDg:"epIcofNs",epOutBp:"epIcofBp",epNano1:"portatil",pBialetti:"prensa"},fx=v=>MAP[v]||v;let mud=false;
  if(MAP[st.met]){st.met=fx(st.met);mud=true}
  if(st.gsel&&MAP[st.gsel.portatil]){st.gsel.portatil=fx(st.gsel.portatil);mud=true}
  for(const k of ["q","r","c","x","base"])if(st[k]&&st[k].epIcof!=null){st[k].portatil=st[k].epIcof;delete st[k].epIcof;mud=true}
@@ -2180,7 +2177,7 @@ function renderKit(){cardsLocais();document.querySelectorAll("[data-modo]").forE
   const bt=(id,n,ids,on,attr,rec)=>`<button type="button" ${attr}="${id}" aria-pressed="${on}" class="${rec?"rec":""}">${ids?icKit(ids):svgI(GI[id]||GI.k7)}<span>${esc(n)}</span></button>`;
   if(l.tipo!=="viagem"){const it=itensEm(l.id),mo=moesEm(l.id),ba=balLista().filter(b=>!CFG.balsFora.includes(b.id)&&(CFG.bals[b.id]||{}).loc===l.id);
     kb.innerHTML=`<div class="kitRes"><span><b>${esc(l.n)}</b><br>${it.length} método${it.length===1?"":"s"} · ${mo.length?esc(mo.map(moeNome).join(", ")):"nenhum moedor"}${ba.length?" · balança "+esc(ba.map(b=>b.n).join(", ")):""}</span><button class="lnk" type="button" id="kitAlterar">Alterar</button></div>`;return}
-  const o=optViagem(),lim=limV(),REC_V=["joinout","aeropress","nano","fino","dot"];
+  const o=optViagem(),lim=limV(),REC_V=["joinout","aeropress","portatil","pro","dot"];
   if(kitOk()&&!kitAberto){const b=balLista().find(b=>b.id===KIT.bal);kb.innerHTML=`<div class="kitRes"><span><b>Seu kit de viagem</b><br>${esc(kitItens().map(x=>x[1]).join(", "))} · moedor ${esc(moeNome(KIT.moe))}${b?" · balança "+esc(b.n):""}</span><button class="lnk" type="button" id="kitTrocar">Trocar kit</button></div>`;return}
   kb.innerHTML=`<p class="kitLeg">Monte o kit que vai levar. A linha tracejada marca a recomendação, mas a escolha é sua.</p>
    <span class="lbl" style="margin:0">Métodos (até ${lim.metodos}) · ${KIT.met.length}/${lim.metodos}</span><div class="kitG">${o.m.map(k=>{const i=itemK(k);return bt(k,i.n,idsOf(i),KIT.met.includes(k),"data-km",REC_V.includes(k))}).join("")||'<p class="kitLeg">Nenhum método marcado como "pode ir na viagem". Marque em Configurações.</p>'}</div>
@@ -2211,7 +2208,7 @@ $("novoCafe").addEventListener("click",()=>{if(MODO){MODO="";kitAberto=false;apl
   $("metodos").innerHTML=porG.map(([n,xs])=>`<span class="grp">${esc(n)}</span>`+xs.map(([k,nm,f])=>`<button type="button" data-kit="${k}">${icKit(f())}<span>${esc(nm)}</span></button>`).join("")).join("")}}
 $("metodos").addEventListener("click",e=>{const b=e.target.closest("[data-kit]");if(!b)return;e.stopImmediatePropagation();
   const it=kitItens().find(x=>x[0]===b.dataset.kit);if(!it)return;const ids=it[2](),g=G(M.find(x=>x.id===ids[0])),l=(st.gsel||{})[g];
-  marca("met");st.met=ids.includes(l)?l:(ids.find(id=>!(M.find(x=>x.id===id)||{}).cap)||ids[0]);recPend=false;abrirMet=false;abrirRec=false;render()},true);
+  marca("met");const dv={portatil:"epIcofBp",nano:"nanoBp"}[g];st.met=ids.includes(l)?l:dv&&ids.includes(dv)?dv:(ids.find(id=>!(M.find(x=>x.id===id)||{}).cap)||ids[0]);recPend=false;abrirMet=false;abrirRec=false;render()},true);
 {const rmo=renderMoeBtns;renderMoeBtns=function(){rmo();
   document.querySelectorAll("#moedores button[data-v]").forEach(b=>{if(CFG.moesFora.includes(b.dataset.v))b.remove()});
   if(ehV()&&!kitOk()){$("moedores").innerHTML='<p class="kitLeg" style="grid-column:1/-1">O moedor aparece aqui depois que você montar o kit de viagem.</p>';return}
@@ -2390,6 +2387,8 @@ const limDe=l=>Object.assign({metodos:2,espresso:1},l.lim||{});
 function potN(l){const d=l.mini?3:5;try{const x=JSON.parse(localStorage.getItem(l.pkey||("calcPotes_"+l.id))||"null");return x&&x.n?x.n:d}catch(e){return d}}
 function potSet(l,n){const k=l.pkey||("calcPotes_"+l.id);let x=null;try{x=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}x=x&&typeof x==="object"?x:{n:5,p:[],g:[],u:[],h:[],log:[],t:[]};x.n=Math.min(12,Math.max(1,n));try{localStorage.setItem(k,JSON.stringify(x))}catch(e){}if(LOCPOT===k){loadPot();try{renderPotes()}catch(e){}}}
 const recTxt=r=>{const m=M.find(x=>x.id===r.met);return `${r.nome}\nMétodo: ${m?m.n+(m.grp||m.rn?" · "+vn(m):""):r.met}\nCafé: ${(r.cafe&&r.cafe.nome)||"—"}\nDose: ${f(r.c,1)} g de café · ${f(r.a||r.q)} g${r.r?" (1:"+f(r.r,1)+")":""}\nMoedor: ${moeNome(r.moe)} no ${gD(r.gr,r.moe)}`};
+// v133: a receita do Jeff (iCoffee + Basket Plus + R3 Pro) fica disponível em todos os locais
+try{if(!localStorage.getItem("calcV133")){const ids=CFG.locais.map(l=>l.id);const it=CFG.itens.find(x=>x.k==="portatil");if(it)it.loc=[...new Set([...(it.loc||[]),...ids])];const mo=CFG.moes.find(x=>x.k==="pro");if(mo)mo.loc=[...new Set([...(mo.loc||[]),...ids])];saveCfg();localStorage.setItem("calcV133","1")}}catch(e){}
 // v129: OutIn Fino e OutIn Nano entram em Itabira e na viagem
 try{if(CFG&&Array.isArray(CFG.moes)&&!CFG.moes.some(x=>x.k==="fino")){CFG.moes.push({k:"fino",loc:["casa","viagem"]});saveCfg()}
  if(CFG&&Array.isArray(CFG.itens)&&!CFG.itens.some(x=>x.k==="nano")){CFG.itens.push({k:"nano",n:"OutIn Nano",grupo:"esp",src:{g:"nano"},loc:["casa","viagem"]});saveCfg()}}catch(e){}
