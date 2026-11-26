@@ -173,7 +173,7 @@ select.txt{appearance:auto}
 .ico{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 body{padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))}
 html{scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
-body:has(#tmr:not([hidden])) #tabs,body:has(.ola:not([hidden])) #tabs{display:none}
+
 body[data-pag] [data-pag]{display:none!important}
 body[data-pag="cafe"] [data-pag="cafe"],body[data-pag="preparo"] [data-pag="preparo"],body[data-pag="receitas"] [data-pag="receitas"],body[data-pag="avaliar"] [data-pag="avaliar"]{display:grid!important}
 body[data-pag="preparo"] #prepTop{display:block!important}
@@ -242,7 +242,7 @@ html{scroll-padding-top:calc(var(--barH) + 150px)}
 /* 4) no Ajustes o botão fica no fim, depois do último item */
 #ajFim{width:100%;padding:13px;font-size:1rem;margin-top:4px}
 body[data-sub="aj"] #fixBtn{display:none!important}
-body:has(#preOv:not([hidden])) #tabs{display:none}
+
 
 #pChipBtn{display:inline-flex;align-items:center;gap:8px}#pChipBtn svg{width:30px;height:30px}#pChipBtn span{font-size:.92rem}
 
@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 133 · 25/11/2026 · Receita do Jeff no espresso (16 g, R3 Pro 20, 70 ml, ~48 g) como padrão em todos os locais · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 134 · 26/11/2026 · Salvar a receita na avaliação; menu de baixo em todas as telas · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -389,6 +389,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <div class="ola av" id="av" hidden role="dialog" aria-modal="true" aria-labelledby="avT"><div class="cx"><p id="avT">Como ficou o café?</p><p class="sub2" id="avSub" style="margin-top:-6px"></p><div id="avDados" class="cres" style="margin:0;font-size:.84rem;line-height:1.5;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px"></div><div id="avG" hidden style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px"></div><div id="avRows" style="display:grid;gap:6px"></div>
     <div class="rw" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Nota geral</b><br><span id="avMed" style="font-size:.78rem;color:var(--muted)">média: --</span></span><span class="gr ro" id="avGeral"></span></div>
     <textarea id="avObs" maxlength="300" placeholder="Observação (opcional): ex.: frutado, um pouco ralo"></textarea>
+    <div id="avRec" hidden><label class="avRecL"><input type="checkbox" id="avRecOn"><span><b>Gostei: salvar esta receita</b><small>Vai para Receitas com café, método, moedor, moagem, dose e água deste preparo</small></span></label><input class="txt" id="avRecN" maxlength="60" placeholder="Nome da receita" hidden></div>
     <div style="display:flex;gap:8px"><button class="btn" id="avCanc" type="button" style="flex:1;padding:12px">Depois</button><button class="btn pri" id="avSalvar" type="button" style="flex:2;padding:12px">Salvar avaliação</button></div>
     <button class="lnk" id="avDesc" type="button" style="justify-self:center">Abandonar esta avaliação</button>
     <p class="cres" style="margin:0;font-size:.82rem">Toque no grão para dar a nota de 1 a 5. A nota geral é a média de Aroma, Acidez, Doçura, Amargor (menos amargo conta como melhor) e Retrogosto. O Corpo fica registrado, mas não entra na média.</p></div></div>
@@ -1488,7 +1489,8 @@ let avN={},avCtx=null;
 const graos=(v,cl,ro)=>[1,2,3,4,5].map(i=>`<button type="button" ${ro?"tabindex=-1 disabled":""} data-av="${cl}" data-v="${i}" aria-label="${i} de 5"><svg class="${i<=v?"":"of"}"><use href="#grao"/></svg></button>`).join("");
 function avMedia(n){const v=[n.aroma,n.acidez,n.docura,n.amargor!=null?6-n.amargor:null,n.retro].filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null}
 
-function avDadosTela(){const x=avCtx||{},rs=resumoG(x.g);$("avDados").innerHTML=(x.dados?esc(x.dados):"")+(rs?`<br>Tempo ${tm(rs.tt)} · água na balança ${f(rs.tot)} g${rs.fm?` · fluxo médio ${f(rs.fm,1)} g/s`:""}`:"");$("avDados").hidden=!x.dados&&!rs;
+function avRecTela(){const r=avCtx&&avCtx.rec;$("avRec").hidden=!r;$("avRecOn").checked=false;$("avRecN").hidden=true;$("avRecN").value=r?r.nome:""}
+function avDadosTela(){avRecTela();const x=avCtx||{},rs=resumoG(x.g);$("avDados").innerHTML=(x.dados?esc(x.dados):"")+(rs?`<br>Tempo ${tm(rs.tt)} · água na balança ${f(rs.tot)} g${rs.fm?` · fluxo médio ${f(rs.fm,1)} g/s`:""}`:"");$("avDados").hidden=!x.dados&&!rs;
   $("avG").hidden=!rs;$("avG").innerHTML=rs?grafico(x.g,x.al):""}
 function avTela(){$("avRows").innerHTML=AVC.map(([k,l])=>`<div class="rw"><span>${l}</span><span class="gr">${graos(avN[k]||0,k)}</span></div>`).join("");
   const md=avMedia(avN);$("avMed").textContent="média: "+(md==null?"--":f(md,1));$("avGeral").innerHTML=graos(md==null?0:Math.round(md),"g",true)}
@@ -1499,19 +1501,19 @@ function abrirAproveite(){const m=cur(),{c,a}=calc(m),nome=ISD(st.csel)?(st.csel
   const pn0=(()=>{try{return peneira(m,c)}catch(e){return{}}})(),rr=calc(m).r;
   const dados=[m.cap?"":`Café ${f(c,1)} g`+(pn0.on&&!pn0.bloq&&pn0.moer?` (moído ${f(pn0.moer,1)} g, peneira)`:""),BAL.cafeMed!=null?`pesado na balança ${f(BAL.cafeMed,1)} g`:"",m.cap?"":`água ${f(a)} g`,m.cap?"":`1:${rfmt(m,rr)}`,
     (()=>{const mb=document.querySelector(`#moedores button[data-v="${st.moe}"]`);return m.cap?"":`${mb?mb.textContent:st.moe} ${$("oMoag").textContent}`})(),$("oTemp").textContent?`água a ${$("oTemp").textContent}`:""].filter(Boolean).join(" · ");
-  avCtx={caf:st.csel,nome,met,c:Math.round(c*10)/10,a:Math.round(a),dados};
+  avCtx={caf:st.csel,nome,met,c:Math.round(c*10)/10,a:Math.round(a),dados};try{avCtx.rec=recAtual("")}catch(e){avCtx.rec=null}
   $("aprSub").textContent=m.cap?`${nome} · ${met}`:`${nome} · ${met} · ${f(c,1)} g : ${f(a)} g`;
   const g=BAL.rec.length?balSerie():null,rs=resumoG(g),al=balAlvos(T.lastSteps||CUR).filter(x=>x!=null);avCtx.g=rs?g:null;avCtx.al=rs?al:null;
   $("aprG").hidden=!rs;$("aprKV").hidden=!rs;if(rs){$("aprG").innerHTML=grafico(g,al);$("aprKV").innerHTML=`Tempo total <b>${tm(rs.tt)}</b> · Água <b>${f(rs.tot)} g</b>${rs.fm?` · Fluxo médio <b>${f(rs.fm,1)} g/s</b>`:""}`}
   $("apr").hidden=false}
 $("tStop").onclick=()=>{const rodou=T.run;T.lastSteps=T.steps;if(rodou)descontaPote();encerrar();if(rodou)abrirAproveite()};
 const avPendente=()=>{if(!avCtx||avCtx.pid)return;const dn=new Date(),p2=n=>String(n).padStart(2,"0");const id="a-"+Date.now().toString(36);
-  AVAL.push({id,pend:true,d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,h:`${p2(dn.getHours())}:${p2(dn.getMinutes())}`,caf:avCtx.caf,nome:avCtx.nome,met:avCtx.met,c:avCtx.c,a:avCtx.a,g:avCtx.g||null,al:avCtx.al||null,dados:avCtx.dados||""});avCtx.pid=id;saveAval();avPendTela()};
+  AVAL.push({id,pend:true,d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,h:`${p2(dn.getHours())}:${p2(dn.getMinutes())}`,caf:avCtx.caf,nome:avCtx.nome,met:avCtx.met,c:avCtx.c,a:avCtx.a,g:avCtx.g||null,al:avCtx.al||null,dados:avCtx.dados||"",rec:avCtx.rec||null});avCtx.pid=id;saveAval();avPendTela()};
 function avPendTela(){const L=AVAL.filter(x=>x.pend).slice(-3).reverse();$("avPend").hidden=!L.length;
   $("avPend").innerHTML=L.map(x=>`<div style="display:flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px"><span style="flex:1;font-size:.88rem;line-height:1.35">Avaliar depois: <b>${esc(x.nome||"Café")}</b><br><span style="color:var(--muted)">${esc(x.met||"")} · ${dataBR(x.d).slice(0,5)}${x.h?" "+x.h:""}</span></span><button class="btn pri" type="button" data-avp="${x.id}" style="padding:7px 10px">Avaliar</button><button class="lnk" type="button" data-avx="${x.id}" aria-label="Descartar">✕</button></div>`).join("")}
 $("avPend").addEventListener("click",e=>{const a=e.target.closest("[data-avp]"),x=e.target.closest("[data-avx]");
   if(x){AVAL=AVAL.filter(v=>v.id!==x.dataset.avx);saveAval();avPendTela();return}
-  if(a){const v=AVAL.find(v=>v.id===a.dataset.avp);if(!v)return;avCtx={caf:v.caf,nome:v.nome,met:v.met,c:v.c,a:v.a,g:v.g,al:v.al,dados:v.dados,pid:v.id};avDadosTela();avN={};$("avObs").value="";$("avSub").textContent=`${v.nome||"Café"} · ${v.met||""} · ${dataBR(v.d)}`;avTela();$("av").hidden=false}});
+  if(a){const v=AVAL.find(v=>v.id===a.dataset.avp);if(!v)return;avCtx={caf:v.caf,nome:v.nome,met:v.met,c:v.c,a:v.a,g:v.g,al:v.al,dados:v.dados,pid:v.id,rec:v.rec||null};avDadosTela();avN={};$("avObs").value="";$("avSub").textContent=`${v.nome||"Café"} · ${v.met||""} · ${dataBR(v.d)}`;avTela();$("av").hidden=false}});
 $("aprNao").onclick=()=>{$("apr").hidden=true;avPendente()};
 $("avVer").onclick=()=>{const L=AVAL.filter(x=>x.caf===st.csel&&x.geral!=null).slice().reverse();$("avHT").textContent="Avaliações: "+(L[0]&&L[0].nome||"café");
   $("avHL").innerHTML=L.map(x=>{const rs=resumoG(x.g),nn=x.n||{};return `<div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:6px">
@@ -1526,7 +1528,8 @@ $("avCanc").onclick=()=>{$("av").hidden=true;avPendente()};
 $("avSalvar").onclick=()=>{if(!AVC.some(([k])=>avN[k])){toast("Dê nota a pelo menos uma característica");return}const md=avMedia(avN),dn=new Date(),p2=n=>String(n).padStart(2,"0");
   const reg={n:{...avN},geral:md==null?null:Math.round(md*10)/10,obs:$("avObs").value.trim().slice(0,300)},pv=avCtx&&avCtx.pid&&AVAL.find(v=>v.id===avCtx.pid);
   if(pv){Object.assign(pv,reg);delete pv.pend}else AVAL.push({id:"a-"+Date.now().toString(36),d:`${dn.getFullYear()}-${p2(dn.getMonth()+1)}-${p2(dn.getDate())}`,caf:avCtx&&avCtx.caf,nome:avCtx&&avCtx.nome,met:avCtx&&avCtx.met,c:avCtx&&avCtx.c,a:avCtx&&avCtx.a,g:avCtx&&avCtx.g||null,al:avCtx&&avCtx.al||null,dados:avCtx&&avCtx.dados||"",...reg});
-  saveAval();avPendTela();$("av").hidden=true;toast(md==null?"Avaliação salva":`Avaliação salva: nota geral ${f(md,1)}`);render()};
+  let rs=false;if($("avRecOn").checked&&avCtx&&avCtx.rec){const r={...avCtx.rec,nome:$("avRecN").value.trim()||avCtx.rec.nome};const ig=REC.findIndex(x=>x.met===r.met&&x.moe===r.moe&&x.gr===r.gr&&x.c===r.c&&x.a===r.a&&(x.cafeId||"")===(r.cafeId||""));if(ig>=0)REC[ig].nome=r.nome;else REC.unshift(r);saveRec();rs=true}
+  saveAval();avPendTela();$("av").hidden=true;toast((md==null?"Avaliação salva":`Avaliação salva: nota geral ${f(md,1)}`)+(rs?" · receita salva":""));render()};
 
 $("tPause").onclick=()=>{if(!T.run)return;const tocando=T.au&&!T.auFim;
   if(T.pausa){T.pausa=false;T.t0=Date.now();$("tPause").textContent="Pausar";if(tocando)try{T.au.play()}catch(e){}}
@@ -1578,10 +1581,11 @@ $("cSave").onclick=()=>{const o=san({...st.cafe,tipo:st.cafe.tipo==="__outro"?""
   if(st.csel==="novo"){o.id="c-"+Date.now().toString(36);CAF.push(o);st.csel=o.id;cmsg("Café cadastrado")}
   else{o.id=st.csel;CAF=CAF.map(c=>c.id===o.id?o:c);cmsg("Alterações salvas")}
   CAF.sort((x,y)=>x.nome.localeCompare(y.nome,"pt-BR"));saveCaf();st.cafe={...o};cEdit=false;render()};
-$("salvar").onclick=()=>{const m=cur(),k=calc(m),nome=$("nome").value.trim()||`${m.n} · ${(!ISD(st.csel)&&st.cafe.nome.trim())||GN[st.moe]}`;
+function recAtual(nm){const m=cur(),k=calc(m),nome=(nm||"").trim()||`${m.n} · ${(!ISD(st.csel)&&st.cafe.nome.trim())||GN[st.moe]}`;
   const gv=st.gr[gKey(m)]??Math.max(0,m.g[st.moe][2]+ajuste(m).off);
   const snap=ISD(st.csel)?(st.csel==="descpo"?{desc:true,po:true}:{desc:true}):san({...st.cafe,tipo:st.cafe.tipo==="__outro"?"":st.cafe.tipo});
-  REC.unshift({k46:m.k46?{s:(st.k46||{}).s||"eq",c:(st.k46||{}).c||"normal"}:undefined,sd:sdOn(m)?{on:true,t200:st.sd.t200}:undefined,acc:accOf(m)||undefined,pen:{...st.pen},nome,cafeId:(!ISD(st.csel)&&st.csel!=="novo")?st.csel:undefined,cafe:snap,met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv});
+  return({k46:m.k46?{s:(st.k46||{}).s||"eq",c:(st.k46||{}).c||"normal"}:undefined,sd:sdOn(m)?{on:true,t200:st.sd.t200}:undefined,acc:accOf(m)||undefined,pen:{...st.pen},nome,cafeId:(!ISD(st.csel)&&st.csel!=="novo")?st.csel:undefined,cafe:snap,met:m.id,moe:st.moe,base:baseOf(m),x:Math.round(k.b),c:Math.round(k.c*10)/10,q:m.dose?k.q:Math.round(k.a),a:Math.round(k.a*10)/10,r:k.r,gr:gv})}
+$("salvar").onclick=()=>{REC.unshift(recAtual($("nome").value));
   saveRec();rsel=0;$("nome").value="";toast("Receita salva");render()};
 const bkData=()=>JSON.stringify({app:"calculadora-extracao",versao:1,data:new Date().toISOString().slice(0,10),receitas:REC,cafes:CAF,moagens:st.gr,potes:POT,avaliacoes:AVAL});
 $("bkCopiar").onclick=()=>{const t=bkData();$("bkTxt").value=t;
@@ -1678,7 +1682,7 @@ function renderAvLista(){const el=$("avLista");if(!el)return;const L=AVAL.slice(
     const det=avAberta===x.id&&!x.pend?`<span class="cres" style="display:block;margin:6px 0 0;font-size:.8rem;line-height:1.45">${x.dados?esc(x.dados)+"<br>":""}${AVC.filter(([k])=>nn[k]).map(([k,l])=>`${l} ${nn[k]}`).join(" · ")}${x.obs?"<br>"+esc(x.obs):""}</span>${rs?`<span style="display:block;margin-top:6px">${grafico(x.g,x.al)}</span>`:""}`:"";
     return `<div class="it${x.pend?" pend":""}" role="button" tabindex="0" data-avi="${x.id}" style="align-items:flex-start"><span class="mi">${svgI(icMet(m))}</span><span style="flex:1;min-width:0"><span class="tt" style="display:block">${esc(x.nome||"Café")}${x.pend?'<span class="tg">AVALIAR</span>':""}</span><span class="ds" style="display:block">${esc(x.met||"")} · ${dataBR(x.d).slice(0,5)}${x.h?" "+x.h:""}</span>${x.pend?"":`<span class="bns">${[1,2,3,4,5].map(i=>grao(i<=nt)).join("")}</span> <b style="color:var(--accent);font-family:var(--mono)">${f(x.geral,1)}</b>`}${det}</span><span class="go">${x.pend?"›":avAberta===x.id?"⌄":"›"}</span></div>`}).join("")}
 $("avLista").addEventListener("click",e=>{const t=e.target.closest("[data-avi]");if(!t)return;const v=AVAL.find(a=>a.id===t.dataset.avi);if(!v)return;
-  if(v.pend){avCtx={caf:v.caf,nome:v.nome,met:v.met,c:v.c,a:v.a,g:v.g,al:v.al,dados:v.dados,pid:v.id};avDadosTela();avN={};$("avObs").value="";$("avSub").textContent=`${v.nome||"Café"} · ${v.met||""} · ${dataBR(v.d)}`;avTela();$("av").hidden=false;return}
+  if(v.pend){avCtx={caf:v.caf,nome:v.nome,met:v.met,c:v.c,a:v.a,g:v.g,al:v.al,dados:v.dados,pid:v.id,rec:v.rec||null};avDadosTela();avN={};$("avObs").value="";$("avSub").textContent=`${v.nome||"Café"} · ${v.met||""} · ${dataBR(v.d)}`;avTela();$("av").hidden=false;return}
   avAberta=avAberta===v.id?null:v.id;renderAvLista()});
 {const sv=saveAval;window.__avRender=()=>{try{renderAvLista()}catch(e){}};}
 new MutationObserver(()=>{if(document.body.dataset.pag==="avaliar")renderAvLista()}).observe($("av"),{attributes:true,attributeFilter:["hidden"]});
@@ -2314,6 +2318,10 @@ renderMetBtns();renderMoeBtns();renderKit();
 @media (max-width:360px){.cTiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 body.locSemFundo #aBox>label[for=aSel],body.locSemFundo #aSelPk,body.locSemFundo #aInfo{display:none!important}
 #tStart.armado{outline:2px dashed var(--accent);outline-offset:3px;animation:pulsa 1.2s ease-in-out infinite}@keyframes pulsa{50%{opacity:.7}}
+#tabs{z-index:90!important}:root{--tabsH:66px}
+.tmr{bottom:var(--tabsH)!important;padding-bottom:12px!important}body.timing{padding-bottom:calc(250px + var(--tabsH))!important}
+.ola,.ov,#preOv,.cVeil{bottom:var(--tabsH)!important}
+#avRec{margin-top:10px}.avRecL{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px dashed var(--accent);border-radius:12px;cursor:pointer}.avRecL input{width:22px;height:22px;accent-color:var(--accent);flex:none;margin-top:2px}.avRecL span{display:grid;gap:2px}.avRecL small{color:var(--muted);font-size:.78rem}#avRecN{margin-top:8px}
 .cIcs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px}.cIc{flex:0 0 auto;width:46px;height:46px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--fg);display:grid;place-items:center;cursor:pointer;padding:0}.cIc svg{width:32px;height:32px}.cIc[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-fg)}
 body.locSemAcc #aBox,body.locSemSD #sdBox,body.locSemPen #ajPen{display:none!important}
 body.locSemInox #pSelPk [data-pv="inox"],body.locSemInox #pSel option[value="inox"]{display:none!important}
@@ -2645,6 +2653,16 @@ $("tStart").onclick=e=>{
     else if(T.esp.max>=5&&now-T.esp.tUp>=3000&&!T.pausa){const t=Math.max(0,Math.round(decorrido()-(now-T.esp.tUp)/1000)),g=T.esp.max;T.esp=null;
       T.ultShot={g,t,d:Date.now()};$("tStop").click();setTimeout(()=>toast(`Extração: ${f(g,1)} g em ${t} s`),300)}}}catch(e){}}}
 {const en=encerrar;encerrar=function(){T.esp=null;if(T.arm)desarma();return en.apply(this,arguments)}}
+
+// ===== Menu de baixo em todas as telas; ao tocar, fecha o que estiver aberto por cima (v134) =====
+function tabsH(){try{document.documentElement.style.setProperty("--tabsH",$("tabs").offsetHeight+"px")}catch(e){}}
+tabsH();addEventListener("resize",tabsH);setTimeout(tabsH,500);
+$("tabs").addEventListener("click",e=>{if(!e.target.closest("[data-ir]"))return;
+  try{if(!$("av").hidden){$("av").hidden=true;avPendente()}}catch(_){}
+  try{if(!$("apr").hidden){$("apr").hidden=true;avPendente()}}catch(_){}
+  document.querySelectorAll(".ov:not([hidden]),.ola:not([hidden]),#preOv:not([hidden])").forEach(o=>o.hidden=true);
+  document.querySelectorAll(".cVeil").forEach(v=>v.remove())},true);
+$("avRecOn").addEventListener("change",e=>{$("avRecN").hidden=!e.target.checked;if(e.target.checked)$("avRecN").focus()});
 render();
 if('serviceWorker' in navigator&&!window.Capacitor){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
