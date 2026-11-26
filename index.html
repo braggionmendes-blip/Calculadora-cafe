@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 135 · 26/11/2026 · Origami com filtro wave ou cônico; Melitta com moagem mais grossa · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 136 · 26/11/2026 · Cafeteira elétrica com infusão de 2 min (31,3 g : 500 ml, M9 6.5); Origami com filtro wave ou cônico · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -715,10 +715,10 @@ const M=[
   g:{k7:[65,80,72],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[18,24,21],icoffee:[14,19,17]},
   steps:(c,a)=>{const k=Math.sqrt(a/500);return[["Preparo","Escalde o pano com água quente, torça bem e encaixe no suporte"],["0:00",`Pré-infusão: molhe o pó com ${g(c*2)} de água e espere`],["0:30",`Despeje em espiral, do centro para fora, até a balança marcar ${g(a*.55)}`],[tm(90*k),`Complete até ${g(a)} sem deixar o nível passar da borda do pó`],[tm(210*k)+"–"+tm(270*k),"Fim do preparo"]]},
   tip:"O pano retém mais óleos que o papel e dá mais corpo. Guarde-o úmido na geladeira, num pote fechado, e enxágue só com água, sem sabão."},
- {id:"coador",n:"Cafeteira elétrica",cls:"Média",q:500,qs:50,r:[14,18,16,1],temp:"Da própria cafeteira",tempo:"Ciclo da cafeteira",
-  g:{k7:[65,80,70],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[18,24,21],icoffee:[14,19,17]},
-  steps:(c,a)=>[["Preparo",`Ponha ${g(a)} de água no reservatório`],["Preparo",`Coloque ${f(c,1)} g de café no filtro e nivele`],["0:00","Ligue a cafeteira"],["Fim","Desligue a placa logo que terminar, para o café não cozinhar"]],
-  tip:"Na cafeteira elétrica, a proporção e a moagem são o que você controla. Se o café sair fraco, aumente o café antes de afinar a moagem."},
+ {id:"coador",n:"Cafeteira elétrica",cls:"Média",q:500,qs:50,r:[14,18,16,1],temp:"Água fervida no reservatório",tempo:"2:00 de infusão + ciclo da cafeteira",
+  g:{k7:[65,80,70],r3:[100,130,115],pro:[70,100,85],oster:[9,12,10],mongdio:[18,24,21],icoffee:[14,19,17],m9:[61,69,65]},
+  steps:(c,a)=>[["Preparo",`Ferva cerca de ${f(a+100)} ml de água: ${f(a)} ml para o café e o resto para escaldar`],["Preparo","Com a jarra no lugar, coloque o filtro de papel Melitta 102 ou 103 no porta-filtro da cafeteira e escalde com água quente"],["Preparo","Jogue fora a água que caiu na jarra"],["Preparo",`Coloque ${f(a)} ml da água fervida no reservatório`],["Preparo",`Coloque ${f(c,1)} g de café no filtro e nivele`],["Preparo","Tire a jarra (só com corta-pingo)"],["0:00","Ligue a cafeteira e deixe 2 minutos em infusão, sem pingar"],["2:00","Recoloque a jarra para o café descer"],["Fim","Ao terminar, desligue a placa para o café não cozinhar"]],
+  tip:"⚠️ Os passos de tirar a jarra, deixar 2 minutos em infusão e recolocar a jarra só funcionam em cafeteira com corta-pingo. Sem corta-pingo, mantenha a jarra no lugar o tempo todo, porque a água quente transborda do filtro. Filtro de papel Melitta 102 ou 103; proporção 1:16 (31,3 g para 500 ml)."},
  {id:"sifao",n:"Sifão",cls:"Média",q:300,qs:10,r:[13,17,15,1],temp:"Água subindo ao balão",tempo:"1:00 a 1:30 de contato",
   g:{k7:[65,80,72],r3:[110,145,125],pro:[60,100,85],oster:[8,12,10],mongdio:[16,23,19],icoffee:[13,18,15]},
   steps:(c,a)=>[["Preparo",`Aqueça ${g(a)} de água no balão inferior até subir`],["0:00",`Adicione ${f(c,1)} g de café e mexa suavemente`],["1:00–1:30","Tire do fogo e dê uma última mexida"],["~2:00","Fim, quando o café descer para o balão inferior"]],
@@ -1959,9 +1959,9 @@ function pesoTela(){const b=balSel(),lig=BAL.on&&BAL.w!=null;$("tPeso").hidden=!
 
 // Escaldar o filtro: no máximo 50 ml de água quente (≈ 48 g a 95 °C), em destaque
 const ESC_H='<span class="escM"><b>máx. 48 g</b><span>de água quente (50 ml) para escaldar</span></span>';
-function marcaEscalda(){document.querySelectorAll("#steps li").forEach(li=>{const x=li.querySelector(".x");if(x&&/escald/i.test(x.textContent)&&!x.querySelector(".escM"))x.insertAdjacentHTML("beforeend","<br>"+ESC_H)})}
+function marcaEscalda(){try{if(G(cur())==="coador")return}catch(e){}document.querySelectorAll("#steps li").forEach(li=>{const x=li.querySelector(".x");if(x&&/escald/i.test(x.textContent)&&!x.querySelector(".escM"))x.insertAdjacentHTML("beforeend","<br>"+ESC_H)})}
 {const r7=render;render=function(){r7();try{marcaEscalda()}catch(e){}}}
-{const pt=preTela;preTela=function(){pt();try{if(/escald/i.test($("preX").textContent))$("preX").insertAdjacentHTML("beforeend","<br>"+ESC_H)}catch(e){}}}
+{const pt=preTela;preTela=function(){pt();try{if(G(cur())!=="coador"&&/escald/i.test($("preX").textContent))$("preX").insertAdjacentHTML("beforeend","<br>"+ESC_H)}catch(e){}}}
 // Excluir avaliação pendente (dois toques)
 const LIX='<path d="M14 18h36M26 18v-6h12v6M18 18l3 34h22l3-34M28 26v18M36 26v18"/>';
 {const ra=renderAvLista;renderAvLista=function(){ra();document.querySelectorAll('#avLista .it.pend').forEach(it=>{if(it.querySelector(".del"))return;const g=it.querySelector(".go");g.insertAdjacentHTML("beforebegin",`<button type="button" class="del" data-avdel="${it.dataset.avi}" aria-label="Excluir avaliação pendente">${svgI(LIX)}</button>`)})}}
