@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 136 · 26/11/2026 · Cafeteira elétrica com infusão de 2 min (31,3 g : 500 ml, M9 6.5); Origami com filtro wave ou cônico · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 137 · 27/11/2026 · Pote de viagem Airscape 4" (0,95 L, cerca de 230 g); Tiger no pote de viagem · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -830,6 +830,14 @@ let usoPote=-1;
 let AVAL=[];try{const x=JSON.parse(localStorage.getItem("calcAval")||"[]");if(Array.isArray(x))AVAL=x}catch(e){}
 const saveAval=()=>{try{localStorage.setItem("calcAval",JSON.stringify(AVAL))}catch(e){}};
 var LOCPOT="calcPotes",POTCAP=250;
+// v137: o Tiger sai do pote 11 de Itabira e vai para o pote de viagem (Airscape), uma vez só
+try{if(!localStorage.getItem("calcV137")){const cf=JSON.parse(localStorage.getItem("calcCafes")||"[]"),pi=JSON.parse(localStorage.getItem("calcPotes")||"null");
+ if(pi&&Array.isArray(pi.p)){const id=pi.p[10],c=Array.isArray(cf)&&cf.find(x=>x.id===id);
+  if(c&&/tiger/i.test(c.nome||"")){const pv=JSON.parse(localStorage.getItem("calcPotesViagem")||"null")||{n:1,p:[],g:[],u:[],h:[],log:[]};
+   pv.n=1;pv.p=[id];pv.g=[pi.g&&pi.g[10]!=null?pi.g[10]:null];pv.u=[pi.u&&pi.u[10]||null];localStorage.setItem("calcPotesViagem",JSON.stringify(pv));
+   pi.p[10]="";if(pi.g)pi.g[10]=null;if(pi.u)pi.u[10]=null;localStorage.setItem("calcPotes",JSON.stringify(pi))}}
+ const cg=JSON.parse(localStorage.getItem("calcCfg")||"null");if(cg&&Array.isArray(cg.locais)){const v=cg.locais.find(l=>l.tipo==="viagem");if(v&&(!v.pote||/airscape/i.test(v.pote))){v.pote="Airscape 4\" (0,95 L)";localStorage.setItem("calcCfg",JSON.stringify(cg))}}
+ localStorage.setItem("calcV137","1")}}catch(e){}
 let POT={n:5,p:[],g:[],u:[],h:[],log:[],t:[]};
 const BAL={rec:[],on:false,dev:null,cmd:null,w:null,alvoCafe:0,cap:false,semAuto:false,base:0,autoBase:false,hist:[],est:null,cand:null,bip:new Set()};
 function loadPot(){try{const x=JSON.parse(localStorage.getItem(LOCPOT)||"null");if(x&&typeof x==="object"){POT.tr=Array.isArray(x.tr)?x.tr:[];POT.tc=Array.isArray(x.tc)?x.tc:[];POT.n=Math.min(12,Math.max(1,+x.n||5));POT.p=Array.isArray(x.p)?x.p.slice(0,12).map(v=>typeof v==="string"?v:""):[];POT.g=Array.isArray(x.g)?x.g.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[];POT.u=Array.isArray(x.u)?x.u.slice(0,12):[];POT.h=Array.isArray(x.h)?x.h.slice(0,10):[];POT.log=Array.isArray(x.log)?x.log.slice(0,40):[];POT.t=Array.isArray(x.t)?x.t.slice(0,12).map(v=>v==null||v===""?null:Number(v)):[]}}catch(e){}}
@@ -2082,7 +2090,7 @@ function cfgPadrao(){
   const bals={};for(const b of balLista())bals[b.id]={loc:BL[b.id]||"casa",viagem:b.id==="dot"||BL[b.id]==="trabalho"};
   return{v:1,
     locais:[{id:"casa",n:"Em casa - Itabira",curto:"Itabira",ic:"casa",tipo:"fixo",pkey:"calcPotes"},{id:"ipatinga",n:"Em casa - Ipatinga",curto:"Ipatinga",ic:"casa",tipo:"fixo",pkey:"calcPotesIpa"},
-      {id:"trabalho",n:"No trabalho",curto:"Trabalho",ic:"trabalho",tipo:"fixo",pkey:"calcPotesTrab",mini:{de:"casa",cap:30}},{id:"viagem",n:"Em viagem",curto:"Viagem",ic:"mala",tipo:"viagem",pkey:"calcPotesViagem",pote:"Airscape 250 g",lim:{metodos:2,espresso:1}}],
+      {id:"trabalho",n:"No trabalho",curto:"Trabalho",ic:"trabalho",tipo:"fixo",pkey:"calcPotesTrab",mini:{de:"casa",cap:30}},{id:"viagem",n:"Em viagem",curto:"Viagem",ic:"mala",tipo:"viagem",pkey:"calcPotesViagem",pote:"Airscape 4\" (0,95 L)",lim:{metodos:2,espresso:1}}],
     grupos:[{k:"esp",n:"Espressos",ic:"portatil"},{k:"coa",n:"Coados",ic:"v60"},{k:"ita",n:"Italiana",ic:"moka"},{k:"pre",n:"Prensa francesa",ic:"prensa"}],
     itens,metFora:["espresso"],ocultas:[],moes,moesFora:[],bals,balsFora:[],
     acess:[{k:"star",n:"LilyDrip Starflower (com CFS)",loc:["casa"]},{k:"lotos",n:"LOTOS",loc:["casa"]},{k:"sd",n:"Timemore SimpleDrip",loc:["casa"]}],
@@ -2130,7 +2138,7 @@ function permitido(id){if(viag())return kitIds().includes(id);return !CFG.oculta
 function dispLoc(){const l=locObj();if(!l)return{star:true,lotos:true,sd:true,inox:true,kit:true};const L=l.id,has=(arr,k)=>{const x=arr.find(a=>a.k===k);if(!x||!x.loc.includes(L))return false;if(l.tipo==="viagem"&&x.soCom&&!x.soCom.includes(KIT.moe))return false;return true};
   return{star:has(CFG.acess,"star"),lotos:has(CFG.acess,"lotos"),sd:has(CFG.acess,"sd"),inox:has(CFG.pens,"inox"),kit:has(CFG.pens,"kit")}}
 let ipaSave=null;
-function trocaPotes(){const l=locObj(),d=dispLoc(),acc=d.star||d.lotos||accCuAqui("acess"),pen=d.inox||d.kit||accCuAqui("pens");POTCAP=l&&l.mini?(+l.mini.cap||30):250;
+function trocaPotes(){const l=locObj(),d=dispLoc(),acc=d.star||d.lotos||accCuAqui("acess"),pen=d.inox||d.kit||accCuAqui("pens");POTCAP=l&&l.mini?(+l.mini.cap||30):l&&l.tipo==="viagem"&&/airscape/i.test(l.pote||"")?230:250;
   const cl=document.body.classList;cl.toggle("locViagem",ehV());cl.toggle("locSemAcc",!acc);cl.toggle("locSemSD",!d.sd);cl.toggle("locSemPen",!pen);cl.toggle("locSemInox",!d.inox);cl.toggle("locSemKitPen",!d.kit);cl.toggle("locSemStar",!d.star);cl.toggle("locSemLotos",!d.lotos);cl.toggle("locSemFundo",!(d.star||d.lotos||accCuAqui("acess",["star","lotos"])));
   if(ipaSave){st.acc=ipaSave.acc;if(st.pen){st.pen.on=ipaSave.pen;st.pen.sel=ipaSave.sel;st.pen.esc=ipaSave.esc}if(st.sd)st.sd.on=ipaSave.sd;ipaSave=null}
   if(l){ipaSave={acc:st.acc,pen:!!(st.pen&&st.pen.on),sel:st.pen&&st.pen.sel,esc:st.pen&&st.pen.esc,sd:!!(st.sd&&st.sd.on)};
