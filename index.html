@@ -373,7 +373,7 @@ body.locKitPen #pSelPk [data-pv="inox"],body.locKitPen #pSel option[value="inox"
   <header>
     <h1>Calculadora de Café</h1>
     <p class="sub">Registre o café, escolha o método e o moedor e ajuste água, proporção e moagem. Salve as receitas de que gostar.</p>
-    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 137 · 27/11/2026 · Pote de viagem Airscape 4" (0,95 L, cerca de 230 g); Tiger no pote de viagem · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
+    <p class="sub" style="font-size:.78rem;margin-top:4px">Versão 138 · 28/11/2026 · Balança Coffee Scale CK2150 em Ipatinga; pote de viagem Airscape 4" · Tela de início, cadastro e Configurações: locais, métodos, moedores, balanças, acessórios, peneiras e mini potes editáveis</p>
     <button class="btn pri" id="novoCafe" type="button" style="margin-top:10px">Preparar um novo café</button>
     <div id="avPend" hidden style="margin-top:10px;display:grid;gap:6px"></div>
   </header>
@@ -1791,7 +1791,7 @@ new MutationObserver(()=>{if(!$("tmr").hidden){armado=false;if(!$("preOv").hidde
 // ===== Balanças com desenho =====
 const BI={"redonda": "<ellipse cx=\"32\" cy=\"25\" rx=\"22\" ry=\"8\"/><path d=\"M10 25v9c0 4.5 10 8 22 8s22-3.5 22-8v-9\"/><rect x=\"25\" y=\"33\" width=\"14\" height=\"5\" rx=\"1\" stroke-width=\"1.6\"/><circle cx=\"20\" cy=\"35.5\" r=\"1.3\"/><circle cx=\"44\" cy=\"35.5\" r=\"1.3\"/>","dot": "<ellipse cx=\"32\" cy=\"27\" rx=\"24\" ry=\"9\"/><path d=\"M8 27v8c0 5 11 9 24 9s24-4 24-9v-8\"/><ellipse cx=\"32\" cy=\"26\" rx=\"16\" ry=\"5\" stroke-width=\"1.5\"/><rect x=\"27\" y=\"37\" width=\"10\" height=\"4\" rx=\"1\" stroke-width=\"1.6\"/>", "quad": "<path d=\"M14 22h36l6 8H8z\"/><path d=\"M8 30h48v12H8z\"/><rect x=\"26\" y=\"33\" width=\"12\" height=\"6\" rx=\"1\" stroke-width=\"1.6\"/><path d=\"M18 26h28\" stroke-width=\"1.3\"/>", "mchef": "<path d=\"M12 20h40l4 10H8z\"/><path d=\"M8 30h48v14a3 3 0 0 1-3 3H11a3 3 0 0 1-3-3z\"/><rect x=\"18\" y=\"34\" width=\"16\" height=\"7\" rx=\"1.5\" stroke-width=\"1.6\"/><circle cx=\"42\" cy=\"37.5\" r=\"2\"/><circle cx=\"49\" cy=\"37.5\" r=\"2\"/>", "acaia": "<rect x=\"8\" y=\"24\" width=\"48\" height=\"22\" rx=\"4\"/><rect x=\"24\" y=\"30\" width=\"16\" height=\"7\" rx=\"1.5\"/><circle cx=\"16\" cy=\"40\" r=\"1.5\"/><circle cx=\"48\" cy=\"40\" r=\"1.5\"/>", "felicita": "<rect x=\"9\" y=\"22\" width=\"46\" height=\"26\" rx=\"10\"/><rect x=\"23\" y=\"30\" width=\"18\" height=\"8\" rx=\"4\"/>", "decent": "<path d=\"M10 28h44v16a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z\"/><path d=\"M10 28l4-6h36l4 6\"/><rect x=\"25\" y=\"34\" width=\"14\" height=\"7\" rx=\"1.5\"/>", "bookoo": "<rect x=\"12\" y=\"20\" width=\"40\" height=\"30\" rx=\"5\"/><rect x=\"22\" y=\"40\" width=\"20\" height=\"6\" rx=\"1.5\"/><circle cx=\"32\" cy=\"30\" r=\"6\"/>", "varia": "<rect x=\"10\" y=\"26\" width=\"44\" height=\"20\" rx=\"3\"/><rect x=\"20\" y=\"31\" width=\"24\" height=\"7\" rx=\"1.5\"/><path d=\"M14 46v4M50 46v4\"/>", "eureka": "<circle cx=\"32\" cy=\"34\" r=\"18\"/><circle cx=\"32\" cy=\"32\" r=\"10\" stroke-width=\"1.6\"/><rect x=\"25\" y=\"44\" width=\"14\" height=\"5\" rx=\"1.5\"/>"},TI={"som": "<path d=\"M10 24h10l12-10v36L20 40H10z\"/><path d=\"M40 24a10 10 0 0 1 0 16M46 18a18 18 0 0 1 0 28\"/>", "mudo": "<path d=\"M10 24h10l12-10v36L20 40H10z\"/><path d=\"M42 24l14 16M56 24L42 40\"/>", "pausa": "<path d=\"M22 14v36M42 14v36\" stroke-width=\"6\"/>", "play": "<path d=\"M20 12l30 20-30 20z\" fill=\"currentColor\"/>", "stop": "<rect x=\"16\" y=\"16\" width=\"32\" height=\"32\" rx=\"4\" fill=\"currentColor\"/>", "volta": "<path d=\"M26 18L12 32l14 14\"/><path d=\"M12 32h28a12 12 0 0 1 0 24h-6\"/>"};
 const wfI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9a11 11 0 0 1 16 0M7.5 12.5a6 6 0 0 1 9 0"/><circle cx="12" cy="16.5" r="1.6" fill="currentColor"/></svg>';
-const BAL0=[{id:"dot",n:"Timemore Dot",bt:true,ic:"dot"},{id:"icoffee",n:"iCoffee",bt:false,ic:"quad"},{id:"mchef",n:"MasterChef",bt:false,ic:"mchef"},{id:"cscale",n:"Coffee Scale (redonda)",bt:false,ic:"redonda"}];
+const BAL0=[{id:"dot",n:"Timemore Dot",bt:true,ic:"dot"},{id:"icoffee",n:"iCoffee",bt:false,ic:"quad"},{id:"mchef",n:"MasterChef",bt:false,ic:"mchef"},{id:"cscale",n:"Coffee Scale (redonda)",bt:false,ic:"redonda"},{id:"ck2150",n:"Coffee Scale CK2150 (quadrada)",bt:false,ic:"quad"}];
 const MARCAS=[["dot","Timemore"],["acaia","Acaia"],["felicita","Felicita"],["decent","Decent"],["bookoo","Bookoo"],["varia","Varia AKU"],["eureka","Eureka Precisa"]];
 var BALU=[];try{const x=JSON.parse(localStorage.getItem("calcBalU")||"[]");if(Array.isArray(x))BALU=x}catch(e){}
 const balLista=()=>[...BAL0,...BALU];const balSel=()=>balLista().find(b=>b.id===st.bal)||BAL0[0];let balAberto=false,balNovaOn=false;
@@ -2071,7 +2071,7 @@ function finoTxt(v){v=Math.max(0,Math.round(Number(v)||0));return Math.floor(v/3
 function finoZona(v){v=Number(v)||0;return v<3?"mais fino que espresso":v<9?"espresso (1-0 a 2-2; na Nano, 2-1 a 3-0)":v<18?"moka e AeroPress (3-0 a 5-2)":"coado e prensa (6-0 a 10-0)"}
 // --- padrão: o que já estava configurado no app (listas do trabalho e de Ipatinga, kit de viagem, balanças) ---
 function cfgPadrao(){
-  let LT={met:["pViagem","fluire01","aeropress"],moe:["mongdio"]},LI={met:["v60","prensa"],moe:["oster","m9"]},BL={mchef:"ipatinga"};
+  let LT={met:["pViagem","fluire01","aeropress"],moe:["mongdio"]},LI={met:["v60","prensa"],moe:["oster","m9"]},BL={mchef:"ipatinga",ck2150:"ipatinga"};
   try{const t=JSON.parse(localStorage.getItem("calcTrab")||"null");if(t&&Array.isArray(t.met))LT=t}catch(e){}
   try{const t=JSON.parse(localStorage.getItem("calcIpa")||"null");if(t&&Array.isArray(t.met))LI=t}catch(e){}
   try{const t=JSON.parse(localStorage.getItem("calcBalLoc")||"null");if(t&&typeof t==="object")BL=t}catch(e){}
@@ -2101,6 +2101,7 @@ if(!CFG||CFG.v!==1)CFG=cfgPadrao();
 {const P=cfgPadrao();for(const k of Object.keys(P))if(CFG[k]==null)CFG[k]=P[k];
  for(const u of METU)if(!CFG.itens.some(i=>i.k===u.id))CFG.itens.push(P.itens.find(i=>i.k===u.id));
  for(const k of [...MOEB.map(x=>x[0]),...MOEU.map(u=>u.id)])if(!CFG.moes.some(m=>m.k===k))CFG.moes.push({k,loc:["casa"]});
+ if(!CFG.bals.ck2150&&CFG.locais.some(l=>l.id==="ipatinga"))CFG.bals.ck2150={loc:"ipatinga",viagem:false};
  for(const b of balLista())if(!CFG.bals[b.id])CFG.bals[b.id]={loc:(CFG.locais.find(l=>l.tipo==="fixo")||{}).id||"",viagem:false}}
 if(!CFG.mig2){const t=CFG.locais.find(l=>l.id==="trabalho");if(t&&t.usaPotesDe==="casa"&&!t.mini){delete t.usaPotesDe;t.pkey="calcPotesTrab";t.mini={de:"casa",cap:30}}CFG.mig2=1}
 const saveCfg=()=>{try{localStorage.setItem("calcCfg",JSON.stringify(CFG))}catch(e){}};
